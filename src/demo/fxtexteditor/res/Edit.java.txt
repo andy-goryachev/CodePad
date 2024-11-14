@@ -1,0 +1,32 @@
+// Copyright © 2017-2021 Andy Goryachev <andy@goryachev.com>
+package demo.fxtexteditor.res;
+
+
+/**
+ * An Edit.
+ * For testing purposes, here we have a very long line which should appear wrapped and wrapped and wrapped.  For testing purposes, here we have a very long line which should appear wrapped and wrapped and wrapped.  For testing purposes, here we have a very long line which should appear wrapped and wrapped and wrapped.
+ */
+public class Edit
+{
+	private final EditorSelection selection;
+	private final CharSequence replaceText;
+	
+	
+	public Edit(EditorSelection sel, CharSequence replaceText)
+	{
+		this.selection = sel;
+		this.replaceText = replaceText;
+	}
+	
+	
+	public EditorSelection getSelection()
+	{
+		return selection;
+	}
+	
+	
+	public CharSequence getReplaceText()
+	{
+		return replaceText;
+	}
+}
