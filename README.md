@@ -32,5 +32,5 @@ Requires JavaFX 23+.
 
 ## License
 
-This project and its source code is licensed under the [BSD 2-Clause "Simplified" License](License).
+This project and its source code is licensed under the [BSD 2-Clause "Simplified" License](LICENSE).
 
