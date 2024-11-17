@@ -22,4 +22,43 @@ public interface CellStyle
 	
 	// TODO squiggle color
 	// TODO user data?
+	
+	public static final CellStyle EMPTY = new CellStyle()
+	{
+		@Override
+		public Color getTextColor()
+		{
+			return null;
+		}
+
+		@Override
+		public Color getBackgroundColor()
+		{
+			return null;
+		}
+
+		@Override
+		public boolean isUnderline()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isStrikeThrough()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isBold()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isItalic()
+		{
+			return false;
+		}
+	};
 }

@@ -1,32 +1,30 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
-import goryachev.codepad.model.CodeModel;
-import goryachev.codepad.model.CodeParagraph;
 import goryachev.common.util.CList;
-import javafx.scene.canvas.GraphicsContext;
 
 
 /**
- * Paragraph Arrangement contains a map of pre-computed FlowPars.
- * The arrangement is valid
+ * Paragraph Arrangement provides wrapping of paragraphs inside the viewport
+ * as well as inside the "sliding window" outside of the viewport.
+ * This class facilitates conversion between the screen and model coordinates. 
  */
 public class Arrangement
 {
-	private final CodeModel model;
-	private final int viewCols;
-	private final int viewRows;
-	private final int tabSize;
-	private final boolean wrap;
-	private final CList<WrapInfo> flows = new CList<>();
+	private final WrapCache cache;
+	private final int maxRows;
+	private final CList<WrapInfo> rows = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
+	private final CList<Integer> offsets = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
+	private int viewStartIndex;
+	private int viewStartCellIndex;
+	private int visibleRowCount;
+	private final int visibleColCount;
 	
 	
-	public Arrangement(CodeModel m, int viewCols, int viewRows, int tabSize, boolean wrap)
+	public Arrangement(WrapCache cache, int maxRows, int visibleColCount)
 	{
-		this.model = m;
-		this.viewCols = viewCols;
-		this.viewRows = viewRows;
-		this.tabSize = tabSize;
-		this.wrap = wrap;
+		this.cache = cache;
+		this.maxRows = maxRows;
+		this.visibleColCount = visibleColCount;
 	}
 
 
@@ -34,26 +32,54 @@ public class Arrangement
 	 * Lays out {@code rowCount} paragraphs.
 	 * Returns the number of paragraphs actually laid out.
 	 */
-	// TODO why do we need startCellIndex here?
-	public int layout(int rowCount, int startIndex, int startCellIndex)
+	public void layoutViewPort(int startIndex, int startCellIndex, int rowCount)
 	{
-		int wrapLimit = wrap ? viewCols : -1;
+		this.viewStartIndex = startIndex;
+		this.viewStartCellIndex = startCellIndex;
+		
 		int i = 0;
-		int rows = 0;
-		for( ; i<rowCount; i++)
+		int ct = Math.min(rowCount, cache.modelSize() - startIndex);
+		WrapInfo wi = null;
+		int cix = startCellIndex;
+		int wrapLimit = cache.getWrapLimit();
+		int ix = startIndex + i;
+		
+		for( ; i<ct; i++)
 		{
-			CodeParagraph par = model.getParagraph(startIndex + i);
-			WrapInfo p = WrapInfo.create(par, tabSize, wrapLimit);
-			rows += p.getRowCount();
-			if(rows > rowCount)
+			if(wi == null)
 			{
-				break;
+				wi = cache.getWrapInfo(ix);
 			}
+			
+			rows.add(wi);
+			offsets.add(cix);
+			
+			if(wrapLimit > 0)
+			{
+				cix += wrapLimit;
+				if(cix < wi.getCellCount())
+				{
+					// wrapping the same paragraph
+					continue;
+				}
+			}
+			
+			// next paragraph
+			cix = 0;
+			ix++;
+			wi = null;
 		}
-		// TODO need to save [rows]
-		return i;
+		
+		visibleRowCount = i;
 	}
-
+	
+	
+	public int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
+	{
+		// TODO
+		return 0;
+	}
+	
 
 	public boolean isVsbNeeded()
 	{
@@ -76,8 +102,32 @@ public class Arrangement
 	}
 
 
-	public void paintAll(GraphicsContext gx)
+	public WrapInfo wrapInfoAtViewRow(int ix)
 	{
-		// TODO
+		return rows.get(ix);
+	}
+
+
+	public int cellIndexAtViewRow(int ix)
+	{
+		return offsets.get(ix);
+	}
+
+
+	/**
+	 * Number of full and partial rows visible in the viewport.
+	 */
+	public int getVisibleRowCount()
+	{
+		return visibleRowCount;
+	}
+	
+	
+	/**
+	 * Number of full and partial columns visible in the viewport.
+	 */
+	public int getVisibleColumnCount()
+	{
+		return visibleColCount;
 	}
 }

@@ -21,7 +21,7 @@ public class UndecoratedCodeModel extends CodeModel
 	
 	public static UndecoratedCodeModel of(String text)
 	{
-		String[] lines = CKit.split(text);
+		String[] lines = CKit.split(text, "\n");
 		return new UndecoratedCodeModel(lines);
 	}
 	

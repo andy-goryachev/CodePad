@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.common.log.Log;
@@ -9,6 +10,7 @@ import goryachev.fx.TextCellMetrics;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -42,6 +44,7 @@ public class CellGrid
 	private Font boldFont;
 	private Font boldItalicFont;
 	private Font italicFont;
+	private WrapCache cache;
 	private Arrangement arrangement;
 
 
@@ -144,6 +147,72 @@ public class CellGrid
 		return metrics;
 	}
 	
+	
+	private Color backgroundColor(boolean caretLine, boolean selected, Color lineColor, Color cellBG)
+	{
+//		Color c = editor.getBackgroundColor();
+//		
+//		if(lineColor !=  null)
+//		{
+//			c = mixColor(c, lineColor, LINE_COLOR_OPACITY);
+//		}
+//		
+//		if(caretLine)
+//		{
+//			c = mixColor(c, editor.getCaretLineColor(), CARET_LINE_OPACITY);
+//		}
+//		
+//		if(selected)
+//		{
+//			c = mixColor(c, editor.getSelectionBackgroundColor(), SELECTION_BACKGROUND_OPACITY);
+//		}
+//		
+//		if(cellBG != null)
+//		{
+//			c = mixColor(c, cellBG, CELL_BACKGROUND_OPACITY);
+//		}
+//		
+//		return c;
+		return null;
+	}
+	
+	
+	private Font getFont(CellStyle st)
+	{
+		if(st.isBold())
+		{
+			if(st.isItalic())
+			{
+				return boldItalicFont;
+			}
+			else
+			{
+				return boldFont;
+			}
+		}
+		else
+		{
+			if(st.isItalic())
+			{
+				return italicFont;
+			}
+			else
+			{
+				return baseFont;
+			}
+		}
+	}
+	
+	
+	private WrapCache cache(CodeModel model, int tabSize, int wrapLimit)
+	{
+		if((cache == null) || cache.isNotValidFor(model, tabSize, wrapLimit))
+		{
+			cache = new WrapCache(model, tabSize, wrapLimit);
+		}
+		return cache;
+	}
+	
 
 	@Override
 	protected void layoutChildren()
@@ -159,6 +228,8 @@ public class CellGrid
 			return;
 		}
 		
+		// TODO if model == null: disable scroll bars, paint background
+		
 		// we have all the information, so we can re-flow in one pass!  steps:
 		// - get the canvas size w/o scroll bars, rowCount
 		// - is vsb needed? (easy answers: origin > ZERO, rowCount > model.size)
@@ -169,6 +240,8 @@ public class CellGrid
 
 		boolean wrap = editor.isWrapText();
 		int tabSize = editor.getTabSize();
+		CodeModel model = editor.getModel();
+		Insets pad = editor.getContentPadding();
 		
 		Origin or = origin.get();
 		double canvasWidth = snapSizeX(getWidth() - snappedLeftInset() - snappedRightInset());
@@ -176,21 +249,25 @@ public class CellGrid
 		TextCellMetrics tm = textCellMetrics();
 		
 		int size = paragraphCount();
-		int viewCols = (int)(canvasWidth / tm.cellWidth);
-		int viewRows = (int)(canvasHeight / tm.cellHeight);
 		Arrangement arr = null;
-		CodeModel model = editor.getModel();
+		
+		// number of full and partial columns visible in viewport
+		int viewCols = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth);
+		int wrapLimit = wrap ? viewCols : -1;
+		
+		// number of whole rows in the viewport
+		int viewRows = (int)(canvasHeight / tm.cellHeight);
+		int rowCount = (int)Math.ceil(canvasHeight / tm.cellHeight);
 		
 		// determine if the vertical scroll bar is needed
 		// easy answers first
 		boolean vsb = (size > viewRows) || (or.index() > 0);
 		if(!vsb)
 		{
-			// TODO adjust origin if too much whitespace at the end
-			
 			// attempt to lay out w/o the vertical scroll bar
-			arr = new Arrangement(model, viewCols, viewRows, tabSize, wrap);
-			arr.layout(viewRows, or.index(), or.glyphIndex());
+			WrapCache wc = cache(model, tabSize, wrapLimit);
+			arr = new Arrangement(wc, viewRows, viewCols + 1);
+			arr.layoutViewPort(or.index(), or.cellIndex(), rowCount);
 			// layout and see if vsb is needed
 			if(arr.isVsbNeeded())
 			{
@@ -207,19 +284,26 @@ public class CellGrid
 			// view got narrower due to vsb
 			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 			canvasWidth -= vsbWidth;
-			viewCols = (int)(canvasWidth / tm.cellWidth);
+			viewCols = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth) + 1;
+			if(wrap)
+			{
+				wrapLimit = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth); 
+			}
 		}
 		
 		if(arr == null)
 		{
-			arr = new Arrangement(model, viewCols, viewRows, tabSize, wrap);
-			arr.layout(viewRows, or.index(), or.glyphIndex());
+			WrapCache wc = cache(model, tabSize, wrapLimit);
+			arr = new Arrangement(wc, viewRows, viewCols);
+			arr.layoutViewPort(or.index(), or.cellIndex(), rowCount);
 		}
+
+		// TODO adjust origin if too much whitespace at the end
 		
 		// lay out bottom half of the sliding window
 		int last = arr.getLastIndex();
 		int max = Math.min(size, last + Defaults.SLIDING_WINDOW_HALF);
-		int ct = arr.layout(Defaults.SLIDING_WINDOW_HALF, last, 0); 
+		int ct = arr.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, false); 
 		if(ct < Defaults.SLIDING_WINDOW_HALF)
 		{
 			ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
@@ -234,7 +318,7 @@ public class CellGrid
 		ct = or.index() - top;
 		if(ct > 0)
 		{
-			arr.layout(top, ct, 0);
+			arr.layoutSlidingWindow(top, ct, true);
 		}
 
 		// we now have the layout
@@ -266,17 +350,9 @@ public class CellGrid
 		vscroll.setVisible(vsb);
 		hscroll.setVisible(hsb);
 
-		arr.paintAll(gx);
 		arrangement = arr;
 		
-		// geometry is fine at this point
-		// TODO recreate the canvas if necessary
-		// TODO repaint damaged areas on the canvas
-		// FIX debug
-		{
-			gx.setFill(Color.LIGHTSALMON);
-			gx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		}
+		paintAll();
 		
 		double x0 = snappedLeftInset();
 		double y0 = snappedTopInset();
@@ -294,5 +370,124 @@ public class CellGrid
 		}
 		
 		layoutInArea(canvas, x0, y0, cw, ch, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+	}
+	
+	
+	public void paintAll()
+	{
+		int maxy = arrangement.getVisibleRowCount();
+		int maxx = arrangement.getVisibleColumnCount();
+		TextCellMetrics tm = textCellMetrics();
+		
+		// attempt to limit the canvas queue
+		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8092801
+		// https://github.com/kasemir/org.csstudio.display.builder/issues/174
+		// https://stackoverflow.com/questions/18097404/how-can-i-free-canvas-memory
+		// https://bugs.openjdk.java.net/browse/JDK-8103438
+		gx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		
+		// FIX background color
+		gx.setFill(Color.WHITE);
+		gx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		
+		// TODO caret line
+		
+		double x = 0.0;
+		double y = 0.0;
+		for(int ix=0; ix<maxy; ix++)
+		{
+			WrapInfo wi = arrangement.wrapInfoAtViewRow(ix);
+			int cellIndex = arrangement.cellIndexAtViewRow(ix);
+			int ct = Math.min(maxx, wi.getCellCount() - cellIndex);
+			paintCells(tm, wi, cellIndex, ct, x, y);
+			y = snapPositionY(y + tm.cellHeight); // TODO line spacing
+		}
+	}
+
+
+	// paints a number of cells horizontally
+	// TODO move to cell grid?
+	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex, int cellCount, double x, double y)
+	{
+		// TODO
+		Color textColor = Color.BLACK;
+		
+		for(int i=0; i<cellCount; i++)
+		{
+			int ix = cellIndex + i;
+//			double cx = snapPositionX(x * tm.cellWidth /*+ lineNumbersBarWidth*/);
+//			double cy = snapPositionY(y * tm.cellHeight);
+			
+			// TODO
+//			int line = row.getLineNumber();
+//			int flags = SelectionHelper.getFlags(this, editor.selector.getSelectedSegment(), line, cell, x);
+			boolean caretLine = false; //SelectionHelper.isCaretLine(flags);
+			boolean caret = false; //SelectionHelper.isCaret(flags);
+			boolean selected = false; //SelectionHelper.isSelected(flags);
+			
+			// style
+			CellStyle style = wi.getCellStyle(ix);
+			if(style == null)
+			{
+				style = CellStyle.EMPTY;
+			}
+			
+//			TextCellStyle style = row.getCellStyles(cell);
+//			if(style == null)
+//			{
+//				style = TextCellStyle.NONE;
+//			}
+			
+			// background
+			Color bg = backgroundColor(caretLine, selected, wi.getBackgroundColor(), style.getBackgroundColor());
+			if(bg != null)
+			{
+				gx.setFill(bg);
+				gx.fillRect(x, y, tm.cellWidth, tm.cellHeight);
+			}
+			
+			// caret
+//			if(paintCaret.get())
+//			{
+//				if(caret)
+//				{
+//					// TODO insert mode
+//					gx.setFill(caretColor);
+//					gx.fillRect(cx, cy, 2, tm.cellHeight);
+//				}
+//			}
+			
+			if(style.isUnderline())
+			{
+				// TODO special property, mix with background
+				gx.setFill(textColor);
+				gx.fillRect(x, y + tm.cellHeight - 1, tm.cellWidth, 1);
+			}
+			
+			// text
+			String text = wi.getCellText(ix);
+			if(text != null)
+			{
+				Color fg = style.getTextColor();
+				if(fg == null)
+				{
+					fg = textColor;
+				}
+				
+				Font f = getFont(style);
+				gx.setFont(f);
+				gx.setFill(fg);
+				gx.fillText(text, x, y - tm.baseLine, tm.cellWidth);
+			
+				if(style.isStrikeThrough())
+				{
+					// TODO special property, mix with background
+					gx.setFill(textColor);
+					gx.fillRect(x, y + tm.cellHeight/2, tm.cellWidth, 1);
+				}
+			}
+			
+			x = snapPositionX(x + tm.cellWidth);
+		}
 	}
 }

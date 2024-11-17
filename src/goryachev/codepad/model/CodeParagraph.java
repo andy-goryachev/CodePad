@@ -43,16 +43,25 @@ public abstract class CodeParagraph
 	
 	
 	/**
+	 * Returns text for the given cell.
+	 */
+	public abstract String getCellText(int ix);
+	
+	
+	/**
 	 * Returns true when the text contains tab characters.
 	 */
-	public abstract boolean containsTabs();
-
-
+	public abstract boolean hasTabs();
+	
+	
 	/**
-	 * This method is called by the view to retrieve the cell content: text and style.
-	 * The two references are set to {@code null} value before calling this method.  
+	 * Determines whether at least one cell in this paragraph contains more than one character.
+	 * 
+	 * This method returns true when the paragraph contains:
+	 * - combining characters
+	 * - characters beyond the basic plane
 	 */
-	public abstract void updateCell(int cellIndex, AtomicReference<String> symbol, AtomicReference<CellStyle> style);
+	public abstract boolean hasComplexCells();
 
 
 	// TODO provide several methods:
@@ -92,14 +101,6 @@ public abstract class CodeParagraph
 			
 			
 			@Override
-			public void updateCell(int cellIndex, AtomicReference<String> symbol, AtomicReference<CellStyle> style)
-			{
-				char c = text.charAt(cellIndex);
-				symbol.set(String.valueOf(c));
-			}
-			
-			
-			@Override
 			public Color getBackgroundColor()
 			{
 				return null;
@@ -107,9 +108,24 @@ public abstract class CodeParagraph
 
 
 			@Override
-			public boolean containsTabs()
+			public boolean hasTabs()
 			{
 				return false;
+			}
+
+
+			@Override
+			public boolean hasComplexCells()
+			{
+				return false;
+			}
+
+
+			@Override
+			public String getCellText(int ix)
+			{
+				char c = text.charAt(ix);
+				return String.valueOf(c);
 			}
 		};
 	}
