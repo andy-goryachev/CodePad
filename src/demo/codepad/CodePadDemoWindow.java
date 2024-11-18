@@ -2,17 +2,20 @@
 package demo.codepad;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.model.CodeModel;
+import goryachev.common.util.Parsers;
 import goryachev.fx.FX;
 import goryachev.fx.FxAction;
 import goryachev.fx.FxComboBox;
 import goryachev.fx.FxDump;
 import goryachev.fx.FxFramework;
 import goryachev.fx.FxMenuBar;
+import goryachev.fx.FxToggleButton;
 import goryachev.fx.FxToolBar;
 import goryachev.fx.FxWindow;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 
 
 /**
@@ -26,6 +29,7 @@ public class CodePadDemoWindow
 	public final StatusBar statusBar;
 	protected final FxComboBox<DemoModels> modelSelector = new FxComboBox();
 	protected final FxComboBox fontSelector = new FxComboBox();
+	private final FxToggleButton wrap = new FxToggleButton("wr");
 	
 	
 	public CodePadDemoWindow()
@@ -35,7 +39,7 @@ public class CodePadDemoWindow
 		modelSelector.setItems(DemoModels.values());
 		modelSelector.valueProperty().addListener((s,p,c) -> onModelSelectionChange(c));
 		FX.setName(modelSelector, "modelSelector");
-
+		
 		fontSelector.setItems
 		(
 			"9",
@@ -51,7 +55,7 @@ public class CodePadDemoWindow
 			"28",
 			"32"
 		);
-		fontSelector.valueProperty().addListener((s,p,c) -> onFontChange(c));
+		fontSelector.valueProperty().addListener((s,p,c) -> handleFontChange(c));
 		FX.setName(fontSelector, "fontSelector");
 		
 		mainPane = new CodePadDemoPane();
@@ -70,6 +74,8 @@ public class CodePadDemoWindow
 		
 		fontSelector.setEditable(true);
 		fontSelector.select("12");
+		
+		wrap.selectedProperty().bindBidirectional(editor().wrapTextProperty());
 
 //		LocalSettings.get(this).
 //			add("LINE_WRAP", editor().wrapTextProperty());
@@ -149,7 +155,8 @@ public class CodePadDemoWindow
 	protected Node createToolbar()
 	{
 		FxToolBar t = new FxToolBar();
-//		t.addToggleButton("wr", "wrap lines", editor().wrapTextProperty());
+		t.addToggleButton("wr", "wrap lines", editor().wrapTextProperty());
+		// TODO
 //		t.addToggleButton("ln", "line numbers", editor().showLineNumbersProperty());
 		t.fill();
 		t.add(new Label("Font:"));
@@ -182,9 +189,11 @@ public class CodePadDemoWindow
 	}
 	
 	
-	protected void onFontChange(Object x)
+	protected void handleFontChange(Object x)
 	{
-//		int sz = Parsers.parseInt(x, 12);
-//		mainPane.editor.setFontSize(sz);
+		double sz = Parsers.parseDouble(x, Font.getDefault().getSize());
+		Font f = mainPane.editor.getFont();
+		f = Font.font(f.getFamily(), sz);
+		mainPane.editor.setFont(f);
 	}
 }

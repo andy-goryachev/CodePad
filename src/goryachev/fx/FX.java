@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -43,6 +44,7 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.TransformationList;
+import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
@@ -2325,5 +2327,21 @@ public final class FX
 			consumeAll = (ev) -> ev.consume();
 		}
 		n.addEventFilter(type, consumeAll);
+	}
+
+
+	/**
+	 * Combines parent CSS metadata with the list of metadata items for the given class.
+	 */
+	public static List<CssMetaData<? extends Styleable,?>> initStyleables(List<CssMetaData<? extends Styleable,?>> parentCss, CssMetaData<?,?> ... css)
+	{
+		int sz = parentCss.size() + css.length;
+		ArrayList<CssMetaData<? extends Styleable,?>> a = new ArrayList<>(sz);
+		a.addAll(parentCss);
+		for(int i = 0; i < css.length; i++)
+		{
+			a.add(css[i]);
+		}
+		return Collections.unmodifiableList(a);
 	}
 }

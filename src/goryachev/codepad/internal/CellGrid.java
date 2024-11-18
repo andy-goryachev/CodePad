@@ -57,8 +57,6 @@ public class CellGrid
 
 		getChildren().addAll(vscroll, hscroll);
 		
-		// TODO paragraph cache
-		
 		FX.addInvalidationListener(widthProperty(), this::handleWidthChange);
 		FX.addInvalidationListener(heightProperty(), this::handleHeightChange);
 		FX.addInvalidationListener(scaleXProperty(), this::handleScaleChange);
@@ -74,15 +72,21 @@ public class CellGrid
 		boldItalicFont = null;
 		italicFont = null;
 		metrics = null;
+		cache = null;
+		arrangement = null;
+		requestLayout();
 	}
 	
 	
-	private Font font()
+	// TODO maybe invalidateXXX instead
+	public void setWrapText(boolean on)
 	{
-		return baseFont;
+		cache = null;
+		arrangement = null;
+		requestLayout();
 	}
-
-
+	
+	
 	private static ScrollBar configureScrollBar(ScrollBar b)
 	{
 		b.setManaged(false);
@@ -119,15 +123,29 @@ public class CellGrid
 		CodeModel m = editor.getModel();
 		return (m == null) ? 0 : m.size();
 	}
-	
-	
+
+
+	private int tabSize()
+	{
+		int v = editor.getTabSize();
+		if(v < 1)
+		{
+			return 1;
+		}
+		else if(v > Defaults.TAB_SIZE_MAX)
+		{
+			return Defaults.TAB_SIZE_MAX;
+		}
+		return v;
+	}
+
+
 	private TextCellMetrics textCellMetrics()
 	{
 		if(metrics == null)
 		{
-			Font font = font();
 			Text t = new Text("8");
-			t.setFont(font);
+			t.setFont(baseFont);
 			
 			getChildren().add(t);
 			try
@@ -137,7 +155,7 @@ public class CellGrid
 				double w = snapSizeX(b.getWidth() * fontAspect);
 				double h = snapSizeY(b.getHeight());
 				double baseLine = b.getMinY();
-				metrics = new TextCellMetrics(font, baseLine, w, h);
+				metrics = new TextCellMetrics(baseFont, baseLine, w, h);
 			}
 			finally
 			{
@@ -239,7 +257,7 @@ public class CellGrid
 		// - do the layout: view port, N lines after, M lines before (adjusting N,M when close to the model edges)
 
 		boolean wrap = editor.isWrapText();
-		int tabSize = editor.getTabSize();
+		int tabSize = tabSize();
 		CodeModel model = editor.getModel();
 		Insets pad = editor.getContentPadding();
 		
@@ -376,7 +394,7 @@ public class CellGrid
 	public void paintAll()
 	{
 		int maxy = arrangement.getVisibleRowCount();
-		int maxx = arrangement.getVisibleColumnCount();
+		int maxx = arrangement.getVisibleColumnCount() + 1; // TODO find out why
 		TextCellMetrics tm = textCellMetrics();
 		
 		// attempt to limit the canvas queue

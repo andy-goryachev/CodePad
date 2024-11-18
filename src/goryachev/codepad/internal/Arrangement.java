@@ -32,19 +32,20 @@ public class Arrangement
 	 * Lays out {@code rowCount} paragraphs.
 	 * Returns the number of paragraphs actually laid out.
 	 */
-	public void layoutViewPort(int startIndex, int startCellIndex, int rowCount)
+	public void layoutViewPort(int startIndex, int startCellIndex, int numRows)
 	{
 		this.viewStartIndex = startIndex;
 		this.viewStartCellIndex = startCellIndex;
 		
-		int i = 0;
-		int ct = Math.min(rowCount, cache.modelSize() - startIndex);
+		int rc = 0;
+		int modelSize = cache.modelSize();
 		WrapInfo wi = null;
 		int cix = startCellIndex;
 		int wrapLimit = cache.getWrapLimit();
-		int ix = startIndex + i;
+		int ix = startIndex;
 		
-		for( ; i<ct; i++)
+		// FIX while ix < modelsize!
+		while((numRows >= 0) && (ix < modelSize))
 		{
 			if(wi == null)
 			{
@@ -53,6 +54,8 @@ public class Arrangement
 			
 			rows.add(wi);
 			offsets.add(cix);
+			numRows--;
+			rc++;
 			
 			if(wrapLimit > 0)
 			{
@@ -70,7 +73,7 @@ public class Arrangement
 			wi = null;
 		}
 		
-		visibleRowCount = i;
+		visibleRowCount = rc;
 	}
 	
 	

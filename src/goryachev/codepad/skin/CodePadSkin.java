@@ -44,6 +44,7 @@ public class CodePadSkin
 		
 		disconnector = new FxDisconnector();
 		disconnector.addChangeListener(ed.fontProperty(), true, grid::setFont);
+		disconnector.addChangeListener(ed.wrapTextProperty(), true, grid::setWrapText);
 	}
 	
 	
