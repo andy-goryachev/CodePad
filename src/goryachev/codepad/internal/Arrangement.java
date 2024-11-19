@@ -44,7 +44,6 @@ public class Arrangement
 		int wrapLimit = cache.getWrapLimit();
 		int ix = startIndex;
 		
-		// FIX while ix < modelsize!
 		while((numRows >= 0) && (ix < modelSize))
 		{
 			if(wi == null)

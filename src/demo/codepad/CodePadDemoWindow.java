@@ -5,6 +5,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.common.util.Parsers;
 import goryachev.fx.FX;
 import goryachev.fx.FxAction;
+import goryachev.fx.FxBoolean;
 import goryachev.fx.FxComboBox;
 import goryachev.fx.FxDump;
 import goryachev.fx.FxFramework;
@@ -12,6 +13,7 @@ import goryachev.fx.FxMenuBar;
 import goryachev.fx.FxToggleButton;
 import goryachev.fx.FxToolBar;
 import goryachev.fx.FxWindow;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -30,6 +32,7 @@ public class CodePadDemoWindow
 	protected final FxComboBox<DemoModels> modelSelector = new FxComboBox();
 	protected final FxComboBox fontSelector = new FxComboBox();
 	private final FxToggleButton wrap = new FxToggleButton("wr");
+	private final FxBoolean contentPadding = new FxBoolean();
 	
 	
 	public CodePadDemoWindow()
@@ -76,15 +79,13 @@ public class CodePadDemoWindow
 		fontSelector.select("12");
 		
 		wrap.selectedProperty().bindBidirectional(editor().wrapTextProperty());
-
-//		LocalSettings.get(this).
-//			add("LINE_WRAP", editor().wrapTextProperty());
-//			add("SHOW_LINE_NUMBERS", editor().showLineNumbersProperty());
 		
 		statusBar.attach(editor());
 		
 		// debug
 		FxDump.attach(this);
+		
+		FX.addChangeListener(contentPadding, true, this::updateContentPadding);
 	}
 	
 	
@@ -156,6 +157,7 @@ public class CodePadDemoWindow
 	{
 		FxToolBar t = new FxToolBar();
 		t.addToggleButton("wr", "wrap lines", editor().wrapTextProperty());
+		t.addToggleButton("cp", "content padding", contentPadding);
 		// TODO
 //		t.addToggleButton("ln", "line numbers", editor().showLineNumbersProperty());
 		t.fill();
@@ -195,5 +197,11 @@ public class CodePadDemoWindow
 		Font f = mainPane.editor.getFont();
 		f = Font.font(f.getFamily(), sz);
 		mainPane.editor.setFont(f);
+	}
+	
+	
+	void updateContentPadding(boolean on)
+	{
+		mainPane.editor.setContentPadding(on ? new Insets(20, 30, 40, 50) : null);
 	}
 }

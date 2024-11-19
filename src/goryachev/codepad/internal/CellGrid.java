@@ -5,6 +5,7 @@ import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.common.log.Log;
+import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.TextCellMetrics;
 import javafx.beans.property.SimpleObjectProperty;
@@ -72,6 +73,15 @@ public class CellGrid
 		boldItalicFont = null;
 		italicFont = null;
 		metrics = null;
+		cache = null;
+		arrangement = null;
+		requestLayout();
+	}
+	
+	
+	public void setContentPadding(Insets m)
+	{
+		// TODO update origin
 		cache = null;
 		arrangement = null;
 		requestLayout();
@@ -259,18 +269,20 @@ public class CellGrid
 		boolean wrap = editor.isWrapText();
 		int tabSize = tabSize();
 		CodeModel model = editor.getModel();
-		Insets pad = editor.getContentPadding();
+		Insets cp = editor.getContentPadding();
 		
 		Origin or = origin.get();
-		double canvasWidth = snapSizeX(getWidth() - snappedLeftInset() - snappedRightInset());
-		double canvasHeight = snapSizeY(getHeight() - snappedTopInset() - snappedBottomInset());
+		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
 		TextCellMetrics tm = textCellMetrics();
 		
 		int size = paragraphCount();
 		Arrangement arr = null;
 		
 		// number of full and partial columns visible in viewport
-		int viewCols = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth);
+		int viewCols = wrap ?
+			(int)((canvasWidth - snapSizeX(cp.getLeft()) - snapSizeX(cp.getRight())) / tm.cellWidth) :
+			(int)Math.ceil(canvasWidth / tm.cellWidth);
 		int wrapLimit = wrap ? viewCols : -1;
 		
 		// number of whole rows in the viewport
@@ -284,7 +296,7 @@ public class CellGrid
 		{
 			// attempt to lay out w/o the vertical scroll bar
 			WrapCache wc = cache(model, tabSize, wrapLimit);
-			arr = new Arrangement(wc, viewRows, viewCols + 1);
+			arr = new Arrangement(wc, viewRows, viewCols); // TODO viewCols +1 plus one if !wrap
 			arr.layoutViewPort(or.index(), or.cellIndex(), rowCount);
 			// layout and see if vsb is needed
 			if(arr.isVsbNeeded())
@@ -302,10 +314,10 @@ public class CellGrid
 			// view got narrower due to vsb
 			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 			canvasWidth -= vsbWidth;
-			viewCols = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth) + 1;
+			viewCols = (int)((canvasWidth - cp.getLeft() - cp.getRight()) / tm.cellWidth); // TODO viewCols +1 plus one if !wrap + 1;
 			if(wrap)
 			{
-				wrapLimit = (int)((canvasWidth - pad.getLeft() - pad.getRight()) / tm.cellWidth); 
+				wrapLimit = (int)((canvasWidth - cp.getLeft() - cp.getRight()) / tm.cellWidth); 
 			}
 		}
 		
@@ -394,7 +406,7 @@ public class CellGrid
 	public void paintAll()
 	{
 		int maxy = arrangement.getVisibleRowCount();
-		int maxx = arrangement.getVisibleColumnCount() + 1; // TODO find out why
+		int maxx = arrangement.getVisibleColumnCount();
 		TextCellMetrics tm = textCellMetrics();
 		
 		// attempt to limit the canvas queue
@@ -410,8 +422,10 @@ public class CellGrid
 		
 		// TODO caret line
 		
+		// TODO content padding
 		double x = 0.0;
 		double y = 0.0;
+		
 		for(int ix=0; ix<maxy; ix++)
 		{
 			WrapInfo wi = arrangement.wrapInfoAtViewRow(ix);
