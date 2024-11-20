@@ -5,7 +5,6 @@ import goryachev.common.util.Parsers;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
 import goryachev.fx.FxAction;
-import goryachev.fx.FxBoolean;
 import goryachev.fx.FxComboBox;
 import goryachev.fx.FxFramework;
 import goryachev.fx.FxMenuBar;
@@ -13,7 +12,6 @@ import goryachev.fx.FxPopupMenu;
 import goryachev.fx.FxToolBar;
 import goryachev.fx.FxWindow;
 import demo.codepad.options.OptionsPane;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -30,7 +28,6 @@ public class TesterWindow
 
 	public final StatusBar statusBar;
 	protected final FxComboBox fontSelector = new FxComboBox();
-	private final FxBoolean contentPadding = new FxBoolean();
 	private final BorderPane pane;
 	public final CodePad editor;
 
@@ -84,8 +81,6 @@ public class TesterWindow
 		statusBar.attach(editor);
 		
 		FX.setPopupMenu(editor, this::createPopupMenu);
-		
-		FX.addChangeListener(contentPadding, true, this::updateContentPadding);
 	}
 	
 	
@@ -150,8 +145,6 @@ public class TesterWindow
 	protected Node createToolbar()
 	{
 		FxToolBar t = new FxToolBar();
-		t.addToggleButton("cp", "content padding", contentPadding);
-		t.fill();
 		t.add(new Label("Font:"));
 		t.add(fontSelector);
 		return t;
@@ -199,11 +192,5 @@ public class TesterWindow
 		Font f = editor.getFont();
 		f = Font.font(f.getFamily(), sz);
 		editor.setFont(f);
-	}
-	
-	
-	void updateContentPadding(boolean on)
-	{
-		editor.setContentPadding(on ? new Insets(20, 30, 40, 50) : null);
 	}
 }
