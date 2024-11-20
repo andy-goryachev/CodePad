@@ -1,7 +1,6 @@
 // Copyright © 2017-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.CodePad;
-import goryachev.codepad.model.CodeModel;
 import goryachev.common.util.Parsers;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
@@ -30,7 +29,6 @@ public class TesterWindow
 	public static final CssStyle PANE = new CssStyle("TesterWindow_PANE");
 
 	public final StatusBar statusBar;
-	protected final FxComboBox<DemoModels> modelSelector = new FxComboBox();
 	protected final FxComboBox fontSelector = new FxComboBox();
 	private final FxBoolean contentPadding = new FxBoolean();
 	private final BorderPane pane;
@@ -40,10 +38,6 @@ public class TesterWindow
 	public TesterWindow()
 	{
 		super("TesterWindow");
-		
-		modelSelector.setItems(DemoModels.values());
-		modelSelector.valueProperty().addListener((s,p,c) -> onModelSelectionChange(c));
-		FX.setName(modelSelector, "modelSelector");
 		
 		fontSelector.setItems
 		(
@@ -160,10 +154,6 @@ public class TesterWindow
 		t.fill();
 		t.add(new Label("Font:"));
 		t.add(fontSelector);
-		t.space();
-		t.add(new Label("Model:"));
-		t.space(2);
-		t.add(modelSelector);
 		return t;
 	}
 	
@@ -200,13 +190,6 @@ public class TesterWindow
 		TesterWindow w = new TesterWindow();
 		editor.setModel(editor.getModel());
 		w.open();
-	}
-	
-	
-	protected void onModelSelectionChange(DemoModels x)
-	{
-		CodeModel m = DemoModels.getModel(x);
-		editor.setModel(m);
 	}
 	
 	

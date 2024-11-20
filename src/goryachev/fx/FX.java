@@ -4,6 +4,7 @@ import goryachev.common.log.Log;
 import goryachev.common.util.CKit;
 import goryachev.common.util.CList;
 import goryachev.common.util.CPlatform;
+import goryachev.common.util.HasDisplayText;
 import goryachev.common.util.IDisconnectable;
 import goryachev.common.util.SystemTask;
 import goryachev.fx.internal.CssTools;
@@ -90,6 +91,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
 
 
 /**
@@ -108,6 +110,7 @@ public final class FX
 	private static final Object PROP_NAME = new Object();
 	private static final Object PROP_SKIP_SETTINGS = new Object();
 	private static EventHandler consumeAll;
+	private static StringConverter converter;
 	
 	
 	public static FxWindow getWindow(Node n)
@@ -2343,5 +2346,42 @@ public final class FX
 			a.add(css[i]);
 		}
 		return Collections.unmodifiableList(a);
+	}
+	
+	
+	/**
+	 * Returns a StringConverter which uses HasDisplayText.getDisplayText()
+	 * or Object.toString().
+	 * This converter cannot convert a String to an Object.
+	 */
+	public static  <T> StringConverter<T> standardConverter()
+	{
+		if(converter == null)
+		{
+			converter = new StringConverter<Object>()
+			{
+				@Override
+				public String toString(Object x)
+				{
+					if(x == null)
+					{
+						return "";
+					}
+					else if(x instanceof HasDisplayText t)
+					{
+						return t.getDisplayText();
+					}
+					return x.toString();
+				}
+				
+
+				@Override
+				public Object fromString(String s)
+				{
+					throw new Error("not supported");
+				}
+			};
+		}
+		return converter;
 	}
 }

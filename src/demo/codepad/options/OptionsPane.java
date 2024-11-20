@@ -87,6 +87,7 @@ public class OptionsPane
 	{
 		private int row;
 		private static final Insets PADDING = new Insets(2, 4, 2, 4);
+		private static final Insets CELL_PADDING = new Insets(1, 4, 1, 4);
 		
 		
 		public Section()
@@ -98,7 +99,7 @@ public class OptionsPane
 		public void add(Node n)
 		{
 			add(n, 0, row++, 2, 1);
-			//setMargin(n, PADDING);
+			setMargin(n, CELL_PADDING);
 			setFillHeight(n, Boolean.TRUE);
 			setFillWidth(n, Boolean.TRUE);
 		}
@@ -107,15 +108,19 @@ public class OptionsPane
 		public void add(String text, Node n)
 		{
 			Label label = new Label(text);
-			//setMargin(label, PADDING);
+			setMargin(label, CELL_PADDING);
 			setFillHeight(label, Boolean.TRUE);
 			setFillWidth(label, Boolean.TRUE);
 			add(label, 0, row);
 
-			if(n != null)
+			if(n == null)
+			{
+				label.setDisable(true);
+			}
+			else
 			{
 				add(n, 1, row);
-				//setMargin(n, PADDING);
+				setMargin(n, CELL_PADDING);
 				setFillHeight(n, Boolean.TRUE);
 				setFillWidth(n, Boolean.TRUE);
 			}

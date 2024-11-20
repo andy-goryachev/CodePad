@@ -323,6 +323,7 @@ public class CellGrid
 			vscroll.setVisible(false);
 			hscroll.setVisible(false);
 			ensureCanvas(canvasWidth, canvasHeight);
+			clearCanvas();
 			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			return;
 		}
