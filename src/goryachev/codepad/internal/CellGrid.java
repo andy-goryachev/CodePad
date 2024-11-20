@@ -46,6 +46,7 @@ public class CellGrid
 	private Font italicFont;
 	private WrapCache cache;
 	private Arrangement arrangement;
+	private double aspectRatio;
 	private double contentPaddingTop;
 	private double contentPaddingBottom;
 	private double contentPaddingLeft;
@@ -66,6 +67,26 @@ public class CellGrid
 		FX.addInvalidationListener(scaleXProperty(), this::handleScaleChange);
 		FX.addInvalidationListener(scaleYProperty(), this::handleScaleChange);
 		FX.addInvalidationListener(origin, this::requestLayout);
+	}
+	
+	
+	public void setAspectRatio(Number value)
+	{
+		double v = (value == null) ? Defaults.ASPECT_RATIO : value.doubleValue();
+		if(v < Defaults.ASPECT_RATIO_MIN)
+		{
+			v = Defaults.ASPECT_RATIO_MIN;
+		}
+		else if(v > Defaults.ASPECT_RATIO_MAX)
+		{
+			v = Defaults.ASPECT_RATIO_MAX;
+		}
+		
+		aspectRatio = v;
+		metrics = null;
+		cache = null;
+		arrangement = null;
+		requestLayout();
 	}
 	
 	
@@ -180,9 +201,8 @@ public class CellGrid
 			getChildren().add(t);
 			try
 			{
-				double fontAspect = 0.8; // TODO property
 				Bounds b = t.getBoundsInLocal();
-				double w = snapSizeX(b.getWidth() * fontAspect);
+				double w = snapSizeX(b.getHeight() * aspectRatio);
 				double h = snapSizeY(b.getHeight());
 				double baseLine = b.getMinY();
 				metrics = new TextCellMetrics(baseFont, baseLine, w, h);

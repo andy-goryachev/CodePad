@@ -2333,7 +2333,7 @@ public final class FX
 	/**
 	 * Combines parent CSS metadata with the list of metadata items for the given class.
 	 */
-	public static List<CssMetaData<? extends Styleable,?>> initStyleables(List<CssMetaData<? extends Styleable,?>> parentCss, CssMetaData<?,?> ... css)
+	public static List<CssMetaData<? extends Styleable,?>> initCssMetadata(List<CssMetaData<? extends Styleable,?>> parentCss, CssMetaData<?,?> ... css)
 	{
 		int sz = parentCss.size() + css.length;
 		ArrayList<CssMetaData<? extends Styleable,?>> a = new ArrayList<>(sz);

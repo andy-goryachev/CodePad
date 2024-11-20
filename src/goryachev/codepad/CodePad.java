@@ -47,6 +47,7 @@ public class CodePad
     private final ReadOnlyObjectWrapper<TextPos> caretPosition = new ReadOnlyObjectWrapper<>();
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
+	private DoubleProperty aspectRatio;
 	private ObjectProperty<Insets> contentPadding;
 	private ObjectProperty<Font> font;
 	private DoubleProperty lineSpacing;
@@ -84,6 +85,63 @@ public class CodePad
 	public final ReadOnlyProperty<TextPos> anchorPositionProperty()
 	{
 		return anchorPosition.getReadOnlyProperty();
+	}
+
+
+	/**
+	 * Defines the text cell aspect ratio, the cell width divided by the cell height.
+	 * The actual value used will be clipped to the range [0.05 ... 5.0] (inclusive). 
+	 * A value of 1.0 results in a square cell.
+	 *
+	 * @defaultValue 0.4
+	 */
+	public final DoubleProperty aspectRatioProperty()
+	{
+		if(aspectRatio == null)
+		{
+			aspectRatio = new StyleableDoubleProperty(Defaults.ASPECT_RATIO)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "aspectRatio";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Number> getCssMetaData()
+				{
+					return StyleableProperties.ASPECT_RATIO;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return aspectRatio;
+	}
+
+
+	public final double getAspectRatio()
+	{
+		return aspectRatio == null ? Defaults.ASPECT_RATIO : aspectRatio.get();
+	}
+
+
+	public final void setAspectRatio(double v)
+	{
+		aspectRatioProperty().set(v);
 	}
 
 
@@ -420,6 +478,24 @@ public class CodePad
 	/** styleable properties monstrocity */
 	private static final class StyleableProperties
 	{
+		// aspect ratio
+		private static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-ag-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.aspectRatio == null || !n.aspectRatio.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Number> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Number>)n.aspectRatioProperty();
+			}
+		};
+		
+		// content -padding
 		private static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-ag-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
 		{
 			@Override
@@ -436,6 +512,7 @@ public class CodePad
 			}
 		};
 
+		// font
 		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-ag-font", Defaults.FONT)
 		{
 			@Override
@@ -452,6 +529,7 @@ public class CodePad
 			}
 		};
 
+		// line spacing
 		private static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-ag-line-spacing", SizeConverter.getInstance(), 0)
 		{
 			@Override
@@ -468,6 +546,7 @@ public class CodePad
 			}
 		};
 
+		// tab size
 		private static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-ag-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
 		{
 			@Override
@@ -484,6 +563,7 @@ public class CodePad
 			}
 		};
 
+		// wrap text
 		private static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-ag-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
 		{
 			@Override
@@ -500,9 +580,10 @@ public class CodePad
 			}
 		};
 
-		private static final List<CssMetaData<? extends Styleable,?>> STYLEABLES = FX.initStyleables
+		private static final List<CssMetaData<? extends Styleable,?>> STYLEABLES = FX.initCssMetadata
 		(
 			Control.getClassCssMetaData(),
+			ASPECT_RATIO,
 			CONTENT_PADDING,
 			FONT,
 			LINE_SPACING,
