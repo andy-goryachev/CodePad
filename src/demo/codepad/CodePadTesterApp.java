@@ -12,9 +12,9 @@ import javafx.stage.Stage;
 
 
 /**
- * CodePad Demo Application.
+ * CodePad Tester Application.
  */
-public class CodePadDemoApp
+public class CodePadTesterApp
 	extends Application
 {
 	public static final String COPYRIGHT = "copyright © 2024 andy goryachev";
@@ -31,7 +31,7 @@ public class CodePadDemoApp
 	public void init() throws Exception
 	{
 		// TODO change to something visible in Documents? platform-specific?
-		File baseDir = new File(System.getProperty("user.home"), ".goryachev.com/CodePadDemo");
+		File baseDir = new File(System.getProperty("user.home"), ".goryachev.com/CodePadTester");
 			
 //		File logFolder = new File(baseDir, "logs"); 
 //		Log.init(logFolder);
@@ -56,13 +56,13 @@ public class CodePadDemoApp
 			@Override
 			public Stage createDefaultWindow()
 			{
-				return new CodePadDemoWindow();
+				return new CodePadTesterWindow();
 			}
 
 			@Override
 			protected Stage createWindow(String name)
 			{
-				return new CodePadDemoWindow();
+				return new CodePadTesterWindow();
 			}
 		});		
 	}

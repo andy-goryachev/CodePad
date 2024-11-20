@@ -289,16 +289,8 @@ public class CellGrid
 		// 1. compute layout (check if canvas needs to be re-created, origin, scroll bars, ...)
 		//    may need to bail out and repeat if the scroll bar visibility changed and the layout needs to be recomputed
 		// 2. paint the canvas
-
-		double width = getWidth();
-		if(width == 0.0)
-		{
-			return;
-		}
-		
-		// TODO if model == null: disable scroll bars, paint background
-		
-		// we have all the information, so we can re-flow in one pass!  steps:
+		//
+		// detailed process:
 		// - get the canvas size w/o scroll bars, rowCount
 		// - is vsb needed? (easy answers: origin > ZERO, rowCount > model.size)
 		// - if vsb not needed, lay out w/o vsb.  if does not fit, must use vsb.
@@ -306,18 +298,34 @@ public class CellGrid
 		// - if vsb not needed, but hsb is needed, lay out one more time, vsb may be needed after all
 		// - do the layout: view port, N lines after, M lines before (adjusting N,M when close to the model edges)
 
-		boolean wrap = editor.isWrapText();
-		int tabSize = tabSize();
-		CodeModel model = editor.getModel();
+		double width = getWidth();
+		if(width == 0.0)
+		{
+			return;
+		}
 		
-		Origin or = origin.get();
+		double x0 = snappedLeftInset();
+		double y0 = snappedTopInset();
 		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
 		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
-		TextCellMetrics tm = textCellMetrics();
+
+		CodeModel model = editor.getModel();
+		if(model == null)
+		{
+			vscroll.setVisible(false);
+			hscroll.setVisible(false);
+			ensureCanvas(canvasWidth, canvasHeight);
+			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			return;
+		}
 		
 		int size = paragraphCount();
+		boolean wrap = editor.isWrapText();
+		int tabSize = tabSize();
+		Origin or = origin.get();
+		TextCellMetrics tm = textCellMetrics();
 		Arrangement arr = null;
-		
+
 		// number of full and partial columns visible in viewport
 		int viewCols = wrap ?
 			(int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth) :
@@ -353,7 +361,7 @@ public class CellGrid
 			// view got narrower due to vsb
 			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 			canvasWidth -= vsbWidth;
-			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); // TODO viewCols +1 plus one if !wrap + 1;
+			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 			if(wrap)
 			{
 				wrapLimit = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); 
@@ -397,25 +405,9 @@ public class CellGrid
 			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
 			canvasHeight -= hsbHeight;
 		}
-
-		boolean recreateCanvas =
-			(canvas == null) || 
-			GridUtils.notClose(canvasWidth, canvas.getWidth()) ||
-			GridUtils.notClose(canvasHeight, canvas.getHeight());
-		if(recreateCanvas)
-		{
-			if(canvas != null)
-			{
-				getChildren().remove(canvas);
-			}
-			
-			// create new canvas
-			canvas = new Canvas(canvasWidth, canvasHeight);
-			gx = canvas.getGraphicsContext2D();
-			
-			getChildren().add(canvas);
-		}
 		
+		ensureCanvas(canvasWidth, canvasHeight);
+
 		vscroll.setVisible(vsb);
 		hscroll.setVisible(hsb);
 
@@ -423,8 +415,6 @@ public class CellGrid
 		
 		paintAll();
 		
-		double x0 = snappedLeftInset();
-		double y0 = snappedTopInset();
 		double cw = canvas.getWidth();
 		double ch = canvas.getHeight();
 
@@ -442,13 +432,30 @@ public class CellGrid
 	}
 	
 	
-	public void paintAll()
+	private void ensureCanvas(double w, double h)
 	{
-		int maxy = arrangement.getVisibleRowCount();
-		int maxx = arrangement.getVisibleColumnCount();
-		TextCellMetrics tm = textCellMetrics();
-		boolean wrap = editor.isWrapText();
-		
+		boolean recreateCanvas =
+			(canvas == null) || 
+			GridUtils.notClose(w, canvas.getWidth()) ||
+			GridUtils.notClose(h, canvas.getHeight());
+		if(recreateCanvas)
+		{
+			if(canvas != null)
+			{
+				getChildren().remove(canvas);
+			}
+			
+			// create new canvas
+			canvas = new Canvas(w, h);
+			gx = canvas.getGraphicsContext2D();
+			
+			getChildren().add(canvas);
+		}
+	}
+	
+	
+	private void clearCanvas()
+	{
 		// attempt to limit the canvas queue
 		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8092801
 		// https://github.com/kasemir/org.csstudio.display.builder/issues/174
@@ -459,6 +466,17 @@ public class CellGrid
 		// FIX background color
 		gx.setFill(Color.WHITE);
 		gx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	}
+	
+	
+	public void paintAll()
+	{
+		int maxy = arrangement.getVisibleRowCount();
+		int maxx = arrangement.getVisibleColumnCount();
+		TextCellMetrics tm = textCellMetrics();
+		boolean wrap = editor.isWrapText();
+		
+		clearCanvas();
 		
 		// TODO caret line
 		

@@ -33,7 +33,7 @@ public class StatusBar
 		
 		leading = FX.label(LABEL_LEADING);
 		
-		trailing = FX.label(LABEL_TRAILING, Pos.CENTER_RIGHT, CodePadDemoApp.COPYRIGHT);
+		trailing = FX.label(LABEL_TRAILING, Pos.CENTER_RIGHT, CodePadTesterApp.COPYRIGHT);
 		
 		add(leading);
 		fill();
