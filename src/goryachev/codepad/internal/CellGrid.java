@@ -5,7 +5,6 @@ import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.common.log.Log;
-import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.TextCellMetrics;
 import javafx.beans.property.SimpleObjectProperty;
@@ -47,6 +46,10 @@ public class CellGrid
 	private Font italicFont;
 	private WrapCache cache;
 	private Arrangement arrangement;
+	private double contentPaddingTop;
+	private double contentPaddingBottom;
+	private double contentPaddingLeft;
+	private double contentPaddingRight;
 
 
 	public CellGrid(CodePadSkin skin, ScrollBar vscroll, ScrollBar hscroll)
@@ -77,17 +80,34 @@ public class CellGrid
 		arrangement = null;
 		requestLayout();
 	}
-	
-	
+
+
 	public void setContentPadding(Insets m)
 	{
+		if(m == null)
+		{
+			m = Insets.EMPTY;
+		}
+
+		contentPaddingTop = snapPositionY(m.getTop());
+		contentPaddingBottom = snapPositionY(m.getBottom());
+		contentPaddingLeft = snapPositionX(m.getLeft());
+		contentPaddingRight = snapPositionX(m.getRight());
+
+		// TODO set horizontal scroll to 0
+
+		if(origin.get().index() == 0)
+		{
+			origin.set(new Origin(0, 0, contentPaddingLeft, contentPaddingTop));
+		}
+
 		// TODO update origin
 		cache = null;
 		arrangement = null;
 		requestLayout();
 	}
-	
-	
+
+
 	// TODO maybe invalidateXXX instead
 	public void setWrapText(boolean on)
 	{
@@ -269,7 +289,6 @@ public class CellGrid
 		boolean wrap = editor.isWrapText();
 		int tabSize = tabSize();
 		CodeModel model = editor.getModel();
-		Insets cp = editor.getContentPadding();
 		
 		Origin or = origin.get();
 		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
@@ -281,7 +300,7 @@ public class CellGrid
 		
 		// number of full and partial columns visible in viewport
 		int viewCols = wrap ?
-			(int)((canvasWidth - snapSizeX(cp.getLeft()) - snapSizeX(cp.getRight())) / tm.cellWidth) :
+			(int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth) :
 			(int)Math.ceil(canvasWidth / tm.cellWidth);
 		int wrapLimit = wrap ? viewCols : -1;
 		
@@ -314,10 +333,10 @@ public class CellGrid
 			// view got narrower due to vsb
 			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 			canvasWidth -= vsbWidth;
-			viewCols = (int)((canvasWidth - cp.getLeft() - cp.getRight()) / tm.cellWidth); // TODO viewCols +1 plus one if !wrap + 1;
+			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); // TODO viewCols +1 plus one if !wrap + 1;
 			if(wrap)
 			{
-				wrapLimit = (int)((canvasWidth - cp.getLeft() - cp.getRight()) / tm.cellWidth); 
+				wrapLimit = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); 
 			}
 		}
 		
@@ -408,6 +427,7 @@ public class CellGrid
 		int maxy = arrangement.getVisibleRowCount();
 		int maxx = arrangement.getVisibleColumnCount();
 		TextCellMetrics tm = textCellMetrics();
+		boolean wrap = editor.isWrapText();
 		
 		// attempt to limit the canvas queue
 		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8092801
@@ -423,8 +443,8 @@ public class CellGrid
 		// TODO caret line
 		
 		// TODO content padding
-		double x = 0.0;
-		double y = 0.0;
+		double x = wrap ? contentPaddingLeft : 0.0;
+		double y = wrap ? contentPaddingTop : 0.0;
 		
 		for(int ix=0; ix<maxy; ix++)
 		{
