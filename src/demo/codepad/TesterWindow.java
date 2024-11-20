@@ -11,9 +11,9 @@ import goryachev.fx.FxComboBox;
 import goryachev.fx.FxFramework;
 import goryachev.fx.FxMenuBar;
 import goryachev.fx.FxPopupMenu;
-import goryachev.fx.FxToggleButton;
 import goryachev.fx.FxToolBar;
 import goryachev.fx.FxWindow;
+import demo.codepad.options.OptionsPane;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -24,23 +24,22 @@ import javafx.scene.text.Font;
 /**
  * CodePad Tester Window.
  */
-public class CodePadTesterWindow
+public class TesterWindow
 	extends FxWindow
 {
-	public static final CssStyle PANE = new CssStyle("CodePadDemoPane_PANE");
+	public static final CssStyle PANE = new CssStyle("TesterWindow_PANE");
 
 	public final StatusBar statusBar;
 	protected final FxComboBox<DemoModels> modelSelector = new FxComboBox();
 	protected final FxComboBox fontSelector = new FxComboBox();
-	private final FxToggleButton wrap = new FxToggleButton("wr");
 	private final FxBoolean contentPadding = new FxBoolean();
 	private final BorderPane pane;
 	public final CodePad editor;
 
 	
-	public CodePadTesterWindow()
+	public TesterWindow()
 	{
-		super("CodePadTesterWindow");
+		super("TesterWindow");
 		
 		modelSelector.setItems(DemoModels.values());
 		modelSelector.valueProperty().addListener((s,p,c) -> onModelSelectionChange(c));
@@ -67,11 +66,13 @@ public class CodePadTesterWindow
 		editor = new CodePad(null);
 		editor.setContentPadding(FX.insets(2, 4));
 //		editor.setBlinkRate(Duration.millis(600));
-//		editor.setWrapLines(false);
 //		editor.setTabPolicy(TabPolicy.create(4));
+		
+		OptionsPane options = Options.create(editor);
 		
 		pane = new BorderPane();
 		pane.setCenter(editor);
+		pane.setRight(options);
 		FX.style(pane, PANE);
 		
 		statusBar = new StatusBar();
@@ -85,8 +86,6 @@ public class CodePadTesterWindow
 		
 		fontSelector.setEditable(true);
 		fontSelector.select("12");
-		
-		wrap.selectedProperty().bindBidirectional(editor.wrapTextProperty());
 		
 		statusBar.attach(editor);
 		
@@ -157,10 +156,7 @@ public class CodePadTesterWindow
 	protected Node createToolbar()
 	{
 		FxToolBar t = new FxToolBar();
-		t.addToggleButton("wr", "wrap lines", editor.wrapTextProperty());
 		t.addToggleButton("cp", "content padding", contentPadding);
-		// TODO
-//		t.addToggleButton("ln", "line numbers", editor().showLineNumbersProperty());
 		t.fill();
 		t.add(new Label("Font:"));
 		t.add(fontSelector);
@@ -201,7 +197,7 @@ public class CodePadTesterWindow
 	
 	protected void newWindow()
 	{
-		CodePadTesterWindow w = new CodePadTesterWindow();
+		TesterWindow w = new TesterWindow();
 		editor.setModel(editor.getModel());
 		w.open();
 	}

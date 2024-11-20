@@ -2,7 +2,7 @@
 package goryachev.common.util;
 
 
-public interface HasDisplayName
+public interface HasDisplayText
 {
-	public String getDisplayName();
+	public String getDisplayText();
 }

@@ -46,6 +46,7 @@ public class CodePadSkin
 		disconnector.addChangeListener(ed.aspectRatioProperty(), true, grid::setAspectRatio);
 		disconnector.addChangeListener(ed.contentPaddingProperty(), true, grid::setContentPadding);
 		disconnector.addChangeListener(ed.fontProperty(), true, grid::setFont);
+		disconnector.addInvalidationListener(ed.modelProperty(), grid::handleModelChange);
 		disconnector.addChangeListener(ed.wrapTextProperty(), true, grid::setWrapText);
 	}
 	

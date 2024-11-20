@@ -56,13 +56,13 @@ public class CodePadTesterApp
 			@Override
 			public Stage createDefaultWindow()
 			{
-				return new CodePadTesterWindow();
+				return new TesterWindow();
 			}
 
 			@Override
 			protected Stage createWindow(String name)
 			{
-				return new CodePadTesterWindow();
+				return new TesterWindow();
 			}
 		});		
 	}

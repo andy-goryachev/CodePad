@@ -101,6 +101,14 @@ public class CellGrid
 		arrangement = null;
 		requestLayout();
 	}
+	
+	
+	public void handleModelChange()
+	{
+		cache = null;
+		arrangement = null;
+		requestLayout();
+	}
 
 
 	public void setContentPadding(Insets m)

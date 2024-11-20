@@ -323,6 +323,19 @@ public class FxDisconnector
 	}
 	
 	
+	public <T> IDisconnectable addInvalidationListener(ObservableValue<T> prop, Runnable callback)
+	{
+		return addInvalidationListener(prop, false, new InvalidationListener()
+		{
+			@Override
+			public void invalidated(Observable observable)
+			{
+				callback.run();
+			}
+		});
+	}
+	
+	
 	public <T> IDisconnectable addInvalidationListener(ObservableValue<T> prop, InvalidationListener li)
 	{
 		return addInvalidationListener(prop, false, li);
