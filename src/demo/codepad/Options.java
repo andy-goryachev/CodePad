@@ -25,14 +25,16 @@ public class Options
 		// model
 		op.section("Data");
 		op.option("Model:", modelOption("model", ed.modelProperty()));
-		op.option(new BooleanChoice("editable", "editable", null)); // TODO
+		op.option(new BooleanChoice("editable", "Editable", null)); // TODO
 		
 		// view
 		op.section("View");
 		op.option("Content padding:", contentPaddingOption("contentPadding", ed.contentPaddingProperty()));
 		op.option("Font:", null); // TODO
-		op.option(new BooleanChoice("lineNumbers", "line numbers", null)); // TODO
-		op.option(new BooleanChoice("wrapText", "wrap text", ed.wrapTextProperty()));
+		op.option(new BooleanChoice("lineNumbers", "Line Numbers", null)); // TODO
+		op.option("Line Spacing:", null); // TODO
+		op.option("Tab Size:", null); // TODO
+		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
 
 		return op;
 	}

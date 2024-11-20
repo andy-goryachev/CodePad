@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 
@@ -86,8 +87,8 @@ public class OptionsPane
 	public static class Section extends GridPane
 	{
 		private int row;
-		private static final Insets PADDING = new Insets(2, 4, 2, 4);
-		private static final Insets CELL_PADDING = new Insets(1, 4, 1, 4);
+		private static final Insets PADDING = new Insets(2);
+		private static final Insets CELL_PADDING = new Insets(1, 2, 1, 2);
 		
 		
 		public Section()
@@ -111,6 +112,7 @@ public class OptionsPane
 			setMargin(label, CELL_PADDING);
 			setFillHeight(label, Boolean.TRUE);
 			setFillWidth(label, Boolean.TRUE);
+			setHgrow(label, Priority.ALWAYS);
 			add(label, 0, row);
 
 			if(n == null)
