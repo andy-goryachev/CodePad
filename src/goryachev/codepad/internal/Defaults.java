@@ -11,7 +11,7 @@ public class Defaults
 {
 	public static final double ASPECT_RATIO = 0.4;
 	public static final double ASPECT_RATIO_MIN = 0.05;
-	public static final double ASPECT_RATIO_MAX = 5;
+	public static final double ASPECT_RATIO_MAX = 1.0;
 	
 	public static final Insets CONTENT_PADDING = null;
 	

@@ -1,6 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.options;
-import goryachev.common.util.HasDisplayText;
+import goryachev.common.util.NamedValue;
 import goryachev.fx.FX;
 import javafx.scene.control.ComboBox;
 
@@ -26,7 +26,7 @@ public class ObjectChoice<T>
 	
 	public void add(String text, T item)
 	{
-		getItems().add(new Entry(text, item));
+		getItems().add(new NamedValue<>(text, item));
 	}
 	
 	
@@ -35,9 +35,9 @@ public class ObjectChoice<T>
 		Object v = getSelectionModel().getSelectedItem();
 		if(v != null)
 		{
-			if(v instanceof Entry en)
+			if(v instanceof NamedValue n)
 			{
-				return (T)en.item;
+				return (T)n.getValue();
 			}
 			else
 			{
@@ -45,26 +45,5 @@ public class ObjectChoice<T>
 			}
 		}
 		return null;
-	}
-	
-	
-	private static class Entry implements HasDisplayText
-	{
-		public final String text;
-		public final Object item;
-		
-		
-		public Entry(String text, Object item)
-		{
-			this.item = item;
-			this.text = text;
-		}
-
-
-		@Override
-		public String getDisplayText()
-		{
-			return text;
-		}
 	}
 }

@@ -1,9 +1,12 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
 import demo.codepad.options.BooleanChoice;
+import demo.codepad.options.DoubleChoice;
+import demo.codepad.options.FontChoice;
 import demo.codepad.options.ObjectChoice;
 import demo.codepad.options.OptionsPane;
 import javafx.beans.property.ObjectProperty;
@@ -29,10 +32,11 @@ public class Options
 		
 		// view
 		op.section("View");
+		op.option("Aspect Ratio:", DoubleChoice.of("aspectRatio", ed.aspectRatioProperty(), 0, Defaults.ASPECT_RATIO_MIN, Defaults.ASPECT_RATIO, Defaults.ASPECT_RATIO_MAX));
 		op.option("Content padding:", contentPaddingOption("contentPadding", ed.contentPaddingProperty()));
-		op.option("Font:", null); // TODO
+		op.option("Font:", new FontChoice("font", ed.fontProperty()));
 		op.option(new BooleanChoice("lineNumbers", "Line Numbers", null)); // TODO
-		op.option("Line Spacing:", null); // TODO
+		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 10, 33.3));
 		op.option("Tab Size:", null); // TODO
 		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
 

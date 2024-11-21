@@ -90,7 +90,8 @@ public class CodePad
 
 	/**
 	 * Defines the text cell aspect ratio, the cell width divided by the cell height.
-	 * The actual value used will be clipped to the range [0.05 ... 5.0] (inclusive). 
+	 * The actual value used will be clipped to the range [0.05 ... 1.0] (inclusive).
+	 * <p>
 	 * A value of 1.0 results in a square cell.
 	 *
 	 * @defaultValue 0.4
