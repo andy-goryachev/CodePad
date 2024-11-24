@@ -20,10 +20,20 @@ public abstract class WrapInfo
 	 * Returns the number of visual rows in this paragraph.
 	 */
 	public abstract int getRowCount();
+
+	/**
+	 * Returns the cell text for the given cell index.
+	 */
+	public abstract String getCellText(int cix);
 	
-	public abstract String getCellText(int ix);
+	/**
+	 * Returns the cell style for the given cell index.
+	 */
+	public abstract CellStyle getCellStyle(int cix);
 	
-	public abstract CellStyle getCellStyle(int ix);
+	public abstract int getCellIndexAtRow(int row);
+
+	public abstract int getRowAtCellIndex(int cix);
 	
 	//
 	
@@ -116,6 +126,20 @@ public abstract class WrapInfo
 		{
 			return null;
 		}
+
+
+		@Override
+		public int getCellIndexAtRow(int row)
+		{
+			return 0;
+		}
+
+
+		@Override
+		public int getRowAtCellIndex(int cix)
+		{
+			return 0;
+		}
 	}
 	
 	
@@ -136,18 +160,32 @@ public abstract class WrapInfo
 		
 		
 		@Override
-		public String getCellText(int ix)
+		public String getCellText(int cix)
 		{
 			// TODO
-			return paragraph.getCellText(ix);
+			return paragraph.getCellText(cix);
 		}
 
 
 		@Override
-		public CellStyle getCellStyle(int ix)
+		public CellStyle getCellStyle(int cix)
 		{
 			// TODO
 			return null;
+		}
+
+
+		@Override
+		public int getCellIndexAtRow(int row)
+		{
+			return 0;
+		}
+
+
+		@Override
+		public int getRowAtCellIndex(int cix)
+		{
+			return 0;
 		}
 	}
 	
@@ -186,6 +224,22 @@ public abstract class WrapInfo
 			// TODO
 			return null;
 		}
+
+
+		@Override
+		public int getCellIndexAtRow(int row)
+		{
+			// TODO
+			return 0;
+		}
+
+
+		@Override
+		public int getRowAtCellIndex(int cix)
+		{
+			// TODO
+			return 0;
+		}
 	}
 	
 	
@@ -218,6 +272,22 @@ public abstract class WrapInfo
 		{
 			// TODO
 			return null;
+		}
+
+		
+		@Override
+		public int getCellIndexAtRow(int row)
+		{
+			// TODO
+			return 0;
+		}
+
+
+		@Override
+		public int getRowAtCellIndex(int cix)
+		{
+			// TODO
+			return 0;
 		}
 	}
 }

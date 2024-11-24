@@ -10,51 +10,53 @@ import goryachev.common.util.CMap;
  */
 public class WrapCache
 {
-	private final CodeModel model;
-	private final int tabSize;
-	private final int wrapLimit;
-	private final CMap<Integer,WrapInfo> wraps;
+	private record Key(int index, int wrapLimit) { }
+	
+	private CodeModel model;
+	private int tabSize;
+	private CMap<Key,WrapInfo> data = new CMap<>();
 	
 	
-	public WrapCache(CodeModel m, int tabSize, int wrapLimit)
+	public WrapCache()
 	{
-		this.model = m;
+	}
+	
+	
+	public void clear()
+	{
+		data = new CMap<>();
+	}
+	
+	
+	public void setParameters(CodeModel model, int tabSize)
+	{
+		if((model != this.model) && (tabSize != this.tabSize))
+		{
+			data = new CMap<>();
+		}
+		this.model = model;
 		this.tabSize = tabSize;
-		this.wrapLimit = wrapLimit;
-		this.wraps = new CMap<>();
 	}
 	
 	
-	public int modelSize()
+//	public boolean isNotValidFor(CodeModel m, int tabSize, int wrapLimit)
+//	{
+//		return
+//			(this.model != m) ||
+//			(this.tabSize != tabSize) ||
+//			(this.wrapLimit != wrapLimit);
+//	}
+	
+	
+	public WrapInfo getWrapInfo(int modelIndex, int wrapLimit)
 	{
-		return model.size();
-	}
-	
-	
-	public int getWrapLimit()
-	{
-		return wrapLimit;
-	}
-	
-	
-	public boolean isNotValidFor(CodeModel m, int tabSize, int wrapLimit)
-	{
-		return
-			(this.model != m) ||
-			(this.tabSize != tabSize) ||
-			(this.wrapLimit != wrapLimit);
-	}
-	
-	
-	public WrapInfo getWrapInfo(int modelIndex)
-	{
-		Integer k = Integer.valueOf(modelIndex);
-		WrapInfo wi = wraps.get(k);
+		Key k = new Key(modelIndex, wrapLimit);
+		WrapInfo wi = data.get(k);
 		if(wi == null)
 		{
 			CodeParagraph par = model.getParagraph(modelIndex);
 			wi = WrapInfo.create(par, tabSize, wrapLimit);
-			wraps.put(k, wi);
+			data.put(k, wi);
 		}
 		return wi;
 	}
