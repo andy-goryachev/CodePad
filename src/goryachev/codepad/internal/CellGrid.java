@@ -107,6 +107,14 @@ public class CellGrid
 		arrangement = null;
 		requestLayout();
 	}
+	
+	
+	public void handleLineSpacingChange()
+	{
+		cache.clear();
+		arrangement = null;
+		requestLayout();
+	}
 
 
 	public void setContentPadding(Insets m)
@@ -344,6 +352,8 @@ public class CellGrid
 		// number of columns that result in no hsb
 		int viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 		int wrapLimit = wrap ? viewCols : -1;
+		double vsbWidth = 0.0;
+		double hsbHeight = 0.0;
 		
 		cache.setParameters(model, tabSize);
 		
@@ -396,7 +406,6 @@ public class CellGrid
 							break;
 						}
 						
-						// TODO use the right cache (pass tabsize, wraplimit)
 						wi = cache.getWrapInfo(ix, wrapLimit);
 						
 						if(cix == 0)
@@ -415,7 +424,7 @@ public class CellGrid
 						if(rcount > viewRows)
 						{
 							vsb = true;
-							// FIX update wrap limit, canvaswidth
+							// FIX update wrap limit, canvaswidth, vsbWidth
 							// reflow again
 							break;
 						}
@@ -477,6 +486,7 @@ public class CellGrid
 		{
 			// is vsb visible?
 			vsb = (size > viewRows);
+			
 			// change origin if needed
 			if(origin.index() > 0)
 			{
@@ -522,8 +532,6 @@ public class CellGrid
 //			}
 //		}
 		
-		double vsbWidth = 0.0;
-		double hsbHeight = 0.0;
 		
 //		if(vsb)
 //		{
@@ -632,6 +640,7 @@ public class CellGrid
 		TextCellMetrics tm = textCellMetrics();
 		boolean wrap = editor.isWrapText();
 		double lineSpacing = lineSpacing();
+		System.out.println("lineSpacing=" + lineSpacing); // FIX
 		
 		clearCanvas();
 		

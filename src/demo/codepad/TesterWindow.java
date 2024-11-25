@@ -38,7 +38,7 @@ public class TesterWindow
 		
 		pane = new BorderPane();
 		pane.setCenter(editor);
-		pane.setRight(options);
+		pane.setLeft(options);
 		FX.style(pane, PANE);
 		
 		statusBar = new StatusBar();

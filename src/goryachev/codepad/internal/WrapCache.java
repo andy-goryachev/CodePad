@@ -6,7 +6,11 @@ import goryachev.common.util.CMap;
 
 
 /**
- * Caches WrapInfo objects for the given wrapping width.
+ * Caches WrapInfo objects for the given model and tab size.
+ * The cache can accomodate objects corresponding to different wrap width
+ * for the purposes of layout, since the layout code may need to try
+ * without and with the vertical scroll bar which affects the wrapping width,
+ * but we want to keep the cache content as much as possible.
  */
 public class WrapCache
 {
@@ -14,7 +18,7 @@ public class WrapCache
 	
 	private CodeModel model;
 	private int tabSize;
-	private CMap<Key,WrapInfo> data = new CMap<>();
+	private CMap<Key,WrapInfo> data;
 	
 	
 	public WrapCache()
@@ -24,32 +28,28 @@ public class WrapCache
 	
 	public void clear()
 	{
-		data = new CMap<>();
+		data = null;
 	}
 	
 	
 	public void setParameters(CodeModel model, int tabSize)
 	{
-		if((model != this.model) && (tabSize != this.tabSize))
+		if((model != this.model) || (tabSize != this.tabSize))
 		{
-			data = new CMap<>();
+			data = null;
 		}
 		this.model = model;
 		this.tabSize = tabSize;
 	}
 	
 	
-//	public boolean isNotValidFor(CodeModel m, int tabSize, int wrapLimit)
-//	{
-//		return
-//			(this.model != m) ||
-//			(this.tabSize != tabSize) ||
-//			(this.wrapLimit != wrapLimit);
-//	}
-	
-	
 	public WrapInfo getWrapInfo(int modelIndex, int wrapLimit)
 	{
+		if(data == null)
+		{
+			data = new CMap<>(64);
+		}
+
 		Key k = new Key(modelIndex, wrapLimit);
 		WrapInfo wi = data.get(k);
 		if(wi == null)
