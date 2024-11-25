@@ -138,6 +138,7 @@ public class CellGrid
 	// TODO maybe invalidateXXX instead
 	public void setWrapText(boolean on)
 	{
+		origin = new Origin(origin.index(), 0, contentPaddingLeft, contentPaddingTop);
 		cache.clear();
 		arrangement = null;
 		requestLayout();
@@ -194,6 +195,12 @@ public class CellGrid
 			return Defaults.TAB_SIZE_MAX;
 		}
 		return v;
+	}
+	
+	
+	private double lineSpacing()
+	{
+		return snapSpaceY(editor.getLineSpacing());
 	}
 
 
@@ -328,7 +335,7 @@ public class CellGrid
 		int size = paragraphCount();
 		boolean wrap = editor.isWrapText();
 		int tabSize = tabSize();
-		double lineSpacing = snapSpaceY(editor.getLineSpacing());
+		double lineSpacing = lineSpacing();
 		TextCellMetrics tm = textCellMetrics();
 		Arrangement arr = null;
 
@@ -486,8 +493,8 @@ public class CellGrid
 		// origin is set correctly now
 		// lay out the arrangement
 		
-		arr = new Arrangement(cache, viewRows, viewCols);
-		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows, size, wrapLimit);
+		arr = new Arrangement(cache, viewRows, wrapLimit);
+		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows, size);
 
 		// number of full and partial columns visible in viewport
 //		int viewCols = wrap ?
@@ -621,41 +628,41 @@ public class CellGrid
 	public void paintAll()
 	{
 		int maxy = arrangement.getVisibleRowCount();
-		int maxx = arrangement.getVisibleColumnCount();
+		int wrapLimit = arrangement.getWrapLimit();
 		TextCellMetrics tm = textCellMetrics();
 		boolean wrap = editor.isWrapText();
+		double lineSpacing = lineSpacing();
 		
 		clearCanvas();
 		
 		// TODO caret line
 		
-		// TODO content padding
-		double x = wrap ? contentPaddingLeft : 0.0;
-		double y = wrap ? contentPaddingTop : 0.0;
+		double x = origin.xoffset();
+		double y = origin.yoffset();
 		
 		for(int ix=0; ix<maxy; ix++)
 		{
 			WrapInfo wi = arrangement.wrapInfoAtViewRow(ix);
 			int cellIndex = arrangement.cellIndexAtViewRow(ix);
-			int ct = Math.min(maxx, wi.getCellCount() - cellIndex);
+			int ct = wrapLimit < 0 ? wi.getCellCount() : Math.min(wrapLimit, wi.getCellCount() - cellIndex);
 			paintCells(tm, wi, cellIndex, ct, x, y);
-			y = snapPositionY(y + tm.cellHeight); // TODO line spacing
+			y = snapPositionY(y + tm.cellHeight + lineSpacing);
 		}
 	}
 
 
 	// paints a number of cells horizontally
-	// TODO move to cell grid?
+	// TODO cell count, or until x > canvasWidth
 	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex, int cellCount, double x, double y)
 	{
+		double maxx = canvas.getWidth();
+		
 		// TODO
 		Color textColor = Color.BLACK;
 		
 		for(int i=0; i<cellCount; i++)
 		{
 			int ix = cellIndex + i;
-//			double cx = snapPositionX(x * tm.cellWidth /*+ lineNumbersBarWidth*/);
-//			double cy = snapPositionY(y * tm.cellHeight);
 			
 			// TODO
 //			int line = row.getLineNumber();
@@ -727,6 +734,10 @@ public class CellGrid
 			}
 			
 			x = snapPositionX(x + tm.cellWidth);
+			if(x > maxx)
+			{
+				break;
+			}
 		}
 	}
 }

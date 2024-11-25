@@ -17,14 +17,14 @@ public class Arrangement
 	private int viewStartIndex;
 	private int viewStartCellIndex;
 	private int visibleRowCount;
-	private final int visibleColCount;
+	private final int wrapLimit;
 	
 	
-	public Arrangement(WrapCache cache, int maxRows, int visibleColCount)
+	public Arrangement(WrapCache cache, int maxRows, int wrapLimit)
 	{
 		this.cache = cache;
 		this.maxRows = maxRows;
-		this.visibleColCount = visibleColCount;
+		this.wrapLimit = wrapLimit;
 	}
 
 
@@ -32,7 +32,7 @@ public class Arrangement
 	 * Lays out {@code rowCount} paragraphs.
 	 * Returns the number of paragraphs actually laid out.
 	 */
-	public void layoutViewPort(int startIndex, int startCellIndex, int numRows, int modelSize, int wrapLimit)
+	public void layoutViewPort(int startIndex, int startCellIndex, int numRows, int modelSize)
 	{
 		this.viewStartIndex = startIndex;
 		this.viewStartCellIndex = startCellIndex;
@@ -129,10 +129,10 @@ public class Arrangement
 	
 	
 	/**
-	 * Number of full and partial columns visible in the viewport.
+	 * Number of wrapped columns or -1 if unwrapped.
 	 */
-	public int getVisibleColumnCount()
+	public int getWrapLimit()
 	{
-		return visibleColCount;
+		return wrapLimit;
 	}
 }
