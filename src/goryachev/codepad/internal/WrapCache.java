@@ -36,10 +36,10 @@ public class WrapCache
 	{
 		if((model != this.model) || (tabSize != this.tabSize))
 		{
+			this.model = model;
+			this.tabSize = tabSize;
 			data = null;
 		}
-		this.model = model;
-		this.tabSize = tabSize;
 	}
 	
 	

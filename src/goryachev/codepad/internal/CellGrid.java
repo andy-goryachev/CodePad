@@ -500,54 +500,12 @@ public class CellGrid
 			}
 		}
 		
-		// origin is set correctly now
-		// lay out the arrangement
-		
-		arr = new Arrangement(cache, wrapLimit);
-		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows, size);
-
-		// number of full and partial columns visible in viewport
-//		int viewCols = wrap ?
-//			(int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth) :
-//			(int)Math.ceil(canvasWidth / tm.cellWidth);
-//		int wrapLimit = wrap ? viewCols : -1;
-//		
-//		// number of whole rows in the viewport
-//		int rowCount = (int)Math.ceil(canvasHeight / tm.cellHeight);
-//		
-//		// determine if the vertical scroll bar is needed
-//		// easy answers first
-//		boolean vsb = (size > viewRows) || (origin.index() > 0);
-//		if(!vsb)
-//		{
-//			// attempt to lay out w/o the vertical scroll bar
-//			WrapCache wc = cache(model, tabSize, wrapLimit);
-//			arr = new Arrangement(wc, viewRows, viewCols);
-//			arr.layoutViewPort(origin.index(), origin.cellIndex(), rowCount);
-//			// layout and see if vsb is needed
-//			if(arr.isVsbNeeded())
-//			{
-//				vsb = true;
-//				arr = null;
-//			}
-//		}
-		
-		
-//		if(vsb)
-//		{
-//			// view got narrower due to vsb
-//			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
-//			canvasWidth -= vsbWidth;
-//			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-//			if(wrap)
-//			{
-//				wrapLimit = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); 
-//			}
-//		}
+		// origin, vsb are set correctly now, ready for layout
+		arr = new Arrangement(cache, size, viewCols, wrapLimit);
+		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows);
 
 		// lay out bottom half of the sliding window
 		int last = arr.getLastIndex();
-		int max = Math.min(size, last + Defaults.SLIDING_WINDOW_HALF);
 		int ct = arr.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, false); 
 		if(ct < Defaults.SLIDING_WINDOW_HALF)
 		{

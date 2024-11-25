@@ -11,17 +11,25 @@ import goryachev.common.util.CList;
 public class Arrangement
 {
 	private final WrapCache cache;
+	private final int modelSize;
+	private final int viewCols;
 	private final CList<WrapInfo> rows = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private final CList<Integer> offsets = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private int viewStartIndex;
 	private int viewStartCellIndex;
 	private int visibleRowCount;
 	private final int wrapLimit;
+	private int lastIndex;
+	private int topRows;
+	private int bottomRows;
+	private int maxCellCount;
 	
 	
-	public Arrangement(WrapCache cache, int wrapLimit)
+	public Arrangement(WrapCache cache, int modelSize, int viewCols, int wrapLimit)
 	{
 		this.cache = cache;
+		this.modelSize = modelSize;
+		this.viewCols = viewCols;
 		this.wrapLimit = wrapLimit;
 	}
 
@@ -31,7 +39,8 @@ public class Arrangement
 	 * Returns the number of paragraphs actually laid out.
 	 */
 	// TODO move these args to the contructor?
-	public void layoutViewPort(int startIndex, int startCellIndex, int numRows, int modelSize)
+	// TODO num columns for hsb
+	public void layoutViewPort(int startIndex, int startCellIndex, int numRows)
 	{
 		this.viewStartIndex = startIndex;
 		this.viewStartCellIndex = startCellIndex;
@@ -62,6 +71,14 @@ public class Arrangement
 					continue;
 				}
 			}
+			else
+			{
+				int w = wi.getCellCount();
+				if(w > maxCellCount)
+				{
+					maxCellCount = w;
+				}
+			}
 			
 			// next paragraph
 			cix = 0;
@@ -69,40 +86,71 @@ public class Arrangement
 			wi = null;
 		}
 		
+		lastIndex = ix;
 		visibleRowCount = rc;
-		
-		if(ix >= modelSize)
-		{
-			// TODO at the end, check if need to shift origin
-		}
 	}
 	
 	
 	public int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
 	{
-		// TODO
-		return 0;
-	}
-	
+		int nrows = 0;
+		int ix = startIndex;
+		for(int i=0; i<count; i++)
+		{
+			if(forBelow)
+			{
+				ix++;
+				if(ix >= modelSize)
+				{
+					break;
+				}
+			}
+			else
+			{
+				ix--;
+				if(ix < 0)
+				{
+					break;
+				}
+			}
 
-	public boolean isVsbNeeded()
-	{
-		// TODO
-		return false;
+			WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
+			nrows += wi.getRowCount();
+			
+			if(wrapLimit < 0)
+			{
+				int w = wi.getCellCount();
+				if(w > maxCellCount)
+				{
+					maxCellCount = w;
+				}
+			}
+		}
+		if(forBelow)
+		{
+			bottomRows = nrows;
+		}
+		else
+		{
+			topRows = nrows;
+		}
+		return nrows;
 	}
 	
 	
 	public boolean isHsbNeeded()
 	{
-		// TODO
-		return false;
+		if(wrapLimit > 0)
+		{
+			return false;
+		}
+		return maxCellCount > viewCols;
 	}
 	
 	
 	public int getLastIndex()
 	{
-		// TODO
-		return 0;
+		return lastIndex;
 	}
 
 
