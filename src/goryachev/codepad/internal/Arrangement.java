@@ -11,7 +11,6 @@ import goryachev.common.util.CList;
 public class Arrangement
 {
 	private final WrapCache cache;
-	private final int maxRows;
 	private final CList<WrapInfo> rows = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private final CList<Integer> offsets = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private int viewStartIndex;
@@ -20,10 +19,9 @@ public class Arrangement
 	private final int wrapLimit;
 	
 	
-	public Arrangement(WrapCache cache, int maxRows, int wrapLimit)
+	public Arrangement(WrapCache cache, int wrapLimit)
 	{
 		this.cache = cache;
-		this.maxRows = maxRows;
 		this.wrapLimit = wrapLimit;
 	}
 
@@ -32,6 +30,7 @@ public class Arrangement
 	 * Lays out {@code rowCount} paragraphs.
 	 * Returns the number of paragraphs actually laid out.
 	 */
+	// TODO move these args to the contructor?
 	public void layoutViewPort(int startIndex, int startCellIndex, int numRows, int modelSize)
 	{
 		this.viewStartIndex = startIndex;

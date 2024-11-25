@@ -292,14 +292,6 @@ public class CellGrid
 		}
 	}
 	
-//	private WrapCache createCache(CodeModel model, int tabSize, int wrapLimit, WrapCache old)
-//	{
-//		if((old == null) || old.isNotValidFor(model, tabSize, wrapLimit))
-//		{
-//			return new WrapCache(model, tabSize, wrapLimit);
-//		}
-//		return old;
-//	}
 	
 	@Override
 	protected void layoutChildren()
@@ -375,22 +367,17 @@ public class CellGrid
 			else
 			{
 				// make another check for vsb visibility, this time by actually wrapping the text rows
-				
 				// start with assumption that vsb is not needed
 				
-				// TODO
-				// at this point, we might have a populating cache with vsb on - something we might want to retain
-				// in case it will be determined that vsb is needed after all 
-
 				vsb = false;
+				int nrows;
+				int firstRow;
+				boolean run = false;
 				boolean reachedEnd = false;
-				int rcount = 0;
-				boolean run = true;
-				int firstRow = -1;
 				
-				while(run)
+				do
 				{
-					rcount = 0;
+					nrows = 0;
 					reachedEnd = false;
 					firstRow = -1;
 
@@ -403,6 +390,7 @@ public class CellGrid
 						if(ix >= size)
 						{
 							reachedEnd = true;
+							run = false;
 							break;
 						}
 						
@@ -410,36 +398,42 @@ public class CellGrid
 						
 						if(cix == 0)
 						{
-							rcount += wi.getRowCount();
+							nrows += wi.getRowCount();
 						}
 						else
 						{
 							firstRow = wi.getRowAtCellIndex(cix);
-							rcount += (wi.getRowCount() - firstRow);
+							nrows += (wi.getRowCount() - firstRow);
 							cix = 0;
 						}
 						
-						ix++;
-						
-						if(rcount > viewRows)
+						if(nrows > viewRows)
 						{
-							vsb = true;
-							// FIX update wrap limit, canvaswidth, vsbWidth
-							// reflow again
+							if(vsb)
+							{
+								run = false;
+							}
+							else
+							{
+								vsb = true;
+								vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+								canvasWidth -= vsbWidth;
+								viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+								wrapLimit = viewCols;
+								// reflow again
+								run = true;
+							}
 							break;
 						}
-						else
-						{
-							// no more reflow is needed
-							run = false;
-						}
+						
+						ix++;						
 					}
-				}
+				} while(run);
 				
 				if(reachedEnd)
 				{
-					// move the origin to fill in the bottom
-					int ct = viewRows - rcount;
+					// move the origin to fill in the viewport
+					int ct = viewRows - nrows;
 					int ix = origin.index();
 					int cix = origin.cellIndex();
 					
@@ -486,6 +480,12 @@ public class CellGrid
 		{
 			// is vsb visible?
 			vsb = (size > viewRows);
+			if(vsb)
+			{
+				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+				canvasWidth -= vsbWidth;
+				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+			}
 			
 			// change origin if needed
 			if(origin.index() > 0)
@@ -503,7 +503,7 @@ public class CellGrid
 		// origin is set correctly now
 		// lay out the arrangement
 		
-		arr = new Arrangement(cache, viewRows, wrapLimit);
+		arr = new Arrangement(cache, wrapLimit);
 		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows, size);
 
 		// number of full and partial columns visible in viewport
@@ -640,7 +640,6 @@ public class CellGrid
 		TextCellMetrics tm = textCellMetrics();
 		boolean wrap = editor.isWrapText();
 		double lineSpacing = lineSpacing();
-		System.out.println("lineSpacing=" + lineSpacing); // FIX
 		
 		clearCanvas();
 		
