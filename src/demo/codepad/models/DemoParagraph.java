@@ -14,6 +14,8 @@ public class DemoParagraph
 	private static final Color GREEN_BG = Color.rgb(0, 255, 0, 0.2);
 	private static final CellStyle GRAY = CellStyle.builder().textColor(Color.GRAY).build();
 	private static final CellStyle RED = CellStyle.builder().textColor(Color.RED).build();
+	private static final CellStyle STRIKETHROUGH = CellStyle.builder().strikeThrough().build();
+	private static final CellStyle UNDERLINE = CellStyle.builder().underline().build();
 
 	private final int index;
 	private final String text;
@@ -74,11 +76,15 @@ public class DemoParagraph
 		String s = getCellText(cix);
 		switch(s)
 		{
+		case "u":
+		case "U":
+			return UNDERLINE;
+		case "n":
+			return STRIKETHROUGH;
 		case "a":
 		case "e":
 		case "i":
 		case "o":
-		case "u":
 			return GRAY;
 		case "0":
 		case "1":

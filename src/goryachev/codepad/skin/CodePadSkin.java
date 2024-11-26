@@ -49,7 +49,8 @@ public class CodePadSkin
 			grid::paintAll,
 			ed.backgroundColorProperty(),
 			ed.caretLineColorProperty(),
-			ed.selectionBackgroundColorProperty()
+			ed.selectionBackgroundColorProperty(),
+			ed.textColorProperty()
 		);
 		disconnector.addChangeListener(ed.contentPaddingProperty(), true, grid::setContentPadding);
 		disconnector.addChangeListener(ed.fontProperty(), true, grid::setFont);

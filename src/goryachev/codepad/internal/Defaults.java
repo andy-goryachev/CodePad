@@ -50,6 +50,8 @@ public class Defaults
 	
 	public static final int TAB_SIZE_MAX = 32;
 	
+	public static final Color TEXT_COLOR = Color.BLACK;
+	
 	public static final int VIEWPORT_ROW_COUNT_ESTIMATE = 128;
 	
 	public static final boolean WRAP_TEXT = false;

@@ -47,6 +47,7 @@ public class Options
 		op.option("Background:", new ColorChoice("backgroundColor", ed.backgroundColorProperty()));
 		op.option("Caret Line Color:", new ColorChoice("caretLineColor", ed.caretLineColorProperty()));
 		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionBackgroundColorProperty()));
+		op.option("Text Color:", new ColorChoice("textColor", ed.textColorProperty()));
 
 		return op;
 	}

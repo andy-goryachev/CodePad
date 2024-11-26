@@ -57,6 +57,7 @@ public class CodePad
 	private DoubleProperty lineSpacing;
 	private ObjectProperty<Color> selectionBackgroundColor;
 	private IntegerProperty tabSize;
+	private ObjectProperty<Color> textColor;
 	private BooleanProperty wrapText;
 
 
@@ -594,6 +595,61 @@ public class CodePad
 		tabSizeProperty().set(v);
 	}
 	
+	
+	/**
+	 * Defines the CodePad text color.
+	 *
+	 * @defaultValue Color.BLACK
+	 */
+	public final ObjectProperty<Color> textColorProperty()
+	{
+		if(textColor == null)
+		{
+			textColor = new StyleableObjectProperty(Defaults.TEXT_COLOR)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "textColor";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Color> getCssMetaData()
+				{
+					return StyleableProperties.TEXT_COLOR;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return textColor;
+	}
+
+
+	public final Color getTextColor()
+	{
+		return textColor == null ? Defaults.TEXT_COLOR : textColor.get();
+	}
+
+
+	public final void setTextColor(Color c)
+	{
+		textColorProperty().set(c);
+	}
+	
 
     /**
      * Determines whether the text should be wrapped to fin the viewable area width.
@@ -784,6 +840,23 @@ public class CodePad
 				return (StyleableProperty<Number>)n.tabSizeProperty();
 			}
 		};
+		
+		// text color
+		private static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-ag-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.textColor == null || !n.textColor.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Color> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Color>)n.textColorProperty();
+			}
+		};
 
 		// wrap text
 		private static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-ag-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
@@ -813,6 +886,7 @@ public class CodePad
 			LINE_SPACING,
 			SELECTION_BACKGROUND_COLOR,
 			TAB_SIZE,
+			TEXT_COLOR,
 			WRAP_TEXT
 		);
 	}

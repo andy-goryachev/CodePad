@@ -23,44 +23,7 @@ public interface CellStyle
 	// TODO squiggle color
 	// TODO user data?
 	
-	public static final CellStyle EMPTY = new CellStyle()
-	{
-		@Override
-		public Color getTextColor()
-		{
-			return null;
-		}
-
-		@Override
-		public Color getBackgroundColor()
-		{
-			return null;
-		}
-
-		@Override
-		public boolean isUnderline()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean isStrikeThrough()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean isBold()
-		{
-			return false;
-		}
-
-		@Override
-		public boolean isItalic()
-		{
-			return false;
-		}
-	};
+	public static final CellStyle EMPTY = new Builder().build();
 	
 	
 	public static Builder builder()
@@ -75,7 +38,7 @@ public interface CellStyle
 		private Color textColor;
 		private boolean bold;
 		private boolean italic;
-		private boolean strikethrough;
+		private boolean strikeThrough;
 		private boolean underline;
 		
 		
@@ -91,9 +54,23 @@ public interface CellStyle
 		}
 		
 		
+		public Builder strikeThrough()
+		{
+			strikeThrough = true;
+			return this;
+		}
+		
+		
 		public Builder textColor(Color c)
 		{
 			textColor = c;
+			return this;
+		}
+		
+		
+		public Builder underline()
+		{
+			underline = true;
 			return this;
 		}
 		
@@ -126,7 +103,7 @@ public interface CellStyle
 				@Override
 				public boolean isStrikeThrough()
 				{
-					return strikethrough;
+					return strikeThrough;
 				}
 
 

@@ -625,9 +625,7 @@ public class CellGrid
 	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex, int cellCount, double x, double y)
 	{
 		double maxx = canvas.getWidth();
-		
-		// TODO
-		Color textColor = Color.BLACK;
+		Color textColor = editor.getTextColor();
 		
 		for(int i=0; i<cellCount; i++)
 		{
@@ -668,7 +666,6 @@ public class CellGrid
 			
 			if(style.isUnderline())
 			{
-				// TODO special property, mix with background
 				gx.setFill(textColor);
 				gx.fillRect(x, y + tm.cellHeight - 1, tm.cellWidth, 1);
 			}
@@ -690,9 +687,8 @@ public class CellGrid
 			
 				if(style.isStrikeThrough())
 				{
-					// TODO special property, mix with background
 					gx.setFill(textColor);
-					gx.fillRect(x, y + tm.cellHeight/2, tm.cellWidth, 1);
+					gx.fillRect(x, y + tm.cellHeight / 2.0, tm.cellWidth, 0.5);
 				}
 			}
 			
