@@ -26,11 +26,6 @@ public abstract class WrapInfo
 	 */
 	public abstract String getCellText(int cix);
 	
-	/**
-	 * Returns the cell style for the given cell index.
-	 */
-	public abstract CellStyle getCellStyle(int cix);
-	
 	public abstract int getCellIndexAtRow(int row);
 
 	public abstract int getRowAtCellIndex(int cix);
@@ -55,6 +50,15 @@ public abstract class WrapInfo
 	public Color getBackgroundColor()
 	{
 		return paragraph.getBackgroundColor();
+	}
+	
+	
+	/**
+	 * Returns the cell style for the given cell index.
+	 */
+	public CellStyle getCellStyle(int cix)
+	{
+		return paragraph.getCellStyle(cix);
 	}
 	
 	
@@ -122,13 +126,6 @@ public abstract class WrapInfo
 
 
 		@Override
-		public CellStyle getCellStyle(int ix)
-		{
-			return null;
-		}
-
-
-		@Override
 		public int getCellIndexAtRow(int row)
 		{
 			return 0;
@@ -164,14 +161,6 @@ public abstract class WrapInfo
 		{
 			// TODO
 			return paragraph.getCellText(cix);
-		}
-
-
-		@Override
-		public CellStyle getCellStyle(int cix)
-		{
-			// TODO
-			return null;
 		}
 
 
@@ -219,14 +208,6 @@ public abstract class WrapInfo
 
 
 		@Override
-		public CellStyle getCellStyle(int ix)
-		{
-			// TODO
-			return null;
-		}
-
-
-		@Override
 		public int getCellIndexAtRow(int row)
 		{
 			// TODO
@@ -264,14 +245,6 @@ public abstract class WrapInfo
 		{
 			// TODO
 			return paragraph.getCellText(ix);
-		}
-
-
-		@Override
-		public CellStyle getCellStyle(int ix)
-		{
-			// TODO
-			return null;
 		}
 
 		

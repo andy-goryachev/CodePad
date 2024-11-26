@@ -22,10 +22,12 @@ import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.ColorConverter;
 import javafx.css.converter.InsetsConverter;
 import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 
@@ -48,9 +50,12 @@ public class CodePad
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
 	private DoubleProperty aspectRatio;
+	private ObjectProperty<Color> backgroundColor;
+	private ObjectProperty<Color> caretLineColor;
 	private ObjectProperty<Insets> contentPadding;
 	private ObjectProperty<Font> font;
 	private DoubleProperty lineSpacing;
+	private ObjectProperty<Color> selectionBackgroundColor;
 	private IntegerProperty tabSize;
 	private BooleanProperty wrapText;
 
@@ -144,11 +149,121 @@ public class CodePad
 	{
 		aspectRatioProperty().set(v);
 	}
+	
+	
+	/**
+	 * Defines the CodePad content background color.
+	 *
+	 * @defaultValue Color.WHITE
+	 */
+	public final ObjectProperty<Color> backgroundColorProperty()
+	{
+		if(backgroundColor == null)
+		{
+			backgroundColor = new StyleableObjectProperty(Defaults.BACKGROUND_COLOR)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "backgroundColor";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Color> getCssMetaData()
+				{
+					return StyleableProperties.BACKGROUND_COLOR;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return backgroundColor;
+	}
+
+
+	public final Color getBackgroundColor()
+	{
+		return backgroundColor == null ? Defaults.BACKGROUND_COLOR : backgroundColor.get();
+	}
+
+
+	public final void setBackgroundColor(Color c)
+	{
+		backgroundColorProperty().set(c);
+	}
 
 
 	public final TextPos getAnchorPosition()
 	{
 		return anchorPositionProperty().getValue();
+	}
+	
+	
+	/**
+	 * Defines the background color of the current caret paragraph.
+	 *
+	 * @defaultValue Color.TBD
+	 */
+	public final ObjectProperty<Color> caretLineColorProperty()
+	{
+		if(caretLineColor == null)
+		{
+			caretLineColor = new StyleableObjectProperty(Defaults.CARET_LINE_COLOR)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "caretLineColor";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Color> getCssMetaData()
+				{
+					return StyleableProperties.CARET_LINE_COLOR;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return caretLineColor;
+	}
+
+
+	public final Color getCaretLineColor()
+	{
+		return caretLineColor == null ? Defaults.CARET_LINE_COLOR : caretLineColor.get();
+	}
+
+
+	public final void setCaretLineColor(Color c)
+	{
+		caretLineColorProperty().set(c);
 	}
 	
 	
@@ -367,6 +482,61 @@ public class CodePad
 	}
 	
 	
+	/**
+	 * Defines the selection background color.
+	 *
+	 * @defaultValue Color.TBD
+	 */
+	public final ObjectProperty<Color> selectionBackgroundColorProperty()
+	{
+		if(selectionBackgroundColor == null)
+		{
+			selectionBackgroundColor = new StyleableObjectProperty(Defaults.SELECTION_BACKGROUND_COLOR)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "selectionBackgroundColor";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Color> getCssMetaData()
+				{
+					return StyleableProperties.SELECTION_BACKGROUND_COLOR;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return selectionBackgroundColor;
+	}
+
+
+	public final Color getSelectionBackgroundColor()
+	{
+		return selectionBackgroundColor == null ? Defaults.SELECTION_BACKGROUND_COLOR : selectionBackgroundColor.get();
+	}
+
+
+	public final void setSelectionBackgroundColor(Color c)
+	{
+		selectionBackgroundColorProperty().set(c);
+	}
+	
+	
     /**
      * The size of a tab stop.
      * The values are converted to an {@code int}.
@@ -496,7 +666,41 @@ public class CodePad
 			}
 		};
 		
-		// content -padding
+		// background color
+		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-ag-background-color", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.backgroundColor == null || !n.backgroundColor.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Color> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Color>)n.backgroundColorProperty();
+			}
+		};
+		
+		// caret line color
+		private static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-ag-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.caretLineColor == null || !n.caretLineColor.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Color> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Color>)n.caretLineColorProperty();
+			}
+		};
+		
+		// content padding
 		private static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-ag-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
 		{
 			@Override
@@ -546,6 +750,23 @@ public class CodePad
 				return (StyleableProperty<Number>)n.lineSpacingProperty();
 			}
 		};
+		
+		// selection background
+		private static final CssMetaData<CodePad,Color> SELECTION_BACKGROUND_COLOR = new CssMetaData<>("-ag-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.selectionBackgroundColor == null || !n.selectionBackgroundColor.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Color> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Color>)n.selectionBackgroundColorProperty();
+			}
+		};
 
 		// tab size
 		private static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-ag-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
@@ -585,9 +806,12 @@ public class CodePad
 		(
 			Control.getClassCssMetaData(),
 			ASPECT_RATIO,
+			BACKGROUND_COLOR,
+			CARET_LINE_COLOR,
 			CONTENT_PADDING,
 			FONT,
 			LINE_SPACING,
+			SELECTION_BACKGROUND_COLOR,
 			TAB_SIZE,
 			WRAP_TEXT
 		);

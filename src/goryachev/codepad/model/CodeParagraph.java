@@ -43,9 +43,15 @@ public abstract class CodeParagraph
 	
 	
 	/**
-	 * Returns text for the given cell.
+	 * Returns text for the given cell index.
 	 */
-	public abstract String getCellText(int ix);
+	public abstract String getCellText(int cix);
+	
+	
+	/**
+	 * Returns the cell style for the given cell index.
+	 */
+	public abstract CellStyle getCellStyle(int cix);
 	
 	
 	/**
@@ -126,6 +132,13 @@ public abstract class CodeParagraph
 			{
 				char c = text.charAt(ix);
 				return String.valueOf(c);
+			}
+
+
+			@Override
+			public CellStyle getCellStyle(int cix)
+			{
+				return null;
 			}
 		};
 	}

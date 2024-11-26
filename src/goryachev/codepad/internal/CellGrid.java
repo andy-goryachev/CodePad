@@ -4,6 +4,7 @@ import goryachev.codepad.CodePad;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
+import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
 import goryachev.fx.FX;
 import goryachev.fx.TextCellMetrics;
@@ -239,30 +240,29 @@ public class CellGrid
 	
 	private Color backgroundColor(boolean caretLine, boolean selected, Color lineColor, Color cellBG)
 	{
-//		Color c = editor.getBackgroundColor();
-//		
-//		if(lineColor !=  null)
-//		{
-//			c = mixColor(c, lineColor, LINE_COLOR_OPACITY);
-//		}
-//		
-//		if(caretLine)
-//		{
-//			c = mixColor(c, editor.getCaretLineColor(), CARET_LINE_OPACITY);
-//		}
-//		
-//		if(selected)
-//		{
-//			c = mixColor(c, editor.getSelectionBackgroundColor(), SELECTION_BACKGROUND_OPACITY);
-//		}
-//		
-//		if(cellBG != null)
-//		{
-//			c = mixColor(c, cellBG, CELL_BACKGROUND_OPACITY);
-//		}
-//		
-//		return c;
-		return null;
+		Color c = editor.getBackgroundColor();
+		
+		if(lineColor !=  null)
+		{
+			c = CodePadUtils.mixColor(c, lineColor, Defaults.LINE_COLOR_OPACITY);
+		}
+		
+		if(caretLine)
+		{
+			c = CodePadUtils.mixColor(c, editor.getCaretLineColor(), Defaults.CARET_LINE_OPACITY);
+		}
+		
+		if(selected)
+		{
+			c = CodePadUtils.mixColor(c, editor.getSelectionBackgroundColor(), Defaults.SELECTION_BACKGROUND_OPACITY);
+		}
+		
+		if(cellBG != null)
+		{
+			c = CodePadUtils.mixColor(c, cellBG, Defaults.CELL_BACKGROUND_OPACITY);
+		}
+		
+		return c;
 	}
 	
 	
@@ -646,12 +646,6 @@ public class CellGrid
 			{
 				style = CellStyle.EMPTY;
 			}
-			
-//			TextCellStyle style = row.getCellStyles(cell);
-//			if(style == null)
-//			{
-//				style = TextCellStyle.NONE;
-//			}
 			
 			// background
 			Color bg = backgroundColor(caretLine, selected, wi.getBackgroundColor(), style.getBackgroundColor());

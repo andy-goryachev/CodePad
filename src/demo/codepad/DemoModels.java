@@ -1,7 +1,7 @@
 // Copyright © 2019-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.model.CodeModel;
-import goryachev.codepad.model.UndecoratedCodeModel;
+import goryachev.codepad.model.TestCodeModel;
 
 
 /**
@@ -9,7 +9,8 @@ import goryachev.codepad.model.UndecoratedCodeModel;
  */
 public enum DemoModels
 {
-	PLAIN_TEXT,
+	AVERAGE,
+	SHORT,
 	NULL;
 	
 	
@@ -18,8 +19,10 @@ public enum DemoModels
 	{
 		switch(this)
 		{
-		case PLAIN_TEXT:
-			return "Plain Text";
+		case AVERAGE:
+			return "Average Size";
+		case SHORT:
+			return "Short";
 		case NULL:
 		default:
 			return "<null>";
@@ -41,8 +44,8 @@ public enum DemoModels
 		
 		switch(choice)
 		{
-		case PLAIN_TEXT:
-			return UndecoratedCodeModel.of
+		case AVERAGE:
+			return TestCodeModel.of
 			(
 				"""
 				Line one.
@@ -52,6 +55,15 @@ public enum DemoModels
 				The End.
 				"""
 			);
+		case SHORT:
+			return TestCodeModel.of
+				(
+					"""
+					One.
+					Two.
+					Three.
+					"""
+				);
 		case NULL:
 		default:
 			return null;
