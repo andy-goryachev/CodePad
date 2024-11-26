@@ -363,6 +363,9 @@ public class CellGrid
 			if(size > viewRows)
 			{
 				vsb = true;
+				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+				canvasWidth -= vsbWidth;
+				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 			}
 			else
 			{
