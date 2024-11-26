@@ -589,7 +589,7 @@ public class CellGrid
 		gx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		
 		// FIX background color
-		gx.setFill(Color.WHITE);
+		gx.setFill(editor.getBackgroundColor());
 		gx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
 	

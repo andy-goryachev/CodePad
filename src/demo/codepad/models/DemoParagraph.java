@@ -11,8 +11,8 @@ import javafx.scene.paint.Color;
 public class DemoParagraph
 	extends CodeParagraph
 {
-	private static final Color GRAY_BG = Color.rgb(0, 0, 0, 0.2);
-	private static final CellStyle GREEN = CellStyle.builder().textColor(Color.GREEN).build();
+	private static final Color GREEN_BG = Color.rgb(0, 255, 0, 0.2);
+	private static final CellStyle GRAY = CellStyle.builder().textColor(Color.GRAY).build();
 	private static final CellStyle RED = CellStyle.builder().textColor(Color.RED).build();
 
 	private final int index;
@@ -36,7 +36,7 @@ public class DemoParagraph
 	@Override
 	public Color getBackgroundColor()
 	{
-		return index % 10 == 0 ? GRAY_BG : null;
+		return index % 10 == 0 ? GREEN_BG : null;
 	}
 
 
@@ -79,7 +79,7 @@ public class DemoParagraph
 		case "i":
 		case "o":
 		case "u":
-			return GREEN;
+			return GRAY;
 		case "0":
 		case "1":
 		case "2":

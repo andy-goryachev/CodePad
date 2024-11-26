@@ -44,6 +44,13 @@ public class CodePadSkin
 		
 		disconnector = new FxDisconnector();
 		disconnector.addChangeListener(ed.aspectRatioProperty(), true, grid::setAspectRatio);
+		disconnector.addInvalidationListener
+		(
+			grid::paintAll,
+			ed.backgroundColorProperty(),
+			ed.caretLineColorProperty(),
+			ed.selectionBackgroundColorProperty()
+		);
 		disconnector.addChangeListener(ed.contentPaddingProperty(), true, grid::setContentPadding);
 		disconnector.addChangeListener(ed.fontProperty(), true, grid::setFont);
 		disconnector.addInvalidationListener(ed.lineSpacingProperty(), grid::handleLineSpacingChange);

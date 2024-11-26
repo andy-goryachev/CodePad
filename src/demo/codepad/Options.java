@@ -6,6 +6,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
 import demo.codepad.models.DemoModels;
 import demo.codepad.options.BooleanChoice;
+import demo.codepad.options.ColorChoice;
 import demo.codepad.options.DoubleChoice;
 import demo.codepad.options.FontChoice;
 import demo.codepad.options.ObjectChoice;
@@ -40,6 +41,12 @@ public class Options
 		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 10, 33.3));
 		op.option("Tab Size:", null); // TODO
 		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
+		
+		// colors
+		op.section("Colors");
+		op.option("Background:", new ColorChoice("backgroundColor", ed.backgroundColorProperty()));
+		op.option("Caret Line Color:", new ColorChoice("caretLineColor", ed.caretLineColorProperty()));
+		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionBackgroundColorProperty()));
 
 		return op;
 	}
