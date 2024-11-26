@@ -4,6 +4,7 @@ import goryachev.codepad.CodePad;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
+import demo.codepad.models.DemoModels;
 import demo.codepad.options.BooleanChoice;
 import demo.codepad.options.DoubleChoice;
 import demo.codepad.options.FontChoice;
