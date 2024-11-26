@@ -16,6 +16,8 @@ public class Defaults
 	
 	public static final Color BACKGROUND_COLOR = Color.WHITE;
 	
+	public static final Color CARET_COLOR = Color.BLACK;
+	
 	public static final Color CARET_LINE_COLOR = Color.rgb(255, 200, 255);
 	
 	public static final double CARET_LINE_OPACITY = 0.3;

@@ -26,12 +26,12 @@ public class Options
 	{
 		OptionsPane op = new OptionsPane();
 		FX.setName(op, "Options");
-		
+
 		// model
 		op.section("Data");
 		op.option("Model:", modelOption("model", ed.modelProperty()));
 		op.option(new BooleanChoice("editable", "Editable", null)); // TODO
-		
+
 		// view
 		op.section("View");
 		op.option("Aspect Ratio:", DoubleChoice.of("aspectRatio", ed.aspectRatioProperty(), 0, Defaults.ASPECT_RATIO_MIN, Defaults.ASPECT_RATIO, Defaults.ASPECT_RATIO_MAX));
@@ -41,18 +41,19 @@ public class Options
 		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 10, 33.3));
 		op.option("Tab Size:", null); // TODO
 		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
-		
+
 		// colors
 		op.section("Colors");
 		op.option("Background:", new ColorChoice("backgroundColor", ed.backgroundColorProperty()));
+		op.option("Caret Color:", new ColorChoice("caretColor", ed.caretColorProperty()));
 		op.option("Caret Line Color:", new ColorChoice("caretLineColor", ed.caretLineColorProperty()));
 		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionBackgroundColorProperty()));
 		op.option("Text Color:", new ColorChoice("textColor", ed.textColorProperty()));
 
 		return op;
 	}
-	
-	
+
+
 	private static Node contentPaddingOption(String name, ObjectProperty<Insets> p)
 	{
 		ObjectChoice<Insets> c = new ObjectChoice<>(name);
@@ -67,8 +68,8 @@ public class Options
 		});
 		return c;
 	}
-	
-	
+
+
 	private static Node modelOption(String name, ObjectProperty<CodeModel> p)
 	{
 		ComboBox<DemoModels> c = new ComboBox<>();

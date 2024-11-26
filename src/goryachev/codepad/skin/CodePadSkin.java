@@ -48,6 +48,7 @@ public class CodePadSkin
 		(
 			grid::paintAll,
 			ed.backgroundColorProperty(),
+			ed.caretColorProperty(),
 			ed.caretLineColorProperty(),
 			ed.selectionBackgroundColorProperty(),
 			ed.textColorProperty()
@@ -57,9 +58,11 @@ public class CodePadSkin
 		disconnector.addInvalidationListener(ed.lineSpacingProperty(), grid::handleLineSpacingChange);
 		disconnector.addInvalidationListener(ed.modelProperty(), grid::handleModelChange);
 		disconnector.addChangeListener(ed.wrapTextProperty(), true, grid::setWrapText);
+		disconnector.addInvalidationListener(grid::handleVerticalScroll, vscroll.valueProperty());
+		disconnector.addInvalidationListener(grid::handleHorizontalScroll, hscroll.valueProperty());
 	}
-	
-	
+
+
 	/**
 	 * Subclasses can override this method to provide a custom vertical scroll bar.
 	 */

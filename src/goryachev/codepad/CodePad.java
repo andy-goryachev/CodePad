@@ -51,6 +51,7 @@ public class CodePad
 	private final SelectionModel selectionModel = new SelectionModel();
 	private DoubleProperty aspectRatio;
 	private ObjectProperty<Color> backgroundColor;
+	private ObjectProperty<Color> caretColor;
 	private ObjectProperty<Color> caretLineColor;
 	private ObjectProperty<Insets> contentPadding;
 	private ObjectProperty<Font> font;
@@ -210,6 +211,61 @@ public class CodePad
 	public final TextPos getAnchorPosition()
 	{
 		return anchorPositionProperty().getValue();
+	}
+	
+	
+	/**
+	 * Defines the color of the caret.
+	 *
+	 * @defaultValue Color.BLACK
+	 */
+	public final ObjectProperty<Color> caretColorProperty()
+	{
+		if(caretColor == null)
+		{
+			caretColor = new StyleableObjectProperty(Defaults.CARET_COLOR)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "caretColor";
+				}
+
+
+				@Override
+				public CssMetaData<CodePad,Color> getCssMetaData()
+				{
+					return StyleableProperties.CARET_COLOR;
+				}
+
+
+				@Override
+				public void invalidated()
+				{
+					requestLayout();
+				}
+			};
+		}
+		return caretColor;
+	}
+
+
+	public final Color getCaretColor()
+	{
+		return caretColor == null ? Defaults.CARET_COLOR : caretColor.get();
+	}
+
+
+	public final void setCaretColor(Color c)
+	{
+		caretColorProperty().set(c);
 	}
 	
 	
@@ -739,6 +795,23 @@ public class CodePad
 			}
 		};
 		
+		// caret color
+		private static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-ag-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.caretColor == null || !n.caretColor.isBound();
+			}
+
+
+			@Override
+			public StyleableProperty<Color> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Color>)n.caretColorProperty();
+			}
+		};
+		
 		// caret line color
 		private static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-ag-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
 		{
@@ -880,6 +953,7 @@ public class CodePad
 			Control.getClassCssMetaData(),
 			ASPECT_RATIO,
 			BACKGROUND_COLOR,
+			CARET_COLOR,
 			CARET_LINE_COLOR,
 			CONTENT_PADDING,
 			FONT,

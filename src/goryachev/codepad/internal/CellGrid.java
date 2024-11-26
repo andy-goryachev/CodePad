@@ -15,6 +15,7 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -24,9 +25,8 @@ import javafx.scene.text.Text;
 /**
  * Cell Grid.
  * 
- * Contains:
- * - canvas
- * - vertical and horizontal scroll bars
+ * Renders text in a rectangular grid.
+ * Contains and manages the canvas and the both scroll bars.
  */
 public class CellGrid
 	extends Pane
@@ -162,6 +162,7 @@ public class CellGrid
 		b.setUnitIncrement(0.01);
 		b.setBlockIncrement(0.05);
 		b.setVisible(false);
+		FX.consumeAllEvents(ScrollEvent.ANY, b);
 		return b;
 	}
 	
@@ -183,8 +184,20 @@ public class CellGrid
 	{
 		requestLayout();
 	}
-	
-	
+
+
+	public void handleVerticalScroll()
+	{
+		// TODO
+	}
+
+
+	public void handleHorizontalScroll()
+	{
+		// TODO
+	}
+
+
 	private int paragraphCount()
 	{
 		CodeModel m = editor.getModel();
@@ -296,18 +309,10 @@ public class CellGrid
 	@Override
 	protected void layoutChildren()
 	{
-		// TODO two separate steps:
-		// 1. compute layout (check if canvas needs to be re-created, origin, scroll bars, ...)
-		//    may need to bail out and repeat if the scroll bar visibility changed and the layout needs to be recomputed
-		// 2. paint the canvas
-		//
-		// detailed process:
-		// - get the canvas size w/o scroll bars, rowCount
-		// - is vsb needed? (easy answers: origin > ZERO, rowCount > model.size)
-		// - if vsb not needed, lay out w/o vsb.  if does not fit, must use vsb.
-		// - determine if hsb is needed.  easy answers(wrap on, unwrapped width > grid.width)
-		// - if vsb not needed, but hsb is needed, lay out one more time, vsb may be needed after all
-		// - do the layout: view port, N lines after, M lines before (adjusting N,M when close to the model edges)
+		// 1. determines whether the vertical scroll bar is visible, and whether the origin needs to be changed
+		//    because there is too much of empty space at the bottom of the viewport.
+		// 2. generates the cell arrangement which includes the viewport and a sliding window above and below the viewport.
+		// 2. paints the text onto the canvas.
 
 		double width = getWidth();
 		if(width == 0.0)
@@ -349,13 +354,6 @@ public class CellGrid
 		
 		cache.setParameters(model, tabSize);
 		
-		// TODO using cell cache, try to determine:
-		// - whether the origin needs to change
-		// - whether the vsb is visible
-		// - whether the hsb is visible
-		// and only then create the arrangement
-		// (flags: origin change, vsb changed, hsb changed)
-		
 		boolean vsb;
 		if(wrap)
 		{
@@ -371,7 +369,6 @@ public class CellGrid
 			{
 				// make another check for vsb visibility, this time by actually wrapping the text rows
 				// start with assumption that vsb is not needed
-				
 				vsb = false;
 				int nrows;
 				int firstRow;
@@ -481,6 +478,8 @@ public class CellGrid
 		}
 		else
 		{
+			// non-wrapped mode is much easier
+			
 			// is vsb visible?
 			vsb = (size > viewRows);
 			if(vsb)
@@ -541,8 +540,10 @@ public class CellGrid
 
 		arrangement = arr;
 		
+		// paint all
 		paintAll();
 		
+		// layout
 		if(vsb)
 		{
 			layoutInArea(vscroll, x0 + canvasWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
@@ -563,6 +564,7 @@ public class CellGrid
 			(canvas == null) || 
 			GridUtils.notClose(w, canvas.getWidth()) ||
 			GridUtils.notClose(h, canvas.getHeight());
+		
 		if(recreateCanvas)
 		{
 			if(canvas != null)
@@ -570,7 +572,6 @@ public class CellGrid
 				getChildren().remove(canvas);
 			}
 			
-			// create new canvas
 			canvas = new Canvas(w, h);
 			gx = canvas.getGraphicsContext2D();
 			
@@ -653,15 +654,15 @@ public class CellGrid
 				gx.fillRect(x, y, tm.cellWidth, tm.cellHeight);
 			}
 			
-			// caret
+			// TODO caret
 //			if(paintCaret.get())
 //			{
-//				if(caret)
-//				{
-//					// TODO insert mode
-//					gx.setFill(caretColor);
-//					gx.fillRect(cx, cy, 2, tm.cellHeight);
-//				}
+				if(caret)
+				{
+					// TODO insert mode
+					gx.setFill(editor.getCaretColor());
+					gx.fillRect(x, y, 2, tm.cellHeight);
+				}
 //			}
 			
 			if(style.isUnderline())
