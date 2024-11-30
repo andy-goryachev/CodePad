@@ -51,6 +51,12 @@ public class CellGrid
 	private double contentPaddingBottom;
 	private double contentPaddingLeft;
 	private double contentPaddingRight;
+	private boolean handleScrollEvents = true;
+	// number of rows that result in no vsb
+	private int viewRows;
+	// number of columns that result in no hsb
+	private int viewCols;
+	private int wrapLimit;
 
 
 	public CellGrid(CodePadSkin skin, ScrollBar vscroll, ScrollBar hscroll)
@@ -102,6 +108,13 @@ public class CellGrid
 	}
 	
 	
+	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
+	{
+		origin = new Origin(index, cellIndex, xoffset, yoffset);
+		arrangement = null;
+	}
+	
+	
 	public void handleModelChange()
 	{
 		cache.clear();
@@ -134,7 +147,7 @@ public class CellGrid
 
 		if(origin.index() == 0)
 		{
-			origin = new Origin(0, 0, contentPaddingLeft, contentPaddingTop);
+			setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		}
 
 		// TODO update origin
@@ -147,7 +160,7 @@ public class CellGrid
 	// TODO maybe invalidateXXX instead
 	public void setWrapText(boolean on)
 	{
-		origin = new Origin(origin.index(), 0, contentPaddingLeft, contentPaddingTop);
+		setOrigin(origin.index(), 0, contentPaddingLeft, contentPaddingTop);
 		cache.clear();
 		arrangement = null;
 		requestLayout();
@@ -170,25 +183,22 @@ public class CellGrid
 	void handleWidthChange()
 	{
 		// TODO scroll horizontally
+		arrangement = null;
 		requestLayout();
 	}
 	
 	
 	void handleHeightChange()
 	{
+		arrangement = null;
 		requestLayout();
 	}
 	
 	
 	void handleScaleChange()
 	{
+		arrangement = null;
 		requestLayout();
-	}
-
-
-	public void handleVerticalScroll()
-	{
-		// TODO
 	}
 
 
@@ -198,10 +208,103 @@ public class CellGrid
 	}
 
 
-	private int paragraphCount()
+	public void handleVerticalScroll()
 	{
-		CodeModel m = editor.getModel();
-		return (m == null) ? 0 : m.size();
+		if(handleScrollEvents)
+		{
+			if(editor.getParagraphCount() == 0)
+			{
+				return;
+			}
+
+			double val = vscroll.getValue();
+			double max = vscroll.getMax();
+			double min = vscroll.getMin();
+			double pos = (val - min) / max;
+
+			Arrangement ar = arrangement();
+
+			// TODO move to arrangement?
+			int size = ar.getModelSize();
+			double av = ar.averageRowsPerParagraph();
+			double topEst = ar.getTopIndex() * (1.0 + (av - 1.0) / 2.0);
+			double botEst = (size - ar.getBottomIndex()) * (1.0 + (av - 1.0) / 2.0);
+			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
+
+			// TODO perhaps the whole thing can be moved to arr.
+			double targetRow = Math.round(estTotalRows * pos);
+
+			int ix;
+			int cix;
+			if(targetRow < topEst)
+			{
+				// before the sliding window
+				ix = (int)Math.round(targetRow / av);
+				cix = 0;
+			}
+			else if(targetRow < (size - botEst))
+			{
+				// inside the sliding window
+				int[] rv = ar.findRow((int)(targetRow - topEst));
+				ix = rv[0];
+				cix = rv[1];
+			}
+			else
+			{
+				// after the sliding window
+				ix = (int)Math.round(size - (size - targetRow) / av);
+				cix = 0;
+			}
+
+			double yoff = ix == 0 ? contentPaddingTop : 0.0;
+			setOrigin(ix, cix, origin.xoffset(), yoff);
+
+			requestLayout();
+		}
+	}
+
+
+	protected void updateVerticalScrollBar()
+	{
+		double vis;
+		double val;
+		if(editor.getParagraphCount() == 0)
+		{
+			vis = 1.0;
+			val = 0.0;
+		}
+		else
+		{
+			// unless the arrangement encompasses the whole model, we need to approximate.
+			// to estimated number of rows before and after the sliding window, we'll use the average row per paragraph
+			// statistics from the arrangment, and use a linear approximation between 1.0 and the average:
+			//
+			// *        top at 1.0 rows per paragraph
+			// **
+			// ***      sliding window top     | sliding window gives the exact number of rows
+			// ***                             | and the average
+			// ***      sliding window bottom  |
+			// **
+			// *        end of the model, 1.0 rows per paragraph
+			//
+			Arrangement ar = arrangement();
+			
+			// TODO move to arrangement?
+			double av = ar.averageRowsPerParagraph();
+			double topEst = ar.getTopIndex() * (1.0 + (av - 1.0) / 2.0);
+			double botEst = (ar.getModelSize() - ar.getBottomIndex()) * (1.0 + (av - 1.0) / 2.0);
+			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
+			
+			val = CodePadUtils.toScrollBarValue(topEst + ar.getTopRowCount(), viewRows, estTotalRows);
+			vis = viewRows / estTotalRows;
+		}
+
+		handleScrollEvents = false;
+
+		vscroll.setValue(val);
+		vscroll.setVisibleAmount(vis);
+
+		handleScrollEvents = true;
 	}
 
 
@@ -306,6 +409,40 @@ public class CellGrid
 	}
 	
 	
+	private Arrangement arrangement()
+	{
+		if(arrangement == null)
+		{
+			int size = editor.getParagraphCount();
+			int ix = origin.index();
+			Arrangement a = new Arrangement(cache, size, viewCols, wrapLimit);
+			a.layoutViewPort(ix, origin.cellIndex(), viewRows);
+
+			// lay out bottom half of the sliding window
+			int last = a.getLastViewIndex();
+			int ct = a.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, false); 
+			if(ct < Defaults.SLIDING_WINDOW_HALF)
+			{
+				ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
+			}
+			else
+			{
+				ct = Defaults.SLIDING_WINDOW_HALF;
+			}
+			
+			// layout upper half of the sliding window
+			int top = Math.max(0, ix - ct);
+			ct = ix - top;
+			if(ct > 0)
+			{
+				a.layoutSlidingWindow(top, ct, true);
+			}
+			arrangement = a;
+		}
+		return arrangement;
+	}
+	
+	
 	@Override
 	protected void layoutChildren()
 	{
@@ -337,18 +474,16 @@ public class CellGrid
 			return;
 		}
 		
-		int size = paragraphCount();
+		int size = editor.getParagraphCount();
 		boolean wrap = editor.isWrapText();
 		int tabSize = tabSize();
 		double lineSpacing = lineSpacing();
 		TextCellMetrics tm = textCellMetrics();
-		Arrangement arr = null;
 
-		// number of rows that result in no vsb
-		int viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
-		// number of columns that result in no hsb
-		int viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-		int wrapLimit = wrap ? viewCols : -1;
+		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+		viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+		wrapLimit = wrap ? viewCols : -1;
+		
 		double vsbWidth = 0.0;
 		double hsbHeight = 0.0;
 		
@@ -454,7 +589,7 @@ public class CellGrid
 								firstRow -= ct;
 								cix = wi.getCellIndexAtRow(firstRow);
 								double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-								origin = new Origin(ix, cix, origin.xoffset(), yoffset);
+								setOrigin(ix, cix, origin.xoffset(), yoffset);
 								break;
 							}
 						}
@@ -469,7 +604,7 @@ public class CellGrid
 						{
 							cix = wi.getCellIndexAtRow(rc - ct);
 							double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-							origin = new Origin(ix, cix, origin.xoffset(), yoffset);
+							setOrigin(ix, cix, origin.xoffset(), yoffset);
 							break;
 						}
 					}
@@ -497,34 +632,13 @@ public class CellGrid
 					// move the origin to fill in the bottom
 					int ix = Math.max(0, size - viewRows);
 					double pad = (ix == 0) ? contentPaddingTop : 0.0;
-					origin = new Origin(ix, origin.cellIndex(), origin.xoffset(), pad);
+					setOrigin(ix, origin.cellIndex(), origin.xoffset(), pad);
 				}
 			}
 		}
 		
 		// origin, vsb are set correctly now, ready for layout
-		arr = new Arrangement(cache, size, viewCols, wrapLimit);
-		arr.layoutViewPort(origin.index(), origin.cellIndex(), viewRows);
-
-		// lay out bottom half of the sliding window
-		int last = arr.getLastIndex();
-		int ct = arr.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, false); 
-		if(ct < Defaults.SLIDING_WINDOW_HALF)
-		{
-			ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
-		}
-		else
-		{
-			ct = Defaults.SLIDING_WINDOW_HALF;
-		}
-		
-		// layout upper half of the sliding window
-		int top = Math.max(0, origin.index() - ct);
-		ct = origin.index() - top;
-		if(ct > 0)
-		{
-			arr.layoutSlidingWindow(top, ct, true);
-		}
+		Arrangement arr = arrangement();
 
 		boolean hsb = arr.isHsbNeeded();
 		if(hsb)
@@ -538,8 +652,6 @@ public class CellGrid
 		vscroll.setVisible(vsb);
 		hscroll.setVisible(hsb);
 
-		arrangement = arr;
-		
 		// paint all
 		paintAll();
 		

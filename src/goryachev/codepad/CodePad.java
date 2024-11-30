@@ -87,6 +87,13 @@ public class CodePad
 	{
 		return StyleableProperties.STYLEABLES;
 	}
+	
+	
+	public int getParagraphCount()
+	{
+		CodeModel m = getModel();
+		return m == null ? 0 : m.size();
+	}
 
 
 	public final ReadOnlyProperty<TextPos> anchorPositionProperty()
