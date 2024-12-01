@@ -1,11 +1,12 @@
 // Copyright © 2016-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
+import goryachev.common.log.Log;
+import goryachev.common.log.LogLevel;
 import goryachev.common.util.ASettingsStore;
 import goryachev.common.util.FileSettingsProvider;
 import goryachev.common.util.GlobalSettings;
 import goryachev.fx.FxFramework;
 import goryachev.fx.settings.FxSettingsSchema;
-import goryachev.log.config.JsonLogConfig;
 import java.io.File;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -22,7 +23,9 @@ public class CodePadTesterApp
 	
 	public static void main(String[] args)
 	{
-		JsonLogConfig.configure(new File("log-conf.json"), 1000);
+		Log.initConsole(LogLevel.INFO);
+		Log.setLevel(LogLevel.DEBUG, "CellGrid");
+		
 		launch(args);
 	}
 
@@ -30,13 +33,9 @@ public class CodePadTesterApp
 	@Override
 	public void init() throws Exception
 	{
-		// TODO change to something visible in Documents? platform-specific?
 		File baseDir = new File(System.getProperty("user.home"), ".goryachev.com/CodePadTester");
-			
-//		File logFolder = new File(baseDir, "logs"); 
-//		Log.init(logFolder);
-		
 		File settingsFile = new File(baseDir, "settings.conf");
+
 		FileSettingsProvider p = new FileSettingsProvider(settingsFile);
 		GlobalSettings.setProvider(p);
 		p.loadQuiet();

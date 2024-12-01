@@ -5,6 +5,7 @@
 /*.jar
 /*.log
 /*.conf
+/log-conf.json
 ~*
 hs_err_pid*
 .DS_Store

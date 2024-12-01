@@ -110,6 +110,7 @@ public class CellGrid
 	
 	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
+		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
 		origin = new Origin(index, cellIndex, xoffset, yoffset);
 		arrangement = null;
 	}
@@ -227,8 +228,8 @@ public class CellGrid
 			// TODO move to arrangement?
 			int size = ar.getModelSize();
 			double av = ar.averageRowsPerParagraph();
-			double topEst = ar.getTopIndex() * (1.0 + (av - 1.0) / 2.0);
-			double botEst = (size - ar.getBottomIndex()) * (1.0 + (av - 1.0) / 2.0);
+			double topEst = ar.getTopIndex() * av;
+			double botEst = (size - ar.getBottomIndex()) * av;
 			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
 
 			// TODO perhaps the whole thing can be moved to arr.
@@ -275,24 +276,14 @@ public class CellGrid
 		}
 		else
 		{
-			// unless the arrangement encompasses the whole model, we need to approximate.
-			// to estimated number of rows before and after the sliding window, we'll use the average row per paragraph
-			// statistics from the arrangment, and use a linear approximation between 1.0 and the average:
-			//
-			// *        top at 1.0 rows per paragraph
-			// **
-			// ***      sliding window top     | sliding window gives the exact number of rows
-			// ***                             | and the average
-			// ***      sliding window bottom  |
-			// **
-			// *        end of the model, 1.0 rows per paragraph
-			//
+			// unless the arrangement encompasses the whole model, we need to approximate,
+			// using the average row count per paragraph obtained from the sliding window. 
 			Arrangement ar = arrangement();
 			
 			// TODO move to arrangement?
 			double av = ar.averageRowsPerParagraph();
-			double topEst = ar.getTopIndex() * (1.0 + (av - 1.0) / 2.0);
-			double botEst = (ar.getModelSize() - ar.getBottomIndex()) * (1.0 + (av - 1.0) / 2.0);
+			double topEst = ar.getTopIndex() * av;
+			double botEst = (ar.getModelSize() - ar.getBottomIndex()) * av;
 			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
 			
 			val = CodePadUtils.toScrollBarValue(topEst + ar.getTopRowCount(), viewRows, estTotalRows);
