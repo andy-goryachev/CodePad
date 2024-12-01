@@ -22,11 +22,15 @@ public enum DemoModels
 			"""
 		);
 	}),
-	LARGE_1B("1B Lines", () ->
+	LARGE_1B("1,000,000,000 Lines", () ->
 	{
 		return new LargeModel(1_000_000_000);
 	}),
-	LARGE_1K("1K Lines", () ->
+	LARGE_1M("1,000,000 Lines", () ->
+	{
+		return new LargeModel(1_000_000);
+	}),
+	LARGE_1K("1,000 Lines", () ->
 	{
 		return new LargeModel(1_000);
 	}),

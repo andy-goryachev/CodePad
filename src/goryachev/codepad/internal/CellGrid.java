@@ -106,16 +106,22 @@ public class CellGrid
 		arrangement = null;
 		requestLayout();
 	}
-	
-	
-	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
+
+
+	private boolean setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
 		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
-		origin = new Origin(index, cellIndex, xoffset, yoffset);
-		arrangement = null;
+		Origin or = new Origin(index, cellIndex, xoffset, yoffset);
+		if(!origin.equals(or))
+		{
+			origin = or;
+			arrangement = null;
+			return true;
+		}
+		return false;
 	}
-	
-	
+
+
 	public void handleModelChange()
 	{
 		cache.clear();
@@ -151,7 +157,6 @@ public class CellGrid
 			setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		}
 
-		// TODO update origin
 		cache.clear();
 		arrangement = null;
 		requestLayout();
@@ -213,54 +218,45 @@ public class CellGrid
 	{
 		if(handleScrollEvents)
 		{
-			if(editor.getParagraphCount() == 0)
+			int size = editor.getParagraphCount(); 
+			if(size == 0)
 			{
 				return;
 			}
+			
+			// 1. place the origin roughly at [(size - viewRows) * pos]
+			// 2. compute arrangement
+			// 3. if arr.rowCount > slidingWindowSize, shift the origin down by [(arr.rowCount - slidingWindowSize) * pos]
 
 			double val = vscroll.getValue();
 			double max = vscroll.getMax();
 			double min = vscroll.getMin();
 			double pos = (val - min) / max;
 
+			// 1. rough estimate
+			int ix = Math.max(0, (int)Math.round((size - viewRows) * pos));
+			int cix = 0;
+			setOrigin(ix, cix, origin.xoffset(), 0);
+			
+			// 2. compute arrangement
 			Arrangement ar = arrangement();
-
-			// TODO move to arrangement?
-			int size = ar.getModelSize();
-			double av = ar.averageRowsPerParagraph();
-			double topEst = ar.getTopIndex() * av;
-			double botEst = (size - ar.getBottomIndex()) * av;
-			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
-
-			// TODO perhaps the whole thing can be moved to arr.
-			double targetRow = Math.round(estTotalRows * pos);
-
-			int ix;
-			int cix;
-			if(targetRow < topEst)
+			
+			// 3. adjust
+			int delta = (ar.getRowCount() - viewRows) - (ar.getBottomIndex() - ar.getTopIndex()); // FIX incorrect close to the eof
+			if(delta > 0)
 			{
-				// before the sliding window
-				ix = (int)Math.round(targetRow / av);
-				cix = 0;
-			}
-			else if(targetRow < (size - botEst))
-			{
-				// inside the sliding window
-				int[] rv = ar.findRow((int)(targetRow - topEst));
+				int d = (int)Math.round(delta * pos);
+				int[] rv = ar.findRow(d);
 				ix = rv[0];
 				cix = rv[1];
-			}
-			else
-			{
-				// after the sliding window
-				ix = (int)Math.round(size - (size - targetRow) / av);
-				cix = 0;
+				log.debug("  delta=%d pos=%f ix=%d cix=%d", delta, pos, ix, cix);
 			}
 
 			double yoff = ix == 0 ? contentPaddingTop : 0.0;
-			setOrigin(ix, cix, origin.xoffset(), yoff);
-
-			requestLayout();
+			if(setOrigin(ix, cix, origin.xoffset(), yoff))
+			{
+				requestLayout();
+			}
 		}
 	}
 
@@ -269,7 +265,9 @@ public class CellGrid
 	{
 		double vis;
 		double val;
-		if(editor.getParagraphCount() == 0)
+		
+		int size = editor.getParagraphCount(); 
+		if(size == 0)
 		{
 			vis = 1.0;
 			val = 0.0;
@@ -281,13 +279,12 @@ public class CellGrid
 			Arrangement ar = arrangement();
 			
 			// TODO move to arrangement?
-			double av = ar.averageRowsPerParagraph();
-			double topEst = ar.getTopIndex() * av;
-			double botEst = (ar.getModelSize() - ar.getBottomIndex()) * av;
-			double estTotalRows = topEst + botEst + ar.getSlidingWindowRowCount();
+			double top = ar.getTopIndex();
+			double btm = (size - ar.getBottomIndex());
+			double totalRows = top + btm + ar.getSlidingWindowRowCount();
 			
-			val = CodePadUtils.toScrollBarValue(topEst + ar.getTopRowCount(), viewRows, estTotalRows);
-			vis = viewRows / estTotalRows;
+			val = CodePadUtils.toScrollBarValue(top + ar.getTopRowCount(), viewRows, totalRows);
+			vis = viewRows / totalRows;
 		}
 
 		handleScrollEvents = false;

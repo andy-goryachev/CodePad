@@ -23,8 +23,8 @@ public class Arrangement
 	private int topRowCount;
 	private int bottomRowCount;
 	private int maxCellCount;
-	private int bottomParagraphCount;
-	private int topParagraphCount;
+	private int bottomIndex;
+	private int topIndex;
 	
 	
 	public Arrangement(WrapCache cache, int modelSize, int viewCols, int wrapLimit)
@@ -109,11 +109,11 @@ public class Arrangement
 			}
 			else
 			{
-				ix--;
-				if(ix < 0)
+				if(ix <= 0)
 				{
 					break;
 				}
+				ix--;
 			}
 
 			WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
@@ -132,12 +132,12 @@ public class Arrangement
 		if(forBelow)
 		{
 			bottomRowCount = nrows;
-			bottomParagraphCount = (ix - startIndex);
+			bottomIndex = ix;
 		}
 		else
 		{
 			topRowCount = nrows;
-			topParagraphCount = (ix - startIndex);
+			topIndex = ix;
 		}
 		return nrows;
 	}
@@ -201,34 +201,32 @@ public class Arrangement
 	}
 	
 	
-	public int getTopParagraphCount()
-	{
-		return topParagraphCount;
-	}
-	
-	
 	public int getTopIndex()
 	{
-		return viewStartIndex - topParagraphCount;
+		return topIndex;
 	}
 	
 	
 	public int getBottomIndex()
 	{
-		return lastViewIndex + bottomParagraphCount;
-	}
-	
-	
-	public int getBottomParagraphCount()
-	{
-		return bottomParagraphCount;
+		return bottomIndex;
 	}
 
 
-	public double averageRowsPerParagraph()
+//	public double averageRowsPerParagraph()
+//	{
+//		int d = bottomIndex - topIndex;
+//		if(d == 0)
+//		{
+//			return 1;
+//		}
+//		return getRowCount() / d;
+//	}
+	
+	
+	public int getRowCount()
 	{
-		// TODO some rows are unaccouned for (before the first visible row, and after the last visible row), fix it later
-		return (topRowCount + bottomRowCount + visibleRowCount) / (topParagraphCount + bottomParagraphCount + lastViewIndex - viewStartIndex);
+		return topRowCount + bottomRowCount + visibleRowCount;
 	}
 	
 	
@@ -240,6 +238,7 @@ public class Arrangement
 	
 	public int getSlidingWindowRowCount()
 	{
+		// TODO some rows are missing (first and last visible paragraphs are unaccounted for)
 		return topRowCount + bottomRowCount + visibleRowCount;
 	}
 
@@ -248,21 +247,23 @@ public class Arrangement
 	 * Finds wrap coordinates for the row relative to the top of the sliding window.
 	 * Returns [ix, cix]
 	 */
-	public int[] findRow(int row)
+	public int[] findRow(int row2)
 	{
-		int ix = viewStartIndex - topParagraphCount;
+		int ix = topIndex;
 		int cix = 0;
-		while(row > 0)
+		int r = row2;
+		while(r > 0)
 		{
 			WrapInfo w = cache.getWrapInfo(ix, wrapLimit);
 			int h = w.getRowCount();
-			if(row < h)
+			if(r < h)
 			{
-				cix = w.getCellIndexAtRow(row);
+				cix = w.getCellIndexAtRow(r);
+				break;
 			}
 			else
 			{
-				row -= h;
+				r -= h;
 				ix++;
 			}
 		}
