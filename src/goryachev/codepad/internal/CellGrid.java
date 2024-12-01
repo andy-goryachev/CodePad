@@ -232,24 +232,24 @@ public class CellGrid
 			double max = vscroll.getMax();
 			double min = vscroll.getMin();
 			double pos = (val - min) / max;
-
+			
 			// 1. rough estimate
-			int ix = Math.max(0, (int)Math.round((size - viewRows) * pos));
+			int ix = Math.max(0, (int)Math.round(size * pos));
 			int cix = 0;
 			setOrigin(ix, cix, origin.xoffset(), 0);
+			arrangement = null;
 			
 			// 2. compute arrangement
 			Arrangement ar = arrangement();
 			
 			// 3. adjust
-			int delta = (ar.getRowCount() - viewRows) - (ar.getBottomIndex() - ar.getTopIndex()); // FIX incorrect close to the eof
-			if(delta > 0)
+			int space = ar.getRowCount() - viewRows;
+			if(space > 0)
 			{
-				int d = (int)Math.round(delta * pos);
+				int d = (int)Math.round(space * pos);
 				int[] rv = ar.findRow(d);
 				ix = rv[0];
 				cix = rv[1];
-				log.debug("  delta=%d pos=%f ix=%d cix=%d", delta, pos, ix, cix);
 			}
 
 			double yoff = ix == 0 ? contentPaddingTop : 0.0;
@@ -403,8 +403,9 @@ public class CellGrid
 		{
 			int size = editor.getParagraphCount();
 			int ix = origin.index();
-			Arrangement a = new Arrangement(cache, size, viewCols, wrapLimit);
-			a.layoutViewPort(ix, origin.cellIndex(), viewRows);
+			int cix = origin.cellIndex();
+			Arrangement a = new Arrangement(cache, size, viewCols, wrapLimit, ix, cix);
+			a.layoutViewPort(viewRows);
 
 			// lay out bottom half of the sliding window
 			int last = a.getLastViewIndex();

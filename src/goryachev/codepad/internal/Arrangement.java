@@ -13,12 +13,12 @@ public class Arrangement
 	private final WrapCache cache;
 	private final int modelSize;
 	private final int viewCols;
+	private final int wrapLimit;
+	private final int startIndex;
+	private final int startCellIndex;
 	private final CList<WrapInfo> rows = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private final CList<Integer> offsets = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
-	private int viewStartIndex;
-	private int viewStartCellIndex;
 	private int visibleRowCount;
-	private final int wrapLimit;
 	private int lastViewIndex;
 	private int topRowCount;
 	private int bottomRowCount;
@@ -27,26 +27,24 @@ public class Arrangement
 	private int topIndex;
 	
 	
-	public Arrangement(WrapCache cache, int modelSize, int viewCols, int wrapLimit)
+	public Arrangement(WrapCache cache, int modelSize, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
 	{
 		this.cache = cache;
 		this.modelSize = modelSize;
 		this.viewCols = viewCols;
 		this.wrapLimit = wrapLimit;
+		this.startIndex = startIndex;
+		this.startCellIndex = startCellIndex;		
 	}
 
 
 	/**
-	 * Lays out {@code rowCount} paragraphs.
+	 * Lays out {@code numRows} paragraphs.
 	 * Returns the number of paragraphs actually laid out.
 	 */
-	// TODO move these args to the contructor?
 	// TODO num columns for hsb
-	public void layoutViewPort(int startIndex, int startCellIndex, int numRows)
+	public void layoutViewPort(int numRows)
 	{
-		this.viewStartIndex = startIndex;
-		this.viewStartCellIndex = startCellIndex;
-		
 		int rc = 0;
 		WrapInfo wi = null;
 		int cix = startCellIndex;
@@ -230,10 +228,10 @@ public class Arrangement
 	}
 	
 	
-	public int getModelSize()
-	{
-		return modelSize;
-	}
+//	public int getModelSize()
+//	{
+//		return modelSize;
+//	}
 	
 	
 	public int getSlidingWindowRowCount()
@@ -247,26 +245,28 @@ public class Arrangement
 	 * Finds wrap coordinates for the row relative to the top of the sliding window.
 	 * Returns [ix, cix]
 	 */
-	public int[] findRow(int row2)
+	public int[] findRow(int row)
 	{
 		int ix = topIndex;
 		int cix = 0;
-		int r = row2;
-		while(r > 0)
+		int count = row;
+		
+		while(count > 0)
 		{
 			WrapInfo w = cache.getWrapInfo(ix, wrapLimit);
 			int h = w.getRowCount();
-			if(r < h)
+			if(count < h)
 			{
-				cix = w.getCellIndexAtRow(r);
+				cix = w.getCellIndexAtRow(count);
 				break;
 			}
 			else
 			{
-				r -= h;
+				count -= h;
 				ix++;
 			}
 		}
+		
 		return new int[]
 		{
 			ix,
