@@ -124,6 +124,7 @@ public class CellGrid
 
 	public void handleModelChange()
 	{
+		setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		cache.clear();
 		arrangement = null;
 		requestLayout();
@@ -229,6 +230,10 @@ public class CellGrid
 			// 3. if arr.rowCount > slidingWindowSize, shift the origin down by [(arr.rowCount - slidingWindowSize) * pos]
 
 			double val = vscroll.getValue();
+			
+			// FIX
+			//val = 1;
+			
 			double max = vscroll.getMax();
 			double min = vscroll.getMin();
 			double pos = (val - min) / max;
@@ -241,6 +246,7 @@ public class CellGrid
 			
 			// 2. compute arrangement
 			Arrangement ar = arrangement();
+			log.debug(ar);
 			
 			// 3. adjust
 			int space = ar.getRowCount() - viewRows;
@@ -402,31 +408,7 @@ public class CellGrid
 		if(arrangement == null)
 		{
 			int size = editor.getParagraphCount();
-			int ix = origin.index();
-			int cix = origin.cellIndex();
-			Arrangement a = new Arrangement(cache, size, viewCols, wrapLimit, ix, cix);
-			a.layoutViewPort(viewRows);
-
-			// lay out bottom half of the sliding window
-			int last = a.getLastViewIndex();
-			int ct = a.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, false); 
-			if(ct < Defaults.SLIDING_WINDOW_HALF)
-			{
-				ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
-			}
-			else
-			{
-				ct = Defaults.SLIDING_WINDOW_HALF;
-			}
-			
-			// layout upper half of the sliding window
-			int top = Math.max(0, ix - ct);
-			ct = ix - top;
-			if(ct > 0)
-			{
-				a.layoutSlidingWindow(top, ct, true);
-			}
-			arrangement = a;
+			arrangement = Arrangement.create(cache, size, origin, viewCols, viewRows, wrapLimit);
 		}
 		return arrangement;
 	}

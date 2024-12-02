@@ -20,8 +20,8 @@ public class Arrangement
 	private final CList<Integer> offsets = new CList<>(Defaults.VIEWPORT_ROW_COUNT_ESTIMATE);
 	private int visibleRowCount;
 	private int lastViewIndex;
-	private int topRowCount;
-	private int bottomRowCount;
+	private int topRows;
+	private int bottomRows;
 	private int maxCellCount;
 	private int bottomIndex;
 	private int topIndex;
@@ -36,14 +36,23 @@ public class Arrangement
 		this.startIndex = startIndex;
 		this.startCellIndex = startCellIndex;		
 	}
+	
+	
+	@Override
+	public String toString()
+	{
+		return
+			"Arrangement{topIndex=" + topIndex +
+			", startIndex=" + startIndex +
+			", bottomIndex=" + bottomIndex +
+			", topRows=" + topRows +
+			", visibleRows=" + visibleRowCount +
+			", bottomRows=" + bottomRows +
+			"}";
+	}
 
 
-	/**
-	 * Lays out {@code numRows} paragraphs.
-	 * Returns the number of paragraphs actually laid out.
-	 */
-	// TODO num columns for hsb
-	public void layoutViewPort(int numRows)
+	private void layoutViewPort(int numRows)
 	{
 		int rc = 0;
 		WrapInfo wi = null;
@@ -91,15 +100,19 @@ public class Arrangement
 	}
 	
 	
-	public int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
+	private int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
 	{
 		int nrows = 0;
 		int ix = startIndex;
+		if(!forBelow)
+		{
+			topIndex = startIndex;
+		}
+		
 		for(int i=0; i<count; i++)
 		{
 			if(forBelow)
 			{
-				ix++;
 				if(ix >= modelSize)
 				{
 					break;
@@ -111,11 +124,11 @@ public class Arrangement
 				{
 					break;
 				}
-				ix--;
 			}
 
 			WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
 			nrows += wi.getRowCount();
+			ix++;
 			
 			if(wrapLimit < 0)
 			{
@@ -129,13 +142,12 @@ public class Arrangement
 		
 		if(forBelow)
 		{
-			bottomRowCount = nrows;
+			bottomRows = nrows;
 			bottomIndex = ix;
 		}
 		else
 		{
-			topRowCount = nrows;
-			topIndex = ix;
+			topRows = nrows;
 		}
 		return nrows;
 	}
@@ -189,13 +201,13 @@ public class Arrangement
 	
 	public int getTopRowCount()
 	{
-		return topRowCount;
+		return topRows;
 	}
 	
 	
 	public int getBottomRowcount()
 	{
-		return bottomRowCount;
+		return bottomRows;
 	}
 	
 	
@@ -224,7 +236,7 @@ public class Arrangement
 	
 	public int getRowCount()
 	{
-		return topRowCount + bottomRowCount + visibleRowCount;
+		return topRows + bottomRows + visibleRowCount;
 	}
 	
 	
@@ -237,7 +249,7 @@ public class Arrangement
 	public int getSlidingWindowRowCount()
 	{
 		// TODO some rows are missing (first and last visible paragraphs are unaccounted for)
-		return topRowCount + bottomRowCount + visibleRowCount;
+		return topRows + bottomRows + visibleRowCount;
 	}
 
 
@@ -272,5 +284,35 @@ public class Arrangement
 			ix,
 			cix
 		};
+	}
+
+
+	public static Arrangement create(WrapCache cache, int modelSize, Origin origin, int viewCols, int viewRows, int wrapLimit)
+	{
+		int ix = origin.index();
+		int cix = origin.cellIndex();
+		Arrangement a = new Arrangement(cache, modelSize, viewCols, wrapLimit, ix, cix);
+		a.layoutViewPort(viewRows);
+
+		// lay out bottom half of the sliding window
+		int last = a.getLastViewIndex();
+		int ct = a.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, true); 
+		if(ct < Defaults.SLIDING_WINDOW_HALF)
+		{
+			ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
+		}
+		else
+		{
+			ct = Defaults.SLIDING_WINDOW_HALF;
+		}
+		
+		// layout upper half of the sliding window
+		int top = Math.max(0, ix - ct);
+		ct = ix - top;
+		if(ct > 0)
+		{
+			a.layoutSlidingWindow(top, ct, false);
+		}
+		return a;
 	}
 }
