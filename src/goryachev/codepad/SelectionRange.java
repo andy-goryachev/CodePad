@@ -12,7 +12,7 @@ public final class SelectionRange
     private final boolean caretAtMin;
     
     
-    private SelectionRange(TextPos min, TextPos max, boolean caretAtMin)
+    public SelectionRange(TextPos min, TextPos max, boolean caretAtMin)
     {
     	this.min = min;
     	this.max = max;

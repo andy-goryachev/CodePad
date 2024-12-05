@@ -1,16 +1,20 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.SelectionRange;
+import goryachev.codepad.TextPos;
+import goryachev.codepad.model.CodeModel;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 
 
 /**
- * Selection Model.
+ * Selection Model, supports a single selection range.
  */
 public final class SelectionModel
 {
     private final ReadOnlyObjectWrapper<SelectionRange> range = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<TextPos> anchor = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<TextPos> caret = new ReadOnlyObjectWrapper<>();
     
     
 	public SelectionModel()
@@ -20,6 +24,19 @@ public final class SelectionModel
 
 	public void clear()
 	{
+		set(null, null);
+	}
+	
+	
+	public ReadOnlyProperty<TextPos> anchorPositionProperty()
+	{
+		return anchor.getReadOnlyProperty();
+	}
+	
+	
+	public ReadOnlyProperty<TextPos> caretPositionProperty()
+	{
+		return caret.getReadOnlyProperty();
 	}
 
 
@@ -29,8 +46,50 @@ public final class SelectionModel
 	}
 
 
-	public SelectionRange getSelection()
+	public SelectionRange getSelectionRange()
 	{
 		return range.get();
+	}
+	
+	
+	public void setSelectionRange(CodeModel m, TextPos anchor, TextPos caret)
+	{
+        anchor = m.clamp(anchor);
+        caret = m.clamp(caret);
+        SelectionRange sel;
+
+        boolean caretAtMin = caret.compareTo(anchor) < 0;
+        if(caretAtMin)
+        {
+        	sel = new SelectionRange(caret, anchor, true);
+        }
+        else
+        {
+        	sel = new SelectionRange(anchor, caret, caretAtMin);
+        }
+        set(m, sel);
+	}
+	
+	
+	public void extendSelectionn()
+	{
+		// TODO
+	}
+	
+	
+	private void set(CodeModel m, SelectionRange s)
+	{
+		// TODO can I set all three properties and then call invalidate() on them?
+		if(s == null)
+		{
+			anchor.set(null);
+			caret.set(null);
+		}
+		else
+		{
+			anchor.set(s.getAnchor());
+			caret.set(s.getCaret());
+		}
+		range.set(s);
 	}
 }

@@ -10,7 +10,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.CssMetaData;
@@ -45,8 +44,6 @@ public class CodePad
 	extends Control
 {
 	private final Config config;
-    private final ReadOnlyObjectWrapper<TextPos> anchorPosition = new ReadOnlyObjectWrapper<>();
-    private final ReadOnlyObjectWrapper<TextPos> caretPosition = new ReadOnlyObjectWrapper<>();
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
 	private DoubleProperty aspectRatio;
@@ -98,7 +95,7 @@ public class CodePad
 
 	public final ReadOnlyProperty<TextPos> anchorPositionProperty()
 	{
-		return anchorPosition.getReadOnlyProperty();
+		return selectionModel.anchorPositionProperty();
 	}
 
 
@@ -333,7 +330,7 @@ public class CodePad
 	
 	public final ReadOnlyProperty<TextPos> caretPositionProperty()
 	{
-		return caretPosition.getReadOnlyProperty();
+		return selectionModel.caretPositionProperty();
 	}
 	
 
@@ -542,7 +539,7 @@ public class CodePad
 
 	public final SelectionRange getSelection()
 	{
-		return selectionModel.getSelection();
+		return selectionModel.getSelectionRange();
 	}
 	
 	

@@ -1,6 +1,8 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
 
+import goryachev.codepad.TextPos;
+import java.util.Objects;
 
 /**
  * CodePad Text Model.
@@ -20,6 +22,18 @@ public abstract class CodeModel
 	 * Doing so might result in an undetermined behavior (most likely an exception).
 	 */
 	public abstract CodeParagraph getParagraph(int index);
+	
+	
+	/**
+	 * Returns the length of the paragraph text at the specified {@code index}.
+	 * <p>
+	 * The base class simply invokes {@code getParagraph(index).getTextLength();},
+	 * but subclasses may override this method if a more optimal implementation can be provided. 
+	 */
+	public int getParagraphLength(int index)
+	{
+		return getParagraph(index).getTextLength();
+	}
 
 	
 	public CodeModel()
@@ -40,5 +54,39 @@ public abstract class CodeModel
 	{
 		CodeParagraph p = getParagraph(index);
 		return p.getPlainText();
+	}
+	
+
+	/**
+	 * Clamps the text position to the document limits.
+	 */
+	public final TextPos clamp(TextPos p)
+	{
+		Objects.nonNull(p);
+		int sz = size();
+		int ix = p.index();
+		if(ix < 0)
+		{
+			return TextPos.ZERO;
+		}
+		else if(ix < sz)
+		{
+			int len = getParagraphLength(ix);
+			if(p.offset() > len)
+			{
+				return new TextPos(ix, len);
+			}
+			return p;
+		}
+		else if(sz == 0)
+		{
+			return TextPos.ZERO;
+		}
+		else
+		{
+			ix = sz - 1;
+			int len = getParagraphLength(ix);
+			return new TextPos(ix, len);
+		}
 	}
 }
