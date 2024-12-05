@@ -52,7 +52,7 @@ public class Arrangement
 	}
 
 
-	private void layoutViewPort(int numRows)
+	public void layoutViewPort(int numRows)
 	{
 		int rc = 0;
 		WrapInfo wi = null;
@@ -100,7 +100,7 @@ public class Arrangement
 	}
 	
 	
-	private int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
+	public int layoutSlidingWindow(int startIndex, int count, boolean forBelow)
 	{
 		int nrows = 0;
 		int ix = startIndex;
@@ -284,35 +284,5 @@ public class Arrangement
 			ix,
 			cix
 		};
-	}
-
-
-	public static Arrangement create(WrapCache cache, int modelSize, Origin origin, int viewCols, int viewRows, int wrapLimit)
-	{
-		int ix = origin.index();
-		int cix = origin.cellIndex();
-		Arrangement a = new Arrangement(cache, modelSize, viewCols, wrapLimit, ix, cix);
-		a.layoutViewPort(viewRows);
-
-		// lay out bottom half of the sliding window
-		int last = a.getLastViewIndex();
-		int ct = a.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, true); 
-		if(ct < Defaults.SLIDING_WINDOW_HALF)
-		{
-			ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
-		}
-		else
-		{
-			ct = Defaults.SLIDING_WINDOW_HALF;
-		}
-		
-		// layout upper half of the sliding window
-		int top = Math.max(0, ix - ct);
-		ct = ix - top;
-		if(ct > 0)
-		{
-			a.layoutSlidingWindow(top, ct, false);
-		}
-		return a;
 	}
 }

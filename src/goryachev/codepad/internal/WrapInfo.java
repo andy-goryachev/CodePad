@@ -81,8 +81,8 @@ public abstract class WrapInfo
 			else
 			{
 				// simple wrapped case
-				int rows = 1 + ((p.getCellCount() - 1) / wrapLimit);
-				return new SimpleWrapped(p, rows);
+				int cols = 1 + ((p.getCellCount() - 1) / wrapLimit);
+				return new SimpleWrapped(p, cols);
 			}
 		}
 		else
@@ -182,27 +182,26 @@ public abstract class WrapInfo
 	/** no tabs or complex symbols, wrapped */
 	private static class SimpleWrapped extends WrapInfo
 	{
-		private final int rows;
+		private final int cols;
 		
 		
-		SimpleWrapped(CodeParagraph p, int rows)
+		SimpleWrapped(CodeParagraph p, int cols)
 		{
 			super(p);
-			this.rows = rows;
+			this.cols = cols;
 		}
 
 		
 		@Override
 		public int getRowCount()
 		{
-			return rows;
+			return cols;
 		}
 		
 		
 		@Override
 		public String getCellText(int ix)
 		{
-			// TODO
 			return paragraph.getCellText(ix);
 		}
 
@@ -210,16 +209,14 @@ public abstract class WrapInfo
 		@Override
 		public int getCellIndexAtRow(int row)
 		{
-			// TODO
-			return 0;
+			return row * cols;
 		}
 
 
 		@Override
 		public int getRowAtCellIndex(int cix)
 		{
-			// TODO
-			return 0;
+			return cix / cols;
 		}
 	}
 	

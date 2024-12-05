@@ -407,10 +407,40 @@ public class CellGrid
 	{
 		if(arrangement == null)
 		{
-			int size = editor.getParagraphCount();
-			arrangement = Arrangement.create(cache, size, origin, viewCols, viewRows, wrapLimit);
+			arrangement = createArrangement();
 		}
 		return arrangement;
+	}
+	
+	
+	private Arrangement createArrangement()
+	{
+		int modelSize = editor.getParagraphCount();
+		int ix = origin.index();
+		int cix = origin.cellIndex();
+		Arrangement a = new Arrangement(cache, modelSize, viewCols, wrapLimit, ix, cix);
+		a.layoutViewPort(viewRows);
+		
+		// lay out bottom half of the sliding window
+		int last = a.getLastViewIndex();
+		int ct = a.layoutSlidingWindow(last, Defaults.SLIDING_WINDOW_HALF, true); 
+		if(ct < Defaults.SLIDING_WINDOW_HALF)
+		{
+			ct = (Defaults.SLIDING_WINDOW_HALF - ct) + Defaults.SLIDING_WINDOW_HALF;
+		}
+		else
+		{
+			ct = Defaults.SLIDING_WINDOW_HALF;
+		}
+		
+		// layout upper half of the sliding window
+		int top = Math.max(0, ix - ct);
+		ct = ix - top;
+		if(ct > 0)
+		{
+			a.layoutSlidingWindow(top, ct, false);
+		}
+		return a;
 	}
 	
 	
@@ -463,6 +493,11 @@ public class CellGrid
 		boolean vsb;
 		if(wrap)
 		{
+			int nrows = 0;
+			int firstRow = -1;
+			WrapInfo wi;
+			boolean reachedEnd = false;
+
 			// make an easy check if vsb is needed
 			if(size > viewRows)
 			{
@@ -470,16 +505,46 @@ public class CellGrid
 				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 				canvasWidth -= vsbWidth;
 				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+				
+				// check to see if the origin needs to be moved to fill the view port
+				int ix = origin.index();
+				int cix = origin.cellIndex();
+				
+				for(;;)
+				{
+					if(ix >= size)
+					{
+						reachedEnd = true;
+						break;
+					}
+					
+					wi = cache.getWrapInfo(ix, wrapLimit);
+					
+					if(cix == 0)
+					{
+						nrows += wi.getRowCount();
+					}
+					else
+					{
+						firstRow = wi.getRowAtCellIndex(cix);
+						nrows += (wi.getRowCount() - firstRow);
+						cix = 0;
+					}
+					
+					if(nrows > viewRows)
+					{
+						break;
+					}
+					
+					ix++;						
+				}
 			}
 			else
 			{
 				// make another check for vsb visibility, this time by actually wrapping the text rows
 				// start with assumption that vsb is not needed
 				vsb = false;
-				int nrows;
-				int firstRow;
 				boolean run = false;
-				boolean reachedEnd = false;
 				
 				do
 				{
@@ -489,7 +554,7 @@ public class CellGrid
 
 					int ix = origin.index();
 					int cix = origin.cellIndex();
-					WrapInfo wi = null;
+					wi = null;
 					
 					for(;;)
 					{
@@ -535,49 +600,49 @@ public class CellGrid
 						ix++;						
 					}
 				} while(run);
+			}
 				
-				if(reachedEnd)
+			if(reachedEnd)
+			{
+				// move the origin to fill in the viewport
+				int ct = viewRows - nrows;
+				int ix = origin.index();
+				int cix = origin.cellIndex();
+				
+				while((ix > 0) && (ct > 0))
 				{
-					// move the origin to fill in the viewport
-					int ct = viewRows - nrows;
-					int ix = origin.index();
-					int cix = origin.cellIndex();
+					wi = cache.getWrapInfo(ix, wrapLimit);
 					
-					while((ix > 0) && (ct > 0))
+					if(firstRow > 0)
 					{
-						WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
-						
-						if(firstRow > 0)
+						if(firstRow < ct)
 						{
-							if(firstRow < ct)
-							{
-								ct -= firstRow;
-								firstRow = 0;
-								ix--;
-							}
-							else
-							{
-								firstRow -= ct;
-								cix = wi.getCellIndexAtRow(firstRow);
-								double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-								setOrigin(ix, cix, origin.xoffset(), yoffset);
-								break;
-							}
-						}
-						
-						int rc = wi.getRowCount();
-						if(rc < ct)
-						{
-							--ix;
-							--ct;
+							ct -= firstRow;
+							firstRow = 0;
+							ix--;
 						}
 						else
 						{
-							cix = wi.getCellIndexAtRow(rc - ct);
+							firstRow -= ct;
+							cix = wi.getCellIndexAtRow(firstRow);
 							double yoffset = ix == 0 ? contentPaddingTop : 0.0;
 							setOrigin(ix, cix, origin.xoffset(), yoffset);
 							break;
 						}
+					}
+					
+					int rc = wi.getRowCount();
+					if(rc < ct)
+					{
+						--ix;
+						--ct;
+					}
+					else
+					{
+						cix = wi.getCellIndexAtRow(rc - ct);
+						double yoffset = ix == 0 ? contentPaddingTop : 0.0;
+						setOrigin(ix, cix, origin.xoffset(), yoffset);
+						break;
 					}
 				}
 			}
@@ -610,7 +675,7 @@ public class CellGrid
 		
 		// origin, vsb are set correctly now, ready for layout
 		Arrangement arr = arrangement();
-
+		
 		boolean hsb = arr.isHsbNeeded();
 		if(hsb)
 		{

@@ -58,6 +58,9 @@ public class Options
 	{
 		ObjectChoice<Insets> c = new ObjectChoice<>(name);
 		c.add("<null>", null);
+		c.add("1", new Insets(1));
+		c.add("2", new Insets(2));
+		c.add("3", new Insets(3));
 		c.add("10", new Insets(10));
 		c.add("100", new Insets(100));
 		c.add("T11.R22.B33.L44", new Insets(11, 22, 33, 44));
