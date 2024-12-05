@@ -146,10 +146,10 @@ public class CellGrid
 			m = Insets.EMPTY;
 		}
 
-		contentPaddingTop = snapPositionY(m.getTop());
-		contentPaddingBottom = snapPositionY(m.getBottom());
-		contentPaddingLeft = snapPositionX(m.getLeft());
-		contentPaddingRight = snapPositionX(m.getRight());
+		contentPaddingTop = snapSizeY(m.getTop());
+		contentPaddingBottom = snapSizeY(m.getBottom());
+		contentPaddingLeft = snapSizeX(m.getLeft());
+		contentPaddingRight = snapSizeX(m.getRight());
 
 		// TODO set horizontal scroll to 0
 
@@ -505,6 +505,7 @@ public class CellGrid
 				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
 				canvasWidth -= vsbWidth;
 				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+				wrapLimit = viewCols;
 				
 				// check to see if the origin needs to be moved to fill the view port
 				int ix = origin.index();
