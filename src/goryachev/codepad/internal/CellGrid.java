@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.SelectionRange;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
@@ -187,7 +188,7 @@ public class CellGrid
 	}
 	
 	
-	void handleWidthChange()
+	private void handleWidthChange()
 	{
 		// TODO scroll horizontally
 		arrangement = null;
@@ -195,17 +196,23 @@ public class CellGrid
 	}
 	
 	
-	void handleHeightChange()
+	private void handleHeightChange()
 	{
 		arrangement = null;
 		requestLayout();
 	}
 	
 	
-	void handleScaleChange()
+	private void handleScaleChange()
 	{
 		arrangement = null;
 		requestLayout();
+	}
+	
+	
+	public void handleSelectionChange(Object src, SelectionRange old, SelectionRange sel)
+	{
+		// TODO repaint damaged area: union of old and new selection ranges
 	}
 
 

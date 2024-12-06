@@ -60,6 +60,7 @@ public class CodePadSkin
 		disconnector.addChangeListener(ed.wrapTextProperty(), true, grid::setWrapText);
 		disconnector.addInvalidationListener(grid::handleVerticalScroll, vscroll.valueProperty());
 		disconnector.addInvalidationListener(grid::handleHorizontalScroll, hscroll.valueProperty());
+		disconnector.addChangeListener(ed.selectionProperty(), false, grid::handleSelectionChange);
 	}
 
 
