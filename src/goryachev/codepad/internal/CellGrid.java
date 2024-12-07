@@ -163,7 +163,6 @@ public class CellGrid
 			TextPos caret = sel.getCaret();
 			if(isVisible(caret))
 			{
-				log.debug("paintCaret=%s", paintCaret.get());
 				// TODO repaint only the damaged area
 				paintAll();
 			}
