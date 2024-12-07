@@ -5,6 +5,7 @@ import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.fx.FX;
+import goryachev.fx.input.InputMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -33,17 +34,23 @@ import javafx.scene.text.Font;
 /**
  * CodePad is a high performance monospaced text editor for JavaFX.
  * 
- * Supports:
+ * Supported:
  * - large virtualized models up to ~2 billion paragraphs
  * - long paragraphs (millions on symbols)
  * - fixed-cell grid rendering
  * - limited set of text attributes
  * - limited decorations
+ * 
+ * Not supported:
+ * - bidirectional text
+ * - text shaping
+ * - proportional fonts
  */
 public class CodePad
 	extends Control
 {
 	private final Config config;
+	private final InputMap inputMap;
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
 	private DoubleProperty aspectRatio;
@@ -63,6 +70,7 @@ public class CodePad
 	public CodePad(Config config, CodeModel model)
 	{
 		this.config = config.copy();
+		this.inputMap = new InputMap(this);
 		setModel(model);
 	}
 
