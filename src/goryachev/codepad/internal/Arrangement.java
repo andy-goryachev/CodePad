@@ -1,5 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
+import goryachev.codepad.TextPos;
 import goryachev.common.util.CList;
 
 
@@ -284,5 +285,30 @@ public class Arrangement
 			ix,
 			cix
 		};
+	}
+
+
+	public boolean isVisible(TextPos p)
+	{
+		int last = rows.size() - 1;
+		if(last < 0)
+		{
+			return false;
+		}
+		
+		WrapInfo wi = rows.get(0);
+		int cix = offsets.get(0);
+		if(p.isBefore(wi.getIndex(), cix))
+		{
+			return false;
+		}
+		
+		wi = rows.get(last);
+		cix = offsets.get(last);
+		if(p.isAfter(wi.getIndex(), cix))
+		{
+			return false;
+		}
+		return true;
 	}
 }

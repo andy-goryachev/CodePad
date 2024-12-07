@@ -26,9 +26,13 @@ public class Defaults
 	
 	public static final Insets CONTENT_PADDING = null;
 	
+	public static final boolean DISPLAY_CARET = true;
+	
 	public static final Font FONT = Font.font("Monospaced", -1);
 	
 	public static final double LINE_COLOR_OPACITY = 0.9;
+	
+	public static final double LINE_SPACING = 0.0;
 	
 	public static final double MIN_HEIGHT = 20;
 	

@@ -99,4 +99,34 @@ public final class TextPos
 	{
 		return "TextPos{index=" + index + ", offset=" + offset + "}";
 	}
+
+
+	// TODO maybe replace with compare(int,int)
+	public boolean isBefore(int ix, int cix)
+	{
+		if(index < ix)
+		{
+			return true;
+		}
+		else if(index == ix)
+		{
+			return offset < cix;
+		}
+		return false;
+	}
+	
+	
+	// TODO maybe replace with compare(int,int)
+	public boolean isAfter(int ix, int cix)
+	{
+		if(index > ix)
+		{
+			return true;
+		}
+		else if(index == ix)
+		{
+			return offset > cix;
+		}
+		return false;
+	}
 }

@@ -42,4 +42,11 @@ public final class SelectionRange
     {
     	return min;
     }
+    
+    
+    public boolean isCaretLine(int ix)
+    {
+    	TextPos p = getCaret();
+    	return (p == null) ? false : (p.index() == ix);
+    }
 }

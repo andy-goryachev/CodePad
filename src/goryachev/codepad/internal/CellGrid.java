@@ -2,13 +2,19 @@
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.SelectionRange;
+import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
 import goryachev.fx.FX;
+import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -21,6 +27,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
+import javafx.util.Duration;
 
 
 /**
@@ -58,6 +66,12 @@ public class CellGrid
 	// number of columns that result in no hsb
 	private int viewCols;
 	private int wrapLimit;
+	private final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
+	private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
+	private final BooleanExpression paintCaret;
+	private Timeline cursorAnimation;
+	private boolean cursorOn = true;
+	private boolean highlightCaretLine;
 
 
 	public CellGrid(CodePadSkin skin, ScrollBar vscroll, ScrollBar hscroll)
@@ -69,10 +83,27 @@ public class CellGrid
 
 		getChildren().addAll(vscroll, hscroll);
 		
+		paintCaret = new FxBooleanBinding(caretEnabledProperty, editor.displayCaretProperty(), editor.focusedProperty(), editor.disabledProperty(), suppressBlink)
+		{
+			@Override
+			protected boolean computeValue()
+			{
+				return
+					(caretEnabledProperty.get() || suppressBlink.get()) &&
+					editor.isDisplayCaret() &&
+					editor.isFocused() &&
+					(!editor.isDisabled());
+			}
+		};
+		paintCaret.addListener((s,p,c) -> refreshCursor());
+		
 		FX.addInvalidationListener(widthProperty(), this::handleWidthChange);
 		FX.addInvalidationListener(heightProperty(), this::handleHeightChange);
 		FX.addInvalidationListener(scaleXProperty(), this::handleScaleChange);
 		FX.addInvalidationListener(scaleYProperty(), this::handleScaleChange);
+		
+		// FIX parent AND display caret AND model != null
+		FX.parentWindowProperty(this).addListener((s,p,c) -> updateCursorAnimation(c));
 	}
 	
 	
@@ -120,6 +151,66 @@ public class CellGrid
 			return true;
 		}
 		return false;
+	}
+	
+	
+	private void refreshCursor()
+	{
+		SelectionRange sel = editor.getSelection();
+		// TODO create binding of(model, parent window, non-null selection)
+		if(sel != null)
+		{
+			TextPos caret = sel.getCaret();
+			if(isVisible(caret))
+			{
+				// TODO repaint only the damaged area
+				paintAll();
+			}
+		}
+	}
+	
+	
+	private boolean isVisible(TextPos p)
+	{
+		return p == null ? false : arrangement().isVisible(p);
+	}
+
+	
+	protected void blinkCursor()
+	{
+		cursorOn = !cursorOn;
+		refreshCursor();
+	}
+	
+	
+	private void updateCursorAnimation(Window w)
+	{
+		if(w == null)
+		{
+			if(cursorAnimation != null)
+			{
+				log.trace("stopping cursor animation");
+				cursorAnimation.stop();
+				cursorAnimation = null;
+			}
+		}
+		else
+		{
+			if(cursorAnimation == null)
+			{
+				log.trace("starting cursor animation");
+				cursorAnimation = createCursorAnimation();
+			}
+		}
+	}
+	
+	
+	private Timeline createCursorAnimation()
+	{
+		Timeline t = new Timeline(new KeyFrame(Duration.millis(500), (ev) -> blinkCursor()));
+		t.setCycleCount(Timeline.INDEFINITE);
+		t.play();
+		return t;
 	}
 
 
@@ -213,6 +304,7 @@ public class CellGrid
 	public void handleSelectionChange(Object src, SelectionRange old, SelectionRange sel)
 	{
 		// TODO repaint damaged area: union of old and new selection ranges
+		paintAll();
 	}
 
 
@@ -371,7 +463,7 @@ public class CellGrid
 		
 		if(selected)
 		{
-			c = CodePadUtils.mixColor(c, editor.getSelectionBackgroundColor(), Defaults.SELECTION_BACKGROUND_OPACITY);
+			c = CodePadUtils.mixColor(c, editor.getSelectionColor(), Defaults.SELECTION_BACKGROUND_OPACITY);
 		}
 		
 		if(cellBG != null)
@@ -753,6 +845,9 @@ public class CellGrid
 	
 	public void paintAll()
 	{
+		// can cache because this method will be called on change
+		highlightCaretLine = (editor.getCaretColor() != null);
+		
 		int maxy = arrangement.getVisibleRowCount();
 		int wrapLimit = arrangement.getWrapLimit();
 		TextCellMetrics tm = textCellMetrics();
@@ -779,24 +874,21 @@ public class CellGrid
 
 	// paints a number of cells horizontally
 	// TODO cell count, or until x > canvasWidth
-	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex, int cellCount, double x, double y)
+	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, int cellCount, double x, double y)
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
 		
 		for(int i=0; i<cellCount; i++)
 		{
-			int ix = cellIndex + i;
-			
-			// TODO
-//			int line = row.getLineNumber();
-//			int flags = SelectionHelper.getFlags(this, editor.selector.getSelectedSegment(), line, cell, x);
-			boolean caretLine = false; //SelectionHelper.isCaretLine(flags);
-			boolean caret = false; //SelectionHelper.isCaret(flags);
-			boolean selected = false; //SelectionHelper.isSelected(flags);
+			int cix = cellIndex0 + i;
+			int flags = SelectionHelper.getFlags(this, highlightCaretLine, editor.getSelection(), wi, cix);
+			boolean caretLine = SelectionHelper.isCaretLine(flags);
+			boolean caret = SelectionHelper.isCaret(flags);
+			boolean selected = SelectionHelper.isSelected(flags);
 			
 			// style
-			CellStyle style = wi.getCellStyle(ix);
+			CellStyle style = wi.getCellStyle(cix);
 			if(style == null)
 			{
 				style = CellStyle.EMPTY;
@@ -810,16 +902,16 @@ public class CellGrid
 				gx.fillRect(x, y, tm.cellWidth, tm.cellHeight);
 			}
 			
-			// TODO caret
-//			if(paintCaret.get())
-//			{
+			// caret
+			if(paintCaret.get())
+			{
 				if(caret)
 				{
 					// TODO insert mode
 					gx.setFill(editor.getCaretColor());
 					gx.fillRect(x, y, 2, tm.cellHeight);
 				}
-//			}
+			}
 			
 			if(style.isUnderline())
 			{
@@ -828,7 +920,7 @@ public class CellGrid
 			}
 			
 			// text
-			String text = wi.getCellText(ix);
+			String text = wi.getCellText(cix);
 			if(text != null)
 			{
 				Color fg = style.getTextColor();

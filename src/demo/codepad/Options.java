@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.TextPos;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
@@ -9,12 +10,15 @@ import demo.codepad.options.BooleanChoice;
 import demo.codepad.options.ColorChoice;
 import demo.codepad.options.DoubleChoice;
 import demo.codepad.options.FontChoice;
+import demo.codepad.options.IntChoice;
 import demo.codepad.options.ObjectChoice;
 import demo.codepad.options.OptionsPane;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.layout.HBox;
 
 
 /**
@@ -38,16 +42,30 @@ public class Options
 		op.option("Content padding:", contentPaddingOption("contentPadding", ed.contentPaddingProperty()));
 		op.option("Font:", new FontChoice("font", ed.fontProperty()));
 		op.option(new BooleanChoice("lineNumbers", "Line Numbers", null)); // TODO
-		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 10, 33.3));
-		op.option("Tab Size:", null); // TODO
+		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 1, 2, 5, 10, 33.3));
+		op.option("Tab Size:", IntChoice.of("tabSize", ed.tabSizeProperty(), 0, 1, 3, 4, 8, 16));
+		// FIX
 		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
+		{
+			Button b1 = new Button("Select 0");
+			b1.setOnAction((ev) ->
+			{
+				ed.select(TextPos.ZERO);
+			});
+			Button b2 = new Button("Select Lines");
+			b2.setOnAction((ev) ->
+			{
+				ed.select(TextPos.ZERO, new TextPos(2, 1));
+			});
+			op.option(new HBox(2, b1, b2));
+		}
 
 		// colors
 		op.section("Colors");
 		op.option("Background:", new ColorChoice("backgroundColor", ed.backgroundColorProperty()));
 		op.option("Caret Color:", new ColorChoice("caretColor", ed.caretColorProperty()));
 		op.option("Caret Line Color:", new ColorChoice("caretLineColor", ed.caretLineColorProperty()));
-		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionBackgroundColorProperty()));
+		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionColorProperty()));
 		op.option("Text Color:", new ColorChoice("textColor", ed.textColorProperty()));
 
 		return op;

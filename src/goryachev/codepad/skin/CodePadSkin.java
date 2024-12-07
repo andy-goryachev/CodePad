@@ -50,7 +50,7 @@ public class CodePadSkin
 			ed.backgroundColorProperty(),
 			ed.caretColorProperty(),
 			ed.caretLineColorProperty(),
-			ed.selectionBackgroundColorProperty(),
+			ed.selectionColorProperty(),
 			ed.textColorProperty()
 		);
 		disconnector.addChangeListener(ed.contentPaddingProperty(), true, grid::setContentPadding);

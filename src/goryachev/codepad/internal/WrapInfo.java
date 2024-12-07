@@ -41,6 +41,12 @@ public abstract class WrapInfo
 	}
 	
 	
+	public int getIndex()
+	{
+		return paragraph.getIndex();
+	}
+	
+	
 	public int getCellCount()
 	{
 		return paragraph.getCellCount();

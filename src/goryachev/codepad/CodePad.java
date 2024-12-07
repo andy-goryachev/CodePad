@@ -47,16 +47,17 @@ public class CodePad
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
 	private DoubleProperty aspectRatio;
-	private ObjectProperty<Color> backgroundColor;
-	private ObjectProperty<Color> caretColor;
-	private ObjectProperty<Color> caretLineColor;
-	private ObjectProperty<Insets> contentPadding;
-	private ObjectProperty<Font> font;
+	private StyleableObjectProperty<Color> backgroundColor;
+	private StyleableObjectProperty<Color> caretColor;
+	private StyleableObjectProperty<Color> caretLineColor;
+	private StyleableObjectProperty<Insets> contentPadding;
+	private StyleableBooleanProperty displayCaretProperty;
+	private StyleableObjectProperty<Font> font;
 	private DoubleProperty lineSpacing;
-	private ObjectProperty<Color> selectionBackgroundColor;
+	private StyleableObjectProperty<Color> selectionColor;
 	private IntegerProperty tabSize;
-	private ObjectProperty<Color> textColor;
-	private BooleanProperty wrapText;
+	private StyleableObjectProperty<Color> textColor;
+	private StyleableBooleanProperty wrapText;
 
 
 	public CodePad(Config config, CodeModel model)
@@ -64,11 +65,27 @@ public class CodePad
 		this.config = config.copy();
 		setModel(model);
 	}
-	
+
 
 	public CodePad(CodeModel model)
 	{
 		this(Config.getDefault(), model);
+	}
+
+
+	public void select(TextPos p)
+	{
+		select(p, p);
+	}
+
+
+	public void select(TextPos anchor, TextPos caret)
+	{
+		CodeModel m = getModel();
+		if(m != null)
+		{
+			selectionModel.setSelectionRange(m, anchor, caret);
+		}
 	}
 
 
@@ -388,6 +405,54 @@ public class CodePad
 		contentPaddingProperty().setValue(v);
 	}
 	
+	
+    /**
+     * Determines whether to show the caret.
+     * 
+     * @defaultValue {@code true}
+     */
+	public final BooleanProperty displayCaretProperty()
+	{
+		if(displayCaretProperty == null)
+		{
+			displayCaretProperty = new StyleableBooleanProperty(Defaults.DISPLAY_CARET)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "displayCaret";
+				}
+
+
+				@Override
+				public CssMetaData getCssMetaData()
+				{
+					return StyleableProperties.DISPLAY_CARET;
+				}
+			};
+		}
+		return displayCaretProperty;
+	}
+
+
+	public final boolean isDisplayCaret()
+	{
+		return displayCaretProperty == null ? Defaults.DISPLAY_CARET : displayCaretProperty.getValue();
+	}
+
+
+	public final void setDisplayCaret(boolean on)
+	{
+		displayCaretProperty().setValue(on);
+	}
+	
 
 	/**
 	 * The font to be used by the editor.
@@ -455,7 +520,7 @@ public class CodePad
 	{
 		if(lineSpacing == null)
 		{
-			lineSpacing = new StyleableDoubleProperty(0)
+			lineSpacing = new StyleableDoubleProperty(Defaults.LINE_SPACING)
 			{
 				@Override
 				public Object getBean()
@@ -492,7 +557,7 @@ public class CodePad
 
 	public final double getLineSpacing()
 	{
-		return lineSpacing == null ? 0 : lineSpacing.get();
+		return lineSpacing == null ? Defaults.LINE_SPACING : lineSpacing.get();
 	}
 
 	
@@ -548,11 +613,11 @@ public class CodePad
 	 *
 	 * @defaultValue Color.TBD
 	 */
-	public final ObjectProperty<Color> selectionBackgroundColorProperty()
+	public final ObjectProperty<Color> selectionColorProperty()
 	{
-		if(selectionBackgroundColor == null)
+		if(selectionColor == null)
 		{
-			selectionBackgroundColor = new StyleableObjectProperty(Defaults.SELECTION_BACKGROUND_COLOR)
+			selectionColor = new StyleableObjectProperty(Defaults.SELECTION_BACKGROUND_COLOR)
 			{
 				@Override
 				public Object getBean()
@@ -564,14 +629,14 @@ public class CodePad
 				@Override
 				public String getName()
 				{
-					return "selectionBackgroundColor";
+					return "selectionColor";
 				}
 
 
 				@Override
 				public CssMetaData<CodePad,Color> getCssMetaData()
 				{
-					return StyleableProperties.SELECTION_BACKGROUND_COLOR;
+					return StyleableProperties.SELECTION_COLOR;
 				}
 
 
@@ -582,19 +647,19 @@ public class CodePad
 				}
 			};
 		}
-		return selectionBackgroundColor;
+		return selectionColor;
 	}
 
 
-	public final Color getSelectionBackgroundColor()
+	public final Color getSelectionColor()
 	{
-		return selectionBackgroundColor == null ? Defaults.SELECTION_BACKGROUND_COLOR : selectionBackgroundColor.get();
+		return selectionColor == null ? Defaults.SELECTION_BACKGROUND_COLOR : selectionColor.get();
 	}
 
 
-	public final void setSelectionBackgroundColor(Color c)
+	public final void setSelectionColor(Color c)
 	{
-		selectionBackgroundColorProperty().set(c);
+		selectionColorProperty().set(c);
 	}
 	
 	
@@ -723,7 +788,7 @@ public class CodePad
 	{
 		if(wrapText == null)
 		{
-			wrapText = new StyleableBooleanProperty(false)
+			wrapText = new StyleableBooleanProperty(Defaults.WRAP_TEXT)
 			{
 				@Override
 				public Object getBean()
@@ -752,13 +817,13 @@ public class CodePad
 
 	public final boolean isWrapText()
 	{
-		return wrapText.getValue();
+		return wrapText == null ? Defaults.WRAP_TEXT : wrapText.getValue();
 	}
 
 
 	public final void setWrapText(boolean on)
 	{
-		wrapText.setValue(on);
+		wrapTextProperty().setValue(on);
 	}
 
 
@@ -849,6 +914,23 @@ public class CodePad
 				return (StyleableProperty<Insets>)n.contentPaddingProperty();
 			}
 		};
+		
+		// display caret
+		private static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-ag-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.displayCaretProperty == null || !n.displayCaretProperty.isBound(); 
+			}
+
+
+			@Override
+			public StyleableProperty<Boolean> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Boolean>)n.displayCaretProperty();
+			}
+		};
 
 		// font
 		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-ag-font", Defaults.FONT)
@@ -885,19 +967,19 @@ public class CodePad
 		};
 		
 		// selection background
-		private static final CssMetaData<CodePad,Color> SELECTION_BACKGROUND_COLOR = new CssMetaData<>("-ag-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
+		private static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-ag-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
 			{
-				return n.selectionBackgroundColor == null || !n.selectionBackgroundColor.isBound();
+				return n.selectionColor == null || !n.selectionColor.isBound();
 			}
 
 
 			@Override
 			public StyleableProperty<Color> getStyleableProperty(CodePad n)
 			{
-				return (StyleableProperty<Color>)n.selectionBackgroundColorProperty();
+				return (StyleableProperty<Color>)n.selectionColorProperty();
 			}
 		};
 
@@ -960,9 +1042,10 @@ public class CodePad
 			CARET_COLOR,
 			CARET_LINE_COLOR,
 			CONTENT_PADDING,
+			DISPLAY_CARET,
 			FONT,
 			LINE_SPACING,
-			SELECTION_BACKGROUND_COLOR,
+			SELECTION_COLOR,
 			TAB_SIZE,
 			TEXT_COLOR,
 			WRAP_TEXT
