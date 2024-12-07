@@ -83,15 +83,25 @@ public class CodePadSkin
 
 
 	@Override
+	public void install()
+	{
+		super.install();
+		getSkinnable().getInputMap().setSkinInputMap(behavior.getSkinInputMap());
+	}
+	
+	
+	@Override
 	public void dispose()
 	{
 		if(disconnector != null)
 		{
 			disconnector.disconnect();
 			disconnector = null;
-		}
+			
+			getSkinnable().getInputMap().setSkinInputMap(null);
 
-		super.dispose();
+			super.dispose();
+		}
 	}
 
 

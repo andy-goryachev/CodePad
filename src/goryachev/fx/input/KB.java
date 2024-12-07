@@ -68,73 +68,73 @@ public class KB
 	
 	public static KB of(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED);
+		return create(k);
 	}
 	
 
 	public static KB alt(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.ALT);
+		return create(k, KMod.ALT);
 	}
 
 
 	public static KB command(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.COMMAND);
+		return create(k, KMod.COMMAND);
 	}
 	
 	
 	public static KB ctrl(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.CTRL);
+		return create(k, KMod.CTRL);
 	}
 
 	
 	public static KB ctrlShift(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.CTRL, KMod.SHIFT);
+		return create(k, KMod.CTRL, KMod.SHIFT);
 	}
 	
 	
 	public static KB meta(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.META);
+		return create(k, KMod.META);
 	}
 	
 	
 	public static KB option(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.OPTION);
+		return create(k, KMod.OPTION);
 	}
 	
 	
 	public static KB shift(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.SHIFT);
+		return create(k, KMod.SHIFT);
 	}
 	
 	
 	public static KB shiftOption(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.SHIFT, KMod.OPTION);
+		return create(k, KMod.SHIFT, KMod.OPTION);
 	}
 	
 	
 	public static KB shiftShortcut(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.SHIFT, KMod.SHORTCUT);
+		return create(k, KMod.SHIFT, KMod.SHORTCUT);
 	}
 	
 	
 	public static KB shortcut(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.SHORTCUT);
+		return create(k, KMod.SHORTCUT);
 	}
 	
 	
 	public static KB windows(KeyCode k)
 	{
-		return create(k, KMod.KEY_PRESSED, KMod.WINDOWS);
+		return create(k, KMod.WINDOWS);
 	}
 	
 	

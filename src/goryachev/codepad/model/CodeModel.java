@@ -1,8 +1,8 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
-
 import goryachev.codepad.TextPos;
 import java.util.Objects;
+
 
 /**
  * CodePad Text Model.
@@ -88,5 +88,23 @@ public abstract class CodeModel
 			int len = getParagraphLength(ix);
 			return new TextPos(ix, len);
 		}
+	}
+	
+	
+	public TextPos getDocumentEnd()
+	{
+		int ix = size() - 1;
+		if(ix < 0)
+		{
+			return TextPos.ZERO;
+		}
+		return getEndOfParagraph(ix);
+	}
+	
+	
+	public TextPos getEndOfParagraph(int ix)
+	{
+		int cix = getParagraphLength(ix);
+		return new TextPos(ix, cix);
 	}
 }

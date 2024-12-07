@@ -6,14 +6,35 @@ import javafx.scene.control.Control;
 /**
  * Behavior Base.
  */
-public class BehaviorBase<C extends Control>
+public abstract class BehaviorBase<C extends Control>
 {
+	protected abstract void populateSkinInputMap();
+	
+	
 	private final C control;
+	private SkinInputMap skinInputMap;
 	
 	
 	public BehaviorBase(C c)
 	{
 		this.control = c;
+	}
+	
+	
+	public C control()
+	{
+		return control;
+	}
+	
+	
+	public SkinInputMap getSkinInputMap()
+	{
+		if(skinInputMap == null)
+		{
+			skinInputMap = new SkinInputMap();
+			populateSkinInputMap();
+		}
+		return skinInputMap;
 	}
 	
 	

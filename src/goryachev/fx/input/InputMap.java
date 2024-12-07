@@ -16,4 +16,16 @@ public class InputMap
 	{
 		this.control = c;
 	}
+	
+	
+	public void setSkinInputMap(SkinInputMap m)
+	{
+		// TODO
+	}
+
+
+	public void exec(FID selectAll)
+	{
+		// TODO
+	}
 }

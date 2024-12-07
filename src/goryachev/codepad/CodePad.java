@@ -5,6 +5,7 @@ import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.fx.FX;
+import goryachev.fx.input.FID;
 import goryachev.fx.input.InputMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
@@ -49,6 +50,12 @@ import javafx.scene.text.Font;
 public class CodePad
 	extends Control
 {
+	public static class Fun
+	{
+		public static final FID SELECT_ALL = new FID();
+	}
+	
+	
 	private final Config config;
 	private final InputMap inputMap;
 	private SimpleObjectProperty<CodeModel> model;
@@ -78,6 +85,12 @@ public class CodePad
 	public CodePad(CodeModel model)
 	{
 		this(Config.getDefault(), model);
+	}
+	
+	
+	public InputMap getInputMap()
+	{
+		return inputMap;
 	}
 
 
@@ -1058,5 +1071,24 @@ public class CodePad
 			TEXT_COLOR,
 			WRAP_TEXT
 		);
+	}
+	
+	
+	public TextPos getDocumentEnd()
+	{
+		CodeModel m = getModel();
+		return m == null ? TextPos.ZERO : m.getDocumentEnd();
+	}
+	
+	
+	private void exec(FID f)
+	{
+		getInputMap().exec(Fun.SELECT_ALL);
+	}
+	
+	
+	public void selectAll()
+	{
+		exec(Fun.SELECT_ALL);
 	}
 }

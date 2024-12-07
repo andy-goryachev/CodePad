@@ -10,7 +10,6 @@ public enum KMod
 	ALT,
 	COMMAND,
 	CTRL,
-	KEY_PRESSED,
 	KEY_RELEASED,
 	KEY_TYPED,
 	META,
