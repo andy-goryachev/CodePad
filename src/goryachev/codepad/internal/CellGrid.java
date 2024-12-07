@@ -163,6 +163,7 @@ public class CellGrid
 			TextPos caret = sel.getCaret();
 			if(isVisible(caret))
 			{
+				log.debug("paintCaret=%s", paintCaret.get());
 				// TODO repaint only the damaged area
 				paintAll();
 			}
@@ -878,13 +879,14 @@ public class CellGrid
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
+		boolean drawCaret = cursorOn && paintCaret.get();
 		
 		for(int i=0; i<cellCount; i++)
 		{
 			int cix = cellIndex0 + i;
 			int flags = SelectionHelper.getFlags(this, highlightCaretLine, editor.getSelection(), wi, cix);
 			boolean caretLine = SelectionHelper.isCaretLine(flags);
-			boolean caret = SelectionHelper.isCaret(flags);
+			boolean caret = drawCaret && SelectionHelper.isCaret(flags);
 			boolean selected = SelectionHelper.isSelected(flags);
 			
 			// style
@@ -903,14 +905,11 @@ public class CellGrid
 			}
 			
 			// caret
-			if(paintCaret.get())
+			if(caret)
 			{
-				if(caret)
-				{
-					// TODO insert mode
-					gx.setFill(editor.getCaretColor());
-					gx.fillRect(x, y, 2, tm.cellHeight);
-				}
+				// TODO insert mode
+				gx.setFill(editor.getCaretColor());
+				gx.fillRect(x, y, 2, tm.cellHeight);
 			}
 			
 			if(style.isUnderline())

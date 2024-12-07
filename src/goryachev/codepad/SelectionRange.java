@@ -47,6 +47,33 @@ public final class SelectionRange
     public boolean isCaretLine(int ix)
     {
     	TextPos p = getCaret();
-    	return (p == null) ? false : (p.index() == ix);
+    	if(p == null)
+    	{
+    		return false;
+    	}
+    	return p.index() == ix;
     }
+
+
+	public boolean isCaret(int ix, int cix)
+	{
+		TextPos p = getCaret();
+		if(p == null)
+		{
+			return false;
+		}
+		return (p.index() == ix) && (p.offset() == cix);
+	}
+
+
+	public boolean contains(int ix, int cix)
+	{
+		if(min == null || max == null)
+		{
+			return false;
+		}
+		return
+			(min.compareTo(ix, cix) <= 0) &&
+			(max.compareTo(ix, cix) > 0);
+	}
 }

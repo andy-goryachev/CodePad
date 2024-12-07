@@ -56,7 +56,7 @@ public class StatusBar
 				FxFormatter fmt = Formatters.integerFormatter();
 				
 				TextPos p = sel.getCaret();
-				String line = fmt.format(p.getLineNumber() + 1);
+				String line = fmt.format(p.getLineNumber());
 				String col = "?"; //fmt.format(ed.getColumnAt(m) + 1);
 				String ix = fmt.format(p.getColumn());
 				

@@ -40,12 +40,13 @@ public class Options
 		op.section("View");
 		op.option("Aspect Ratio:", DoubleChoice.of("aspectRatio", ed.aspectRatioProperty(), 0, Defaults.ASPECT_RATIO_MIN, Defaults.ASPECT_RATIO, Defaults.ASPECT_RATIO_MAX));
 		op.option("Content padding:", contentPaddingOption("contentPadding", ed.contentPaddingProperty()));
+		op.option(new BooleanChoice("displayCaret", "display caret", ed.displayCaretProperty()));
 		op.option("Font:", new FontChoice("font", ed.fontProperty()));
-		op.option(new BooleanChoice("lineNumbers", "Line Numbers", null)); // TODO
+		op.option(new BooleanChoice("lineNumbers", "line numbers", null)); // TODO
 		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 1, 2, 5, 10, 33.3));
 		op.option("Tab Size:", IntChoice.of("tabSize", ed.tabSizeProperty(), 0, 1, 3, 4, 8, 16));
 		// FIX
-		op.option(new BooleanChoice("wrapText", "Wrap Text", ed.wrapTextProperty()));
+		op.option(new BooleanChoice("wrapText", "wrap text", ed.wrapTextProperty()));
 		{
 			Button b1 = new Button("Select 0");
 			b1.setOnAction((ev) ->
@@ -67,6 +68,11 @@ public class Options
 		op.option("Caret Line Color:", new ColorChoice("caretLineColor", ed.caretLineColorProperty()));
 		op.option("Selection Color:", new ColorChoice("selectionColor", ed.selectionColorProperty()));
 		op.option("Text Color:", new ColorChoice("textColor", ed.textColorProperty()));
+		
+		// control
+		op.section("Control");
+		op.option(new BooleanChoice("disabled", "disabled", ed.disableProperty()));
+		op.option(new BooleanChoice("focused", "focused", ed.focusedProperty()));
 
 		return op;
 	}

@@ -99,34 +99,23 @@ public final class TextPos
 	{
 		return "TextPos{index=" + index + ", offset=" + offset + "}";
 	}
-
-
-	// TODO maybe replace with compare(int,int)
-	public boolean isBefore(int ix, int cix)
+	
+	
+	/**
+	 * Returns a value > 0 if the position at (ix, cix) is before this TextPos,
+	 * == 0 if the position is the same
+	 * < 0 if the position at (ix, cix) is after this TextPos.
+	 */
+	public int compareTo(int ix, int cix)
 	{
 		if(index < ix)
 		{
-			return true;
+			return -1;
 		}
 		else if(index == ix)
 		{
-			return offset < cix;
+			return offset - cix;
 		}
-		return false;
-	}
-	
-	
-	// TODO maybe replace with compare(int,int)
-	public boolean isAfter(int ix, int cix)
-	{
-		if(index > ix)
-		{
-			return true;
-		}
-		else if(index == ix)
-		{
-			return offset > cix;
-		}
-		return false;
+		return 1;
 	}
 }

@@ -298,14 +298,14 @@ public class Arrangement
 		
 		WrapInfo wi = rows.get(0);
 		int cix = offsets.get(0);
-		if(p.isBefore(wi.getIndex(), cix))
+		if(p.compareTo(wi.getIndex(), cix) < 0)
 		{
 			return false;
 		}
 		
 		wi = rows.get(last);
 		cix = offsets.get(last);
-		if(p.isAfter(wi.getIndex(), cix))
+		if(p.compareTo(wi.getIndex(), cix) > 0)
 		{
 			return false;
 		}

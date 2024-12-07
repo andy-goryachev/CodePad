@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.options;
 import goryachev.fx.FX;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.CheckBox;
 
@@ -11,7 +12,7 @@ import javafx.scene.control.CheckBox;
 public class BooleanChoice
 	extends CheckBox
 {
-	public BooleanChoice(String fxName, String text, BooleanProperty p)
+	public BooleanChoice(String fxName, String text, BooleanExpression p)
 	{
 		super(text);
 		FX.setName(this, fxName);
@@ -22,7 +23,15 @@ public class BooleanChoice
 		}
 		else
 		{
-			selectedProperty().bindBidirectional(p);
+			if(p instanceof BooleanProperty b)
+			{
+				selectedProperty().bindBidirectional(b);
+			}
+			else
+			{
+				setDisable(true);
+				FX.addChangeListener(p, this::setSelected);
+			}
 		}
 	}
 }

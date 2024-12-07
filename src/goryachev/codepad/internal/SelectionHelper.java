@@ -27,11 +27,6 @@ public class SelectionHelper
 			return NONE;
 		}
 		
-		// new API
-		
-//		int off = cell.getCaretCharIndex();
-//		int selOff = cell.getLeadingEdgeCharIndex();
-		
 		// flags
 		
 		int flags = NONE;
@@ -43,29 +38,16 @@ public class SelectionHelper
 				flags |= CARET_LINE;
 			}
 			
-//			if(off >= 0)
-//			{
-//				if(sel.isCaret(ix, off))
-//				{
-//					if(!vflow.isWrapColumn(x))
-//					{
-//						flags |= CARET;
-//					}
-//				}
-//			}
+			if(sel.isCaret(ix, cix))
+			{
+				flags |= CARET;
+			}
 		}
 		
-		// TODO
-//		int ixRENAME = (selOff >= 0 ? selOff : off);
-//		if(ixRENAME < 0)
-//		{
-//			ixRENAME = vflow.getTopCellIndex();
-//		}
-//		
-//		if(sel.contains(ix, ixRENAME))
-//		{
-//			flags |= SELECTED;
-//		}
+		if(sel.contains(ix, cix))
+		{
+			flags |= SELECTED;
+		}
 		
 		return flags;
 	}
