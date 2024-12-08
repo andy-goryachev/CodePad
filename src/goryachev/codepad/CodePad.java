@@ -33,11 +33,12 @@ import javafx.scene.text.Font;
 
 
 /**
- * CodePad is a high performance monospaced text editor for JavaFX.
+ * CodePad is a high performance monospaced text editor for JavaFX,
+ * suitable for code editors and file/log/xml/json viewers.
  * 
  * Supported:
  * - large virtualized models up to ~2 billion paragraphs
- * - long paragraphs (millions on symbols)
+ * - long paragraphs (millions of symbols)
  * - fixed-cell grid rendering
  * - limited set of text attributes
  * - limited decorations
