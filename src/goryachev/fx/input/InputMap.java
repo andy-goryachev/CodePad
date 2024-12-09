@@ -21,8 +21,7 @@ public class InputMap
 	private final Control control;
 	// FID -> Runnable
 	// KB -> FID or Runnable
-	// EventType -> EHandlers
-	// TYPES -> Set<EventType>
+	// EventType -> EHandlers, or null for key binding handler
 	static final Object TYPES = new Object();
 	private final CMap<Object,Object> map = new CMap<>(16);
 	private final EventHandler<Event> eventHandler = this::handleEvent;
@@ -39,7 +38,7 @@ public class InputMap
 	{
 		map.put(k, r);
 		EventType<KeyEvent> t = k.getEventType(); 
-		addEventType(t);
+		addHandler(t, HPriority.USER_KB, null);
 	}
 	
 	
@@ -47,7 +46,7 @@ public class InputMap
 	{
 		map.put(k, f);
 		EventType<KeyEvent> t = k.getEventType(); 
-		addEventType(t);
+		addHandler(t, HPriority.USER_KB, null);
 	}
 
 
@@ -62,13 +61,7 @@ public class InputMap
 	 */
 	public <T extends Event> void addHandler(EventType<T> type, EventHandler<T> h)
 	{
-		addHandler(type, h, HPriority.USER_EH);
-	}
-	
-	
-	private void addEventType(EventType<KeyEvent> t)
-	{
-		
+		addHandler(type, HPriority.USER_EH, h);
 	}
 
 	
@@ -168,7 +161,7 @@ public class InputMap
 	}
 
 
-	private <T extends Event> void addHandler(EventType<T> t, EventHandler<T> handler, HPriority pri)
+	private <T extends Event> void addHandler(EventType<T> t, HPriority pri, EventHandler<T> handler)
 	{
 		Object v = map.get(t);
 		EHandlers hs;
@@ -209,8 +202,10 @@ public class InputMap
 		
 		if(skinInputMap != null)
 		{
-			// TODO or do it here?
-			skinInputMap.apply(this);
+			skinInputMap.forEachHandler((t,p,h) ->
+			{
+				addHandler(t, p, h);
+			});
 		}
 	}
 

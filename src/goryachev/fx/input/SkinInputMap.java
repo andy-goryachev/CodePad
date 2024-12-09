@@ -2,8 +2,10 @@
 package goryachev.fx.input;
 import goryachev.common.util.CMap;
 import goryachev.fx.input.internal.EHandlers;
-import java.util.Map;
+import goryachev.fx.input.internal.HPriority;
 import java.util.function.BooleanSupplier;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.event.EventType;
 
 
@@ -12,14 +14,21 @@ import javafx.event.EventType;
  */
 public class SkinInputMap
 {
+	@FunctionalInterface
+	public static interface Client<T extends Event>
+	{
+		public void process(EventType<T> t, HPriority pri, EventHandler<T> h);
+	}
+	
+	
 	// FID -> Runnable, BooleanSupplier
 	// KB -> FID
+	// EventType -> EventHandler or null for key binding handler
 	private final CMap<Object,Object> map = new CMap<>(16);
 	
 	
 	public SkinInputMap()
 	{
-		
 	}
 	
 	
@@ -38,31 +47,31 @@ public class SkinInputMap
 	public void key(KB k, FID f)
 	{
 		map.put(k, f);
-		registerType(k);
-	}
-	
-	
-	private void registerType(KB k)
-	{
 		EventType t = k.getEventType();
-		// TODO register
+		addHandler(t, HPriority.SKIN_KB, null);
 	}
 
 
-	void apply(InputMap m)
+	public <T extends Event> void addHandler(EventType<T> t, EventHandler<T> h)
 	{
-		for(Map.Entry<Object,Object> en: map.entrySet())
+		addHandler(t, HPriority.SKIN_EH, h);
+	}
+	
+	
+	private <T extends Event> void addHandler(EventType<T> t, HPriority pri, EventHandler<T> handler)
+	{
+		Object v = map.get(t);
+		EHandlers hs;
+		if(v instanceof EHandlers h)
 		{
-			if(en.getKey() instanceof EventType t)
-			{
-				Object v = en.getValue();
-				if(v instanceof EHandlers h)
-				{
-					
-				}
-			}
+			hs = h;
 		}
-		// TODO
+		else
+		{
+			hs = new EHandlers();
+			map.put(t, hs);
+		}
+		hs.add(pri, handler);
 	}
 
 
@@ -85,5 +94,11 @@ public class SkinInputMap
 	Object valueFor(KB k)
 	{
 		return map.get(k);
+	}
+	
+
+	void forEachHandler(Client<?> c)
+	{
+		// TODO
 	}
 }
