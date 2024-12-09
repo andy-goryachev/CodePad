@@ -4,7 +4,9 @@ import goryachev.common.util.CKit;
 import goryachev.common.util.FH;
 import goryachev.fx.input.internal.KMod;
 import java.util.EnumSet;
+import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 
 /**
@@ -15,15 +17,29 @@ public class KB
 {
 	private final Object key;
 	private final EnumSet<KMod> modifiers;
-	
-	
+
+
 	private KB(Object key, EnumSet<KMod> modifiers)
 	{
 		this.key = key;
 		this.modifiers = modifiers;
 	}
-	
-	
+
+
+	EventType<KeyEvent> getEventType()
+	{
+		if(modifiers.contains(KMod.KEY_RELEASED))
+		{
+			return KeyEvent.KEY_RELEASED;
+		}
+		else if(modifiers.contains(KMod.KEY_TYPED))
+		{
+			return KeyEvent.KEY_TYPED;
+		}
+		return KeyEvent.KEY_PRESSED;
+	}
+
+
 	@Override
 	public int hashCode()
 	{
@@ -31,8 +47,8 @@ public class KB
 		h = FH.hash(h, key);
 		return FH.hash(h, modifiers);
 	}
-	
-	
+
+
 	@Override
 	public boolean equals(Object x)
 	{
@@ -46,31 +62,31 @@ public class KB
 		}
 		return false;
 	}
-	
-	
+
+
 	public static Builder b(KeyCode k)
 	{
 		return new Builder(k);
 	}
-	
-	
+
+
 	public static Builder b(String ch)
 	{
 		return new Builder(ch);
 	}
-	
-	
+
+
 	private static KB create(Object k, KMod ... mods)
 	{
 		return new Builder(k, mods).build();
 	}
-	
-	
+
+
 	public static KB of(KeyCode k)
 	{
 		return create(k);
 	}
-	
+
 
 	public static KB alt(KeyCode k)
 	{
@@ -82,62 +98,62 @@ public class KB
 	{
 		return create(k, KMod.COMMAND);
 	}
-	
-	
+
+
 	public static KB ctrl(KeyCode k)
 	{
 		return create(k, KMod.CTRL);
 	}
 
-	
+
 	public static KB ctrlShift(KeyCode k)
 	{
 		return create(k, KMod.CTRL, KMod.SHIFT);
 	}
-	
-	
+
+
 	public static KB meta(KeyCode k)
 	{
 		return create(k, KMod.META);
 	}
-	
-	
+
+
 	public static KB option(KeyCode k)
 	{
 		return create(k, KMod.OPTION);
 	}
-	
-	
+
+
 	public static KB shift(KeyCode k)
 	{
 		return create(k, KMod.SHIFT);
 	}
-	
-	
+
+
 	public static KB shiftOption(KeyCode k)
 	{
 		return create(k, KMod.SHIFT, KMod.OPTION);
 	}
-	
-	
+
+
 	public static KB shiftShortcut(KeyCode k)
 	{
 		return create(k, KMod.SHIFT, KMod.SHORTCUT);
 	}
-	
-	
+
+
 	public static KB shortcut(KeyCode k)
 	{
 		return create(k, KMod.SHORTCUT);
 	}
-	
-	
+
+
 	public static KB windows(KeyCode k)
 	{
 		return create(k, KMod.WINDOWS);
 	}
-	
-	
+
+
 	/**
 	 * Builder.
 	 */
@@ -145,14 +161,14 @@ public class KB
 	{
 		private final Object key;
 		private final EnumSet<KMod> mods = EnumSet.noneOf(KMod.class);
-		
-		
+
+
 		public Builder(Object key)
 		{
 			this.key = key;
 		}
-		
-		
+
+
 		public Builder(Object key, KMod ... ms)
 		{
 			this(key);
@@ -161,71 +177,71 @@ public class KB
 				mods.add(m);
 			}
 		}
-		
-		
+
+
 		public Builder alt()
 		{
 			mods.add(KMod.ALT);
 			return this;
 		}
-		
-		
+
+
 		public Builder command()
 		{
 			mods.add(KMod.COMMAND);
 			return this;
 		}
-		
-		
+
+
 		public Builder ctrl()
 		{
 			mods.add(KMod.CTRL);
 			return this;
 		}
-		
-		
+
+
 		public Builder meta()
 		{
 			mods.add(KMod.META);
 			return this;
 		}
-		
-		
+
+
 		public Builder option()
 		{
 			mods.add(KMod.OPTION);
 			return this;
 		}
-		
-		
+
+
 		public Builder shift()
 		{
 			mods.add(KMod.SHIFT);
 			return this;
 		}
-		
-		
+
+
 		public Builder shortcut()
 		{
 			mods.add(KMod.ALT);
 			return this;
 		}
-		
-		
+
+
 		public Builder keyReleased()
 		{
 			mods.add(KMod.KEY_RELEASED);
 			return this;
 		}
-		
-		
+
+
 		public Builder keyTyped()
 		{
 			mods.add(KMod.KEY_TYPED);
 			return this;
 		}
-		
-		
+
+
 		public KB build()
 		{
 			// TODO
