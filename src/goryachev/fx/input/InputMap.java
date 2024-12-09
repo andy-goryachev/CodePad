@@ -1,11 +1,15 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx.input;
 import goryachev.common.util.CMap;
+import goryachev.fx.input.internal.EHandlers;
 import goryachev.fx.input.internal.HPriority;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.input.KeyEvent;
 
 
 /**
@@ -18,6 +22,8 @@ public class InputMap
 	// FID -> Runnable
 	// KB -> FID or Runnable
 	// EventType -> EHandlers
+	// TYPES -> Set<EventType>
+	static final Object TYPES = new Object();
 	private final CMap<Object,Object> map = new CMap<>(16);
 	private final EventHandler<Event> eventHandler = this::handleEvent;
 	private SkinInputMap skinInputMap;
@@ -32,14 +38,16 @@ public class InputMap
 	public void regKey(KB k, Runnable r)
 	{
 		map.put(k, r);
-		// add key handler
+		EventType<KeyEvent> t = k.getEventType(); 
+		addEventType(t);
 	}
 	
 	
 	public void regKey(KB k, FID f)
 	{
 		map.put(k, f);
-		// add key handler
+		EventType<KeyEvent> t = k.getEventType(); 
+		addEventType(t);
 	}
 
 
@@ -56,17 +64,125 @@ public class InputMap
 	{
 		addHandler(type, h, HPriority.USER_EH);
 	}
+	
+	
+	private void addEventType(EventType<KeyEvent> t)
+	{
+		
+	}
 
 	
 	private void handleEvent(Event ev)
 	{
-		// TODO
+		if(ev.isConsumed())
+		{
+			// why is fx dispatching consumed events?
+			return;
+		}
+
+		EventType<?> t = ev.getEventType();
+		Object x = map.get(t);
+		if(x instanceof EHandlers hs)
+		{
+			hs.forEachHandler((pri, h) ->
+			{
+				if(h == null)
+				{
+					handleKeyBindingEvent(ev);
+				}
+				else
+				{
+					h.handle(ev);
+				}
+				return !ev.isConsumed();
+			});
+		}
+	}
+
+
+	private void handleKeyBindingEvent(Event ev)
+	{
+		KB k = KB.fromKeyEvent((KeyEvent)ev);
+		if(k != null)
+		{
+			boolean consume = handleKeyBinding(k);
+			if(consume)
+			{
+				ev.consume();
+			}
+		}
+	}
+
+
+	// returns true if the event must be consumed
+	private boolean handleKeyBinding(KB k)
+	{
+		Object v = map.get(k);
+		if(v == null)
+		{
+			if(skinInputMap != null)
+			{
+				v = skinInputMap.valueFor(k);
+			}
+		}
+		
+		if(v instanceof FID f)
+		{
+			return exec(f);
+		}
+		else if(v instanceof Runnable r)
+		{
+			r.run();
+			return true;
+		}
+		else if(v instanceof BooleanSupplier h)
+		{
+			return h.getAsBoolean();
+		}
+		return false;
 	}
 	
 	
-	private <T extends Event> void addHandler(EventType<T> type, EventHandler<T> h, HPriority pri)
+	private boolean execFunc(FID f)
 	{
-		// TODO
+		Object v = map.get(f);
+		if(v instanceof Runnable r)
+		{
+			r.run();
+			return true;
+		}
+		else
+		{
+			return execDefaultFunc(f);
+		}
+	}
+	
+	
+	private boolean execDefaultFunc(FID f)
+	{
+		if(skinInputMap != null)
+		{
+			return skinInputMap.execFunc(f);
+		}
+		return false;
+	}
+
+
+	private <T extends Event> void addHandler(EventType<T> t, EventHandler<T> handler, HPriority pri)
+	{
+		Object v = map.get(t);
+		EHandlers hs;
+		if(v instanceof EHandlers h)
+		{
+			hs = h;
+		}
+		else
+		{
+			hs = new EHandlers();
+			map.put(t, hs);
+			control.addEventHandler(t, eventHandler);
+		}
+		hs.add(pri, handler);
 	}
 	
 	
@@ -74,24 +190,40 @@ public class InputMap
 	{
 		if(skinInputMap != null)
 		{
-			// TODO remove skin handlers
+			// remove any skin handlers
+			for(Map.Entry<Object,Object> en: map.entrySet())
+			{
+				if(en.getKey() instanceof EventType t)
+				{
+					EHandlers hs = (EHandlers)en.getValue();
+					if(hs.removeSkinHandlers())
+					{
+						map.remove(en.getKey());
+						control.removeEventHandler(t, eventHandler);
+					}
+				}
+			}
 		}
 		
 		skinInputMap = m;
 		
 		if(skinInputMap != null)
 		{
-			// TODO add skin handlers
+			// TODO or do it here?
+			skinInputMap.apply(this);
 		}
 	}
 
 
-	public void exec(FID f)
+	// returns true if the event must be consumed
+	public boolean exec(FID f)
 	{
 		Object v = map.get(f);
 		if(v instanceof Runnable r)
 		{
 			r.run();
+			return true;
 		}
+		return false;
 	}
 }

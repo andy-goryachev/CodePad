@@ -154,6 +154,13 @@ public class KB
 	}
 
 
+	public static KB fromKeyEvent(KeyEvent ev)
+	{
+		// TODO
+		return null;
+	}
+
+
 	/**
 	 * Builder.
 	 */

@@ -1,6 +1,8 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx.input;
 import goryachev.common.util.CMap;
+import goryachev.fx.input.internal.EHandlers;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import javafx.event.EventType;
 
@@ -44,5 +46,44 @@ public class SkinInputMap
 	{
 		EventType t = k.getEventType();
 		// TODO register
+	}
+
+
+	void apply(InputMap m)
+	{
+		for(Map.Entry<Object,Object> en: map.entrySet())
+		{
+			if(en.getKey() instanceof EventType t)
+			{
+				Object v = en.getValue();
+				if(v instanceof EHandlers h)
+				{
+					
+				}
+			}
+		}
+		// TODO
+	}
+
+
+	boolean execFunc(FID f)
+	{
+		Object v = map.get(f);
+		if(v instanceof Runnable r)
+		{
+			r.run();
+			return true;
+		}
+		else if(v instanceof BooleanSupplier b)
+		{
+			return b.getAsBoolean();
+		}
+		return false;
+	}
+
+
+	Object valueFor(KB k)
+	{
+		return map.get(k);
 	}
 }
