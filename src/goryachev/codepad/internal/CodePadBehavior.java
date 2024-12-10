@@ -4,6 +4,8 @@ import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.Fun;
 import goryachev.codepad.TextPos;
 import goryachev.fx.input.BehaviorBase;
+import goryachev.fx.input.KB;
+import javafx.scene.input.KeyCode;
 
 
 /**
@@ -23,6 +25,8 @@ public class CodePadBehavior
 	{
 		// TODO
 		func(Fun.SELECT_ALL, this::selectAll);
+		
+		key(KB.ctrl(KeyCode.A), Fun.SELECT_ALL);
 	}
 	
 	

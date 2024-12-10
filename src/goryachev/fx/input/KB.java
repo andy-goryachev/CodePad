@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx.input;
 import goryachev.common.util.CKit;
+import goryachev.common.util.CPlatform;
 import goryachev.common.util.FH;
 import goryachev.fx.input.internal.KMod;
 import java.util.EnumSet;
@@ -15,6 +16,8 @@ import javafx.scene.input.KeyEvent;
  */
 public class KB
 {
+	/** not applicable to the current platform */
+	public final static KB NA = new KB(null, null);
 	private final Object key;
 	private final EnumSet<KMod> modifiers;
 
@@ -156,8 +159,91 @@ public class KB
 
 	public static KB fromKeyEvent(KeyEvent ev)
 	{
-		// TODO
-		return null;
+		Object key;
+		EnumSet<KMod> m = EnumSet.noneOf(KMod.class);
+		EventType<KeyEvent> t = ev.getEventType();
+		if(t == KeyEvent.KEY_PRESSED)
+		{
+			key = ev.getCode();
+		}
+		else if(t == KeyEvent.KEY_RELEASED)
+		{
+			m.add(KMod.KEY_RELEASED);
+			key = ev.getCode();
+		}
+		else if(t == KeyEvent.KEY_TYPED)
+		{
+			m.add(KMod.KEY_TYPED);
+			key = ev.getCharacter();
+		}
+		else
+		{
+			return NA;
+		}
+
+		boolean mac = CPlatform.isMac();
+		boolean win = CPlatform.isWindows();
+
+		boolean alt = ev.isAltDown();
+		boolean ctrl = ev.isControlDown();
+		boolean meta = ev.isMetaDown();
+		boolean shortcut = ev.isShortcutDown();
+		boolean option = false;
+		boolean command = false;
+
+		// must match KB.Builder.build()
+		if(mac)
+		{
+			if(alt)
+			{
+				alt = false;
+				option = true;
+			}
+			if(shortcut)
+			{
+				meta = false;
+				command = true;
+			}
+		}
+		else
+		{
+			if(ctrl)
+			{
+				shortcut = false;
+			}
+		}
+
+		if(alt)
+		{
+			m.add(KMod.ALT);
+		}
+		
+		if(command)
+		{
+			m.add(KMod.COMMAND);
+		}
+		
+		if(ctrl)
+		{
+			m.add(KMod.CTRL);
+		}
+		
+		if(meta)
+		{
+			m.add(KMod.META);
+		}
+		
+		if(option)
+		{
+			m.add(KMod.OPTION);
+		}
+		
+		if(ev.isShiftDown())
+		{
+			m.add(KMod.SHIFT);
+		}
+		
+		return new KB(key, m);
 	}
 
 
@@ -238,6 +324,7 @@ public class KB
 		public Builder keyReleased()
 		{
 			mods.add(KMod.KEY_RELEASED);
+			mods.remove(KMod.KEY_TYPED);
 			return this;
 		}
 
@@ -245,14 +332,54 @@ public class KB
 		public Builder keyTyped()
 		{
 			mods.add(KMod.KEY_TYPED);
+			mods.remove(KMod.KEY_RELEASED);
 			return this;
+		}
+		
+		
+		private void replaceIfFound(KMod remove, KMod replace)
+		{
+			if(mods.contains(remove))
+			{
+				mods.remove(remove);
+				mods.add(replace);
+			}
 		}
 
 
 		public KB build()
 		{
-			// TODO
-			return null;
+			boolean mac = CPlatform.isMac();
+			boolean win = CPlatform.isWindows();
+			boolean linux = CPlatform.isLinux();
+
+			// must match KB.forKeyEvent()
+			if(linux)
+			{
+				replaceIfFound(KMod.SHORTCUT, KMod.CTRL);
+			}
+			else if(mac)
+			{
+				replaceIfFound(KMod.ALT, KMod.OPTION);
+				replaceIfFound(KMod.META, KMod.COMMAND);
+				replaceIfFound(KMod.SHORTCUT, KMod.COMMAND);
+			}
+			else if(win)
+			{
+				replaceIfFound(KMod.SHORTCUT, KMod.CTRL);
+			}
+			
+			if(!mac)
+			{
+				if(mods.contains(KMod.COMMAND) || mods.contains(KMod.OPTION))
+				{
+					return NA;
+				}
+
+				replaceIfFound(KMod.WINDOWS, KMod.META);
+			}
+			
+			return new KB(key, mods);
 		}
 	}
 }

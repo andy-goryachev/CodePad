@@ -3,6 +3,7 @@ package goryachev.fx.input;
 import goryachev.common.util.CMap;
 import goryachev.fx.input.internal.EHandlers;
 import goryachev.fx.input.internal.HPriority;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -96,9 +97,20 @@ public class SkinInputMap
 		return map.get(k);
 	}
 	
-
-	void forEachHandler(Client<?> c)
+	
+	void forEachHandler(Client c)
 	{
-		// TODO
+		for(Map.Entry<Object,Object> en: map.entrySet())
+		{
+			if(en.getKey() instanceof EventType t)
+			{
+				EHandlers hs = (EHandlers)en.getValue();
+				hs.forEachHandler((pri, h) ->
+				{
+					c.process(t, pri, h);
+					return true;
+				});
+			}
+		}
 	}
 }

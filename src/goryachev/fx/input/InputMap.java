@@ -173,7 +173,7 @@ public class InputMap
 		{
 			hs = new EHandlers();
 			map.put(t, hs);
-			control.addEventHandler(t, eventHandler);
+			control.addEventHandler(t, eventHandler); // TODO if handler == null, then key bindings eH
 		}
 		hs.add(pri, handler);
 	}
@@ -219,6 +219,6 @@ public class InputMap
 			r.run();
 			return true;
 		}
-		return false;
+		return execDefaultFunc(f);
 	}
 }
