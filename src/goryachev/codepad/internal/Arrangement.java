@@ -170,9 +170,15 @@ public class Arrangement
 	}
 
 
-	public WrapInfo wrapInfoAtViewRow(int ix)
+	public WrapInfo wrapInfoAtViewRow(int row)
 	{
-		return rows.get(ix);
+		return rows.get(row);
+	}
+	
+	
+	public int indexAtViewRow(int row)
+	{
+		return wrapInfoAtViewRow(row).getIndex();
 	}
 
 

@@ -18,6 +18,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -173,6 +174,20 @@ public class CellGrid
 	private boolean isVisible(TextPos p)
 	{
 		return p == null ? false : arrangement().isVisible(p);
+	}
+	
+	
+	public TextPos getTextPos(Point2D local)
+	{
+		double x = local.getX() - origin.xoffset();
+		double y = local.getY() - origin.yoffset();
+		Arrangement a = arrangement();
+		TextCellMetrics tm = textCellMetrics();
+		int row = (int)(y / tm.cellHeight);
+		int col = (int)(x / tm.cellWidth);
+		int ix = a.indexAtViewRow(row);
+		int cix = a.cellIndexAtViewRow(row) + col;
+		return new TextPos(ix, cix);
 	}
 
 	

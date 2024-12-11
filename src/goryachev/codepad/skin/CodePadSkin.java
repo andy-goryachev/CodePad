@@ -1,12 +1,14 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.skin;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.TextPos;
 import goryachev.codepad.internal.CellGrid;
 import goryachev.codepad.internal.CodePadBehavior;
 import goryachev.codepad.internal.Defaults;
 import goryachev.fx.FX;
 import goryachev.fx.FxDisconnector;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.ScrollEvent;
@@ -40,7 +42,7 @@ public class CodePadSkin
 		grid = new CellGrid(this, vscroll, hscroll);
 		getChildren().add(grid);
 
-		behavior = new CodePadBehavior(ed);
+		behavior = new CodePadBehavior(ed, grid);
 		
 		disconnector = new FxDisconnector();
 		disconnector.addChangeListener(ed.aspectRatioProperty(), true, grid::setAspectRatio);
@@ -130,5 +132,12 @@ public class CodePadSkin
 	protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset)
 	{
 		return Defaults.MIN_WIDTH;
+	}
+	
+	
+	public TextPos getTextPositionFor(double screenx, double screeny)
+	{
+		Point2D p = grid.screenToLocal(screenx, screeny);
+		return grid.getTextPos(p);
 	}
 }

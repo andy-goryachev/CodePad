@@ -4,6 +4,7 @@ import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
+import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
 import goryachev.fx.input.FID;
 import goryachev.fx.input.InputMap;
@@ -51,10 +52,13 @@ import javafx.scene.text.Font;
 public class CodePad
 	extends Control
 {
+	/** CodePad function identifiers. */
 	public static class Fun
 	{
 		public static final FID SELECT_ALL = new FID();
 	}
+	
+	public static final CssStyle STYLE = new CssStyle();
 	
 	
 	private final Config config;
@@ -79,6 +83,8 @@ public class CodePad
 	{
 		this.config = config.copy();
 		this.inputMap = new InputMap(this);
+
+		FX.style(this, STYLE);
 		setModel(model);
 	}
 
@@ -115,6 +121,17 @@ public class CodePad
 	protected CodePadSkin createDefaultSkin()
 	{
 		return new CodePadSkin(this);
+	}
+	
+	
+	public TextPos getTextPositionFor(double screenx, double screeny)
+	{
+		Object v = getSkin();
+		if(v instanceof CodePadSkin skin)
+		{
+			return skin.getTextPositionFor(screenx, screeny);
+		}
+		return null;
 	}
 
 
