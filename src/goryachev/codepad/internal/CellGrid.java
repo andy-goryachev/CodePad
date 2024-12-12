@@ -183,18 +183,26 @@ public class CellGrid
 		double y = local.getY() - origin.yoffset();
 		Arrangement a = arrangement();
 		TextCellMetrics tm = textCellMetrics();
-		int row = (int)(y / tm.cellHeight);
-		int col = (int)(x / tm.cellWidth);
+		int row = (int)(y / (tm.cellHeight + lineSpacing()));
+		int col = (int)Math.round(x / tm.cellWidth);
 		int ix = a.indexAtViewRow(row);
 		int cix = a.cellIndexAtViewRow(row) + col;
+		// TODO clamp?
 		return new TextPos(ix, cix);
 	}
 
 	
-	protected void blinkCursor()
+	private void blinkCursor()
 	{
 		cursorOn = !cursorOn;
 		refreshCursor();
+	}
+	
+	
+	public void suppressBlinking(boolean on)
+	{
+		suppressBlink.set(on);
+		// TODO repaint caret cell?
 	}
 	
 	
@@ -517,7 +525,7 @@ public class CellGrid
 	}
 	
 	
-	private Arrangement arrangement()
+	public Arrangement arrangement()
 	{
 		if(arrangement == null)
 		{

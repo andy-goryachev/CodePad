@@ -71,9 +71,32 @@ public final class SelectionModel
 	}
 	
 	
-	public void extendSelectionn()
+	public void extendSelection(CodeModel m, TextPos p)
 	{
-		// TODO
+		// TODO if model is different
+		
+		SelectionRange sel = getSelectionRange();
+		TextPos an;
+		if(sel == null)
+		{
+			an = p;
+		}
+		else
+		{
+			if(p.compareTo(sel.getMin()) < 0)
+			{
+				an = sel.getMax();
+			}
+			else if(p.compareTo(sel.getMax()) <= 0)
+			{
+				an = sel.getAnchor();
+			}
+			else
+			{
+				an = sel.getMin();
+			}
+		}
+		setSelectionRange(m, an, p);
 	}
 	
 	

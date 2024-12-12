@@ -137,6 +137,10 @@ public class CodePadSkin
 	
 	public TextPos getTextPositionFor(double screenx, double screeny)
 	{
+		if(getSkinnable().getModel() == null)
+		{
+			return TextPos.ZERO;
+		}
 		Point2D p = grid.screenToLocal(screenx, screeny);
 		return grid.getTextPos(p);
 	}

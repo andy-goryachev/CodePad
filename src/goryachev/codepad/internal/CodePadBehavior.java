@@ -30,8 +30,17 @@ public class CodePadBehavior
 	protected void populateSkinInputMap()
 	{
 		// TODO
+		
+		func(Fun.MOVE_DOWN, this::moveDown);
+		func(Fun.MOVE_LEFT, this::moveLeft);
+		func(Fun.MOVE_RIGHT, this::moveRight);
+		func(Fun.MOVE_UP, this::moveUp);
 		func(Fun.SELECT_ALL, this::selectAll);
 		
+		key(KB.of(KeyCode.DOWN), Fun.MOVE_DOWN);
+		key(KB.of(KeyCode.LEFT), Fun.MOVE_LEFT);
+		key(KB.of(KeyCode.RIGHT), Fun.MOVE_RIGHT);
+		key(KB.of(KeyCode.UP), Fun.MOVE_UP);
 		key(KB.ctrl(KeyCode.A), Fun.SELECT_ALL);
 		
 		grid.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
@@ -43,7 +52,7 @@ public class CodePadBehavior
 	
 	private void handleMouseClicked(MouseEvent ev)
 	{
-		// TODO
+		// TODO primary button, 2 clicks: select word, 3 clicks: select paragraph 
 	}
 
 	
@@ -54,12 +63,6 @@ public class CodePadBehavior
 
 	
 	private void handleMousePressed(MouseEvent ev)
-	{
-		// TODO
-	}
-
-	
-	private void handleMouseReleased(MouseEvent ev)
 	{
 		if(ev.isPopupTrigger() || (ev.getButton() != MouseButton.PRIMARY))
 		{
@@ -72,9 +75,24 @@ public class CodePadBehavior
 			return;
 		}
 		
-		// TODO selection, suppress blink
+		grid.suppressBlinking(true);
+		if(ev.isShiftDown())
+		{
+			control().extendSelection(p);
+		}
+		else
+		{
+			control().select(p, p);
+		}
 		
 		control().requestFocus();
+	}
+
+	
+	private void handleMouseReleased(MouseEvent ev)
+	{		
+		// TODO
+		grid.suppressBlinking(false);
 	}
 	
 	
@@ -84,6 +102,30 @@ public class CodePadBehavior
 		double y = ev.getScreenY();
 		return control().getTextPositionFor(x, y);
 	}
+	
+	
+	public void moveDown()
+	{
+		verticalMove(1, false);
+	}
+	
+	
+	public void moveLeft()
+	{
+		horizontalMove(-1, false);
+	}
+	
+	
+	public void moveRight()
+	{
+		horizontalMove(1, false);
+	}
+	
+	
+	public void moveUp()
+	{
+		verticalMove(-1, false);
+	}
 
 	
 	public void selectAll()
@@ -92,5 +134,48 @@ public class CodePadBehavior
         TextPos end = c.getDocumentEnd();
         c.select(TextPos.ZERO, end);
         // TODO clear phantom x
+	}
+	
+	
+	private void verticalMove(int dy, boolean select)
+	{
+		TextPos caret = control().getCaretPosition();
+		if(caret != null)
+		{
+			scrollToVisible();
+			// arrangement getwrapinfo
+			// grid.verticalMove
+			// scroll to visible again
+		}
+		// TODO
+	}
+	
+	
+	// TODO move to  grid?
+	private void horizontalMove(int dx, boolean select)
+	{
+		scrollToVisible();
+		// TODO
+	}
+	
+	
+	// TODO move to  grid?
+	public void scrollToVisible()
+	{
+		TextPos caret = control().getCaretPosition();
+		if(caret == null)
+		{
+			return;
+		}
+		
+		// TODO
+		Arrangement a = grid.arrangement();
+		if(a.isVisible(caret))
+		{
+			return;
+		}
+		
+		// TODO if below - show on the last row
+		// if above - show on the first row
 	}
 }
