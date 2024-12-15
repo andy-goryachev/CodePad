@@ -172,13 +172,26 @@ public class Arrangement
 
 	public WrapInfo wrapInfoAtViewRow(int row)
 	{
+		if(row < 0)
+		{
+			return null;
+		}
+		else if(row >= rows.size())
+		{
+			return null;
+		}
 		return rows.get(row);
 	}
 	
 	
 	public int indexAtViewRow(int row)
 	{
-		return wrapInfoAtViewRow(row).getIndex();
+		WrapInfo wi = wrapInfoAtViewRow(row);
+		if(wi == null)
+		{
+			return -1;
+		}
+		return wi.getIndex();
 	}
 
 

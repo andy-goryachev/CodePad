@@ -64,6 +64,8 @@ public class CodePadBehavior
 	
 	private void handleMousePressed(MouseEvent ev)
 	{
+		control().requestFocus();
+		
 		if(ev.isPopupTrigger() || (ev.getButton() != MouseButton.PRIMARY))
 		{
 			return;
@@ -84,8 +86,6 @@ public class CodePadBehavior
 		{
 			control().select(p, p);
 		}
-		
-		control().requestFocus();
 	}
 
 	

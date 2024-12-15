@@ -29,6 +29,7 @@ import javafx.css.converter.InsetsConverter;
 import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
+import javafx.scene.layout.Border;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -90,6 +91,7 @@ public class CodePad
 
 		FX.style(this, STYLE);
 		setModel(model);
+		//setBorder(Border.stroke(Color.RED)); // FIX
 	}
 
 

@@ -4,11 +4,10 @@ import goryachev.codepad.CodePad;
 import goryachev.fx.CommonStyles;
 import goryachev.fx.FxStyleSheet;
 import goryachev.fx.Theme;
-import javafx.scene.paint.Color;
 
 
 /**
- * this is how a style sheet is generated.
+ * Generates the application stylesheet.
  */
 public class Styles
 	extends FxStyleSheet
@@ -36,7 +35,12 @@ public class Styles
 			selector(CodePad.STYLE).defines
 			(
 				padding(0),
-				backgroundColor(commas(Color.WHITE, Color.WHITE)),
+				//backgroundColor(commas(Color.WHITE, Color.WHITE)),
+				backgroundColor
+				(
+					"linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border)," +
+			        "linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
+				),
 				backgroundInsets(commas(0, 1)),
 				backgroundRadius(commas(3, 2)),
 				
@@ -47,7 +51,14 @@ public class Styles
 				
 				selector(FOCUSED).defines
 				(
-					backgroundColor(commas("-fx-focus-color", "-fx-control-inner-background", "-fx-faint-focus-color")),
+					//backgroundColor(commas("-fx-focus-color", "-fx-control-inner-background", "-fx-faint-focus-color")),
+					backgroundColor
+					(
+				        "-fx-focus-color," +
+				        "-fx-control-inner-background," +
+				        "-fx-faint-focus-color," +
+				        "linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
+			        ),
 					backgroundInsets(commas(-0.2, 1, -1.4, 3)),
 					backgroundRadius(commas(3, 2, 4, 0))
 				)

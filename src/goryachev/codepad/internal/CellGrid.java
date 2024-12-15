@@ -24,6 +24,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -81,6 +82,8 @@ public class CellGrid
 		this.editor = skin.getSkinnable();
 		this.vscroll = configureScrollBar(vscroll);
 		this.hscroll = configureScrollBar(hscroll);
+		
+		setBorder(Border.stroke(Color.TRANSPARENT));
 
 		getChildren().addAll(vscroll, hscroll);
 		
@@ -186,6 +189,10 @@ public class CellGrid
 		int row = (int)(y / (tm.cellHeight + lineSpacing()));
 		int col = (int)Math.round(x / tm.cellWidth);
 		int ix = a.indexAtViewRow(row);
+		if(ix < 0)
+		{
+			return null;
+		}
 		int cix = a.cellIndexAtViewRow(row) + col;
 		// TODO clamp?
 		return new TextPos(ix, cix);
@@ -202,6 +209,7 @@ public class CellGrid
 	public void suppressBlinking(boolean on)
 	{
 		suppressBlink.set(on);
+		cursorOn = true;
 		// TODO repaint caret cell?
 	}
 	
@@ -223,6 +231,7 @@ public class CellGrid
 			{
 				log.trace("starting cursor animation");
 				cursorAnimation = createCursorAnimation();
+				cursorOn = true;
 			}
 		}
 	}
