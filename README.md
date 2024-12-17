@@ -25,9 +25,9 @@ This project is currently in the early development stage.  Do not even think of 
 
 
 
-## Requirements
+## Software Requirements
 
-Requires JavaFX 23+.
+Requires JDK 23+ with JavaFX 23+.
 
 
 ## License
