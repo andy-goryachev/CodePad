@@ -74,6 +74,7 @@ public class CellGrid
 	private Timeline cursorAnimation;
 	private boolean cursorOn = true;
 	private boolean highlightCaretLine;
+	private int phantomx = -1;
 
 
 	public CellGrid(CodePadSkin skin, ScrollBar vscroll, ScrollBar hscroll)
@@ -295,6 +296,13 @@ public class CellGrid
 		cache.clear();
 		arrangement = null;
 		requestLayout();
+	}
+	
+	
+	public int getPageSize()
+	{
+		// TODO +1 if unwrapped?
+		return viewRows;
 	}
 	
 	
@@ -880,8 +888,9 @@ public class CellGrid
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
 		
-		int maxy = arrangement.getVisibleRowCount();
-		int wrapLimit = arrangement.getWrapLimit();
+		Arrangement a = arrangement();
+		int maxy = a.getVisibleRowCount();
+		int wrapLimit = a.getWrapLimit();
 		TextCellMetrics tm = textCellMetrics();
 		boolean wrap = editor.isWrapText();
 		double lineSpacing = lineSpacing();
@@ -895,8 +904,8 @@ public class CellGrid
 		
 		for(int ix=0; ix<maxy; ix++)
 		{
-			WrapInfo wi = arrangement.wrapInfoAtViewRow(ix);
-			int cellIndex = arrangement.cellIndexAtViewRow(ix);
+			WrapInfo wi = a.wrapInfoAtViewRow(ix);
+			int cellIndex = a.cellIndexAtViewRow(ix);
 			int ct = wrapLimit < 0 ? wi.getCellCount() : Math.min(wrapLimit, wi.getCellCount() - cellIndex);
 			paintCells(tm, wi, cellIndex, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
@@ -977,5 +986,182 @@ public class CellGrid
 				break;
 			}
 		}
+	}
+	
+	
+	private WrapInfo getWrapInfo(int modelIndex)
+	{
+		return cache.getWrapInfo(modelIndex, wrapLimit);
+	}
+	
+	
+	public void clearPhantomX()
+	{
+		phantomx = -1;
+	}
+	
+	
+	public TextPos verticalMove(TextPos from, int delta)
+	{
+		int ix = from.index();
+		int cix = from.offset();
+		WrapInfo wi = getWrapInfo(ix);
+		
+		// initial row and column
+		int rx = wi.getRowAtCellIndex(cix);
+		int cx;
+		if(phantomx < 0)
+		{
+			cx = cix % viewCols;
+			phantomx = cx;
+		}
+		else
+		{
+			cx = phantomx;
+		}
+
+		TextPos p;
+		boolean wrap = editor.isWrapText();
+		if(wrap)
+		{
+			if(delta < 0)
+			{
+				// going up
+				int ct = -delta;
+				for(;;)
+				{
+					if(wi == null)
+					{
+						wi = getWrapInfo(ix);
+					}
+					
+					int h = wi.getRowCount();
+					if(ct < h)
+					{
+						cix = wi.getCellIndexAtRow(h - ct) + cx;
+						// TODO clamp?
+						break;
+					}
+					else
+					{
+						ct -= h;
+						if(ix == 0)
+						{
+							p = TextPos.ZERO;
+							break;
+						}
+						ix--;
+						wi = null;
+					}
+				}
+			}
+			else
+			{
+				// going down
+				int max = editor.getParagraphCount();
+				int ct = delta;
+				for(;;)
+				{
+					if(wi == null)
+					{
+						wi = getWrapInfo(ix);
+					}
+					
+					int h = wi.getRowCount();
+					if(ct < h)
+					{
+						cix = wi.getCellIndexAtRow(ct) + cx;
+						// TODO clamp?
+						break;
+					}
+					else
+					{
+						ct -= h;
+						if(ix >= max)
+						{
+							p = editor.getDocumentEnd();
+							break;
+						}
+						wi = null;
+						ix++;
+					}
+				}
+			}
+
+			p = new TextPos(ix, cix);
+		}
+		else
+		{
+			ix += delta;
+			if(ix < 0)
+			{
+				p = TextPos.ZERO;
+			}
+			else
+			{
+				int sz = editor.getParagraphCount();
+				if(ix < sz)
+				{
+					wi = getWrapInfo(ix);
+					if(cix > wi.getCellCount())
+					{
+						cix = wi.getCellCount();
+					}
+					p = new TextPos(ix, cix);
+				}
+				else
+				{
+					p = editor.getDocumentEnd();
+				}
+			}
+		}
+		
+		Arrangement a = arrangement();
+		if(!a.isVisible(p))
+		{
+			// move origin
+			ix = p.index();
+			//if(ix <= a.getStartIndex())
+			{
+				// above
+				wi = getWrapInfo(ix);
+				cix = wi.getCellIndexAtRow(wi.getRowAtCellIndex(p.offset()));
+				// TODO check if ix == 0
+				setOrigin(ix, cix, origin.xoffset(), origin.yoffset());
+			}
+//			else
+//			{
+//				// below
+//			}
+		}
+		return p;
+	}
+	
+	
+	public TextPos horizontalMove(TextPos from, int dx)
+	{
+		scrollToVisible(from);
+		// TODO
+		return from;
+	}
+	
+	
+	public void scrollToVisible(TextPos p)
+	{
+		// ? too early
+//		Arrangement a = arrangement();
+//		if(a.isVisible(p))
+//		{
+//			return;
+//		}
+//		
+//		Origin or = a.scrollToVisible(caret);
+//		if(or != null)
+//		{
+//			setOrigin(or);
+//		}
+		
+		// TODO if below - show on the last row
+		// if above - show on the first row
 	}
 }

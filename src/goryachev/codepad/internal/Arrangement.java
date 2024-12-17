@@ -51,6 +51,12 @@ public class Arrangement
 			", bottomRows=" + bottomRows +
 			"}";
 	}
+	
+	
+	public int getStartIndex()
+	{
+		return startIndex;
+	}
 
 
 	public void layoutViewPort(int numRows)
@@ -330,4 +336,16 @@ public class Arrangement
 		}
 		return true;
 	}
+
+
+//	public Origin scrollToVisible(TextPos caret)
+//	{
+//		if(a.isVisible(caret))
+//		{
+//			return;
+//		}
+//		
+//
+//		return null;
+//	}
 }

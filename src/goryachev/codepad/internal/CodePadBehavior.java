@@ -16,7 +16,7 @@ import javafx.scene.input.MouseEvent;
 public class CodePadBehavior
 	extends BehaviorBase<CodePad>
 {
-	private CellGrid grid;
+	private final CellGrid grid;
 	
 	
 	public CodePadBehavior(CodePad c, CellGrid g)
@@ -29,18 +29,33 @@ public class CodePadBehavior
 	@Override
 	protected void populateSkinInputMap()
 	{
-		// TODO
-		
 		func(Fun.MOVE_DOWN, this::moveDown);
 		func(Fun.MOVE_LEFT, this::moveLeft);
 		func(Fun.MOVE_RIGHT, this::moveRight);
 		func(Fun.MOVE_UP, this::moveUp);
+		func(Fun.PAGE_DOWN, this::pageDown);
+		func(Fun.PAGE_UP, this::pageUp);
+		func(Fun.SELECT_DOWN, this::selectDown);
+		func(Fun.SELECT_LEFT, this::selectLeft);
+		func(Fun.SELECT_PAGE_DOWN, this::selectPageDown);
+		func(Fun.SELECT_PAGE_UP, this::selectPageUp);
+		func(Fun.SELECT_RIGHT, this::selectRight);
+		func(Fun.SELECT_UP, this::selectUp);
 		func(Fun.SELECT_ALL, this::selectAll);
 		
 		key(KB.of(KeyCode.DOWN), Fun.MOVE_DOWN);
+		key(KB.shift(KeyCode.DOWN), Fun.SELECT_DOWN);
 		key(KB.of(KeyCode.LEFT), Fun.MOVE_LEFT);
+		key(KB.shift(KeyCode.LEFT), Fun.SELECT_LEFT);
+		key(KB.of(KeyCode.PAGE_DOWN), Fun.PAGE_DOWN);
+		key(KB.shift(KeyCode.PAGE_DOWN), Fun.SELECT_PAGE_DOWN);
+		key(KB.of(KeyCode.PAGE_UP), Fun.PAGE_UP);
+		key(KB.shift(KeyCode.PAGE_UP), Fun.SELECT_PAGE_UP);
 		key(KB.of(KeyCode.RIGHT), Fun.MOVE_RIGHT);
+		key(KB.shift(KeyCode.RIGHT), Fun.SELECT_RIGHT);
 		key(KB.of(KeyCode.UP), Fun.MOVE_UP);
+		key(KB.shift(KeyCode.UP), Fun.SELECT_UP);
+
 		key(KB.ctrl(KeyCode.A), Fun.SELECT_ALL);
 		
 		grid.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
@@ -93,6 +108,7 @@ public class CodePadBehavior
 	{		
 		// TODO
 		grid.suppressBlinking(false);
+		grid.clearPhantomX();
 	}
 	
 	
@@ -106,76 +122,112 @@ public class CodePadBehavior
 	
 	public void moveDown()
 	{
-		verticalMove(1, false);
+		move(true, 1, false);
 	}
 	
 	
 	public void moveLeft()
 	{
-		horizontalMove(-1, false);
+		move(false, -1, false);
 	}
 	
 	
 	public void moveRight()
 	{
-		horizontalMove(1, false);
+		move(false, 1, false);
 	}
 	
 	
 	public void moveUp()
 	{
-		verticalMove(-1, false);
+		move(true, -1, false);
+	}
+	
+	
+	public void pageDown()
+	{
+		move(true, grid.getPageSize(), false);
+	}
+	
+	
+	public void pageUp()
+	{
+		move(true, -grid.getPageSize(), false);
+	}
+	
+	
+	public void selectDown()
+	{
+		move(true, 1, true);
+	}
+	
+	
+	public void selectLeft()
+	{
+		move(false, -1, true);
+	}
+	
+	
+	public void selectPageDown()
+	{
+		move(true, grid.getPageSize(), true);
+	}
+	
+	
+	public void selectPageUp()
+	{
+		move(true, -grid.getPageSize(), true);
+	}
+	
+	
+	public void selectRight()
+	{
+		move(false, 1, true);
+	}
+	
+	
+	public void selectUp()
+	{
+		move(true, -1, true);
 	}
 
 	
-	public void selectAll()
-	{
-		CodePad c = control();
-        TextPos end = c.getDocumentEnd();
-        c.select(TextPos.ZERO, end);
-        // TODO clear phantom x
-	}
-	
-	
-	private void verticalMove(int dy, boolean select)
+	private void move(boolean vertical, int delta, boolean select)
 	{
 		TextPos caret = control().getCaretPosition();
 		if(caret != null)
 		{
-			scrollToVisible();
-			// arrangement getwrapinfo
-			// grid.verticalMove
-			// scroll to visible again
+			TextPos p;
+			if(vertical)
+			{
+				p = grid.verticalMove(caret, delta);
+			}
+			else
+			{
+				p = grid.horizontalMove(caret, delta);
+			}
+			moveCaret(p, select);
 		}
-		// TODO
 	}
 	
 	
-	// TODO move to  grid?
-	private void horizontalMove(int dx, boolean select)
+	// combine with previous method?
+	private void moveCaret(TextPos p, boolean extendSelection)
 	{
-		scrollToVisible();
-		// TODO
+		if(extendSelection)
+		{
+			control().extendSelection(p);
+		}
+		else
+		{
+			control().select(p);
+		}
 	}
 	
 	
-	// TODO move to  grid?
-	public void scrollToVisible()
+	public void selectAll()
 	{
-		TextPos caret = control().getCaretPosition();
-		if(caret == null)
-		{
-			return;
-		}
-		
-		// TODO
-		Arrangement a = grid.arrangement();
-		if(a.isVisible(caret))
-		{
-			return;
-		}
-		
-		// TODO if below - show on the last row
-		// if above - show on the first row
+        TextPos end = control().getDocumentEnd();
+        control().select(TextPos.ZERO, end);
 	}
 }

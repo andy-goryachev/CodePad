@@ -29,7 +29,6 @@ import javafx.css.converter.InsetsConverter;
 import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
-import javafx.scene.layout.Border;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -60,7 +59,15 @@ public class CodePad
 		public static final FID MOVE_LEFT = new FID();
 		public static final FID MOVE_RIGHT = new FID();
 		public static final FID MOVE_UP = new FID();
+		public static final FID PAGE_DOWN = new FID();
+		public static final FID PAGE_UP = new FID();
 		public static final FID SELECT_ALL = new FID();
+		public static final FID SELECT_DOWN = new FID();
+		public static final FID SELECT_LEFT = new FID();
+		public static final FID SELECT_PAGE_DOWN = new FID();
+		public static final FID SELECT_PAGE_UP = new FID();
+		public static final FID SELECT_RIGHT = new FID();
+		public static final FID SELECT_UP = new FID();
 	}
 	
 	public static final CssStyle STYLE = new CssStyle();
