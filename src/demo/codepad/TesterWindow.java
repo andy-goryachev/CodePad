@@ -31,8 +31,6 @@ public class TesterWindow
 		
 		editor = new CodePad(null);
 		editor.setContentPadding(FX.insets(2, 4));
-//		editor.setBlinkRate(Duration.millis(600));
-//		editor.setTabPolicy(TabPolicy.create(4));
 		
 		OptionsPane options = Options.create(editor);
 		

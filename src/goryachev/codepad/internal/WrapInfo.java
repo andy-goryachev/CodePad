@@ -64,7 +64,11 @@ public abstract class WrapInfo
 	 */
 	public CellStyle getCellStyle(int cix)
 	{
-		return paragraph.getCellStyle(cix);
+		if(cix < paragraph.getTextLength())
+		{
+			return paragraph.getCellStyle(cix);
+		}
+		return null;
 	}
 	
 	
@@ -125,9 +129,13 @@ public abstract class WrapInfo
 
 
 		@Override
-		public String getCellText(int ix)
+		public String getCellText(int cix)
 		{
-			return paragraph.getCellText(ix);
+			if(cix < paragraph.getTextLength())
+			{
+				return paragraph.getCellText(cix);
+			}
+			return null;
 		}
 
 
@@ -206,9 +214,13 @@ public abstract class WrapInfo
 		
 		
 		@Override
-		public String getCellText(int ix)
+		public String getCellText(int cix)
 		{
-			return paragraph.getCellText(ix);
+			if(cix < paragraph.getTextLength())
+			{
+				return paragraph.getCellText(cix);
+			}
+			return null;
 		}
 
 

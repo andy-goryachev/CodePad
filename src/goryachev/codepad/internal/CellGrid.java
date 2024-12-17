@@ -192,7 +192,14 @@ public class CellGrid
 		int ix = a.indexAtViewRow(row);
 		if(ix < 0)
 		{
-			return null;
+			if(row <= 0)
+			{
+				return TextPos.ZERO;
+			}
+			else
+			{
+				return editor.getDocumentEnd();
+			}
 		}
 		int cix = a.cellIndexAtViewRow(row) + col;
 		// TODO clamp?
@@ -897,8 +904,6 @@ public class CellGrid
 		
 		clearCanvas();
 		
-		// TODO caret line
-		
 		double x = origin.xoffset();
 		double y = origin.yoffset();
 		
@@ -906,26 +911,31 @@ public class CellGrid
 		{
 			WrapInfo wi = a.wrapInfoAtViewRow(ix);
 			int cellIndex = a.cellIndexAtViewRow(ix);
-			int ct = wrapLimit < 0 ? wi.getCellCount() : Math.min(wrapLimit, wi.getCellCount() - cellIndex);
-			paintCells(tm, wi, cellIndex, ct, x, y);
+			paintCells(tm, wi, cellIndex, false, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
 		}
 	}
 
 
-	// paints a number of cells horizontally
-	// TODO cell count, or until x > canvasWidth
-	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, int cellCount, double x, double y)
+	// paints the row (singleCell=false) or a single cell horizontally
+	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, boolean singleCell, double x, double y)
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
 		boolean drawCaret = cursorOn && paintCaret.get();
+		int ix = wi.getIndex();
+		SelectionRange sel = editor.getSelection();
+		boolean caretLine = highlightCaretLine && SelectionHelper.isCaretLine(sel, ix);
+		Color parBG = wi.getBackgroundColor();
+		int ct = singleCell ? 1 : Integer.MAX_VALUE;
 		
-		for(int i=0; i<cellCount; i++)
+		// FIX background and caret line highlight must extend to canvas width,
+		// selection should not!
+		
+		for(int i=0; i<ct; i++)
 		{
 			int cix = cellIndex0 + i;
-			int flags = SelectionHelper.getFlags(this, highlightCaretLine, editor.getSelection(), wi, cix);
-			boolean caretLine = SelectionHelper.isCaretLine(flags);
+			int flags = SelectionHelper.getFlags(this, sel, ix, cix);
 			boolean caret = drawCaret && SelectionHelper.isCaret(flags);
 			boolean selected = SelectionHelper.isSelected(flags);
 			
@@ -937,7 +947,7 @@ public class CellGrid
 			}
 			
 			// background
-			Color bg = backgroundColor(caretLine, selected, wi.getBackgroundColor(), style.getBackgroundColor());
+			Color bg = backgroundColor(caretLine, selected, parBG, style.getBackgroundColor());
 			if(bg != null)
 			{
 				gx.setFill(bg);

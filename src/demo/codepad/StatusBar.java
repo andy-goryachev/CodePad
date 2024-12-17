@@ -57,10 +57,9 @@ public class StatusBar
 				
 				TextPos p = sel.getCaret();
 				String line = fmt.format(p.getLineNumber());
-				String col = "?"; //fmt.format(ed.getColumnAt(m) + 1);
 				String ix = fmt.format(p.getColumn());
 				
-				return String.format("line: %s  column: %s  char: %s", line, col, ix);  
+				return String.format("line: %s  char: %s", line, ix);  
 			},
 			ed.selectionProperty()
 		));

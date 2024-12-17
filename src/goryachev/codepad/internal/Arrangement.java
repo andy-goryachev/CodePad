@@ -330,7 +330,7 @@ public class Arrangement
 		
 		wi = rows.get(last);
 		cix = offsets.get(last);
-		if(p.compareTo(wi.getIndex(), cix) > 0)
+		if(p.compareTo(wi.getIndex(), cix + viewCols) > 0)
 		{
 			return false;
 		}
