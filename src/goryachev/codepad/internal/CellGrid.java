@@ -869,7 +869,7 @@ public class CellGrid
 	}
 	
 	
-	private Rectangle2D computeSelectionRectangle(SelectionRange sel, int ix, int cellIndex, int count, double height)
+	private Rectangle2D computeSelectionRectangle(SelectionRange sel, int ix, int cellIndex, int count, double x, double y, double cellWidth, double height)
 	{
 		if(sel == null)
 		{
@@ -896,59 +896,24 @@ public class CellGrid
 		//
 		
 		TextPos p0 = new TextPos(ix, cellIndex, true);
-		TextPos p1 = new TextPos(ix, cellIndex + count, true);
+		TextPos p1 = new TextPos(ix, cellIndex + viewCols, true);
 		
-		int d0 = p0.compareTo(s0);
-		int d1 = p1.compareTo(s1);
-		
-		// TODO
-		if(d0 < 0)
+		if(s1.compareTo(p0) <= 0)
 		{
-			if(d1 < 0)
-			{
-				
-			}
-			else if(d1 == 0)
-			{
-				
-			}
-			else
-			{
-				
-			}
+			return null;
 		}
-		else if(d0 == 0)
+		else if(s0.compareTo(p1) >= 0)
 		{
-			if(d1 < 0)
-			{
-				
-			}
-			else if(d1 == 0)
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
-		else
-		{
-			if(d1 < 0)
-			{
-				// full width
-			}
-			else if(d1 == 0)
-			{
-				// left edge, right content
-			}
-			else
-			{
-				// left edge, right content
-			}
+			return null;
 		}
 		
-		return null; // FIX
+		boolean leftEdge = (s0.compareTo(p0) < 0);
+		double x0 = leftEdge ? 0.0 : x + (s0.offset() - cellIndex) * cellWidth;
+		
+		boolean rightEdge = (s1.compareTo(p1) >= 0);
+		double x1 = rightEdge ? canvas.getWidth() : x + (s1.offset() - cellIndex) * cellWidth;
+		
+		return new Rectangle2D(x0, y, x1 - x0, height);
 	}
 	
 	
@@ -1007,7 +972,7 @@ public class CellGrid
 		}
 		
 		// selection highlight extends to the edge of canvas
-		Rectangle2D selR = computeSelectionRectangle(sel, ix, cellIndex0, count, lineH);
+		Rectangle2D selR = computeSelectionRectangle(sel, ix, cellIndex0, count, x, y, tm.cellWidth, lineH);
 		if(selR != null)
 		{
 			Color bg = editor.getSelectionColor();

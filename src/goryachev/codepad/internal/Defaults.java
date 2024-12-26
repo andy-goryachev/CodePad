@@ -36,7 +36,7 @@ public class Defaults
 	
 	public static final double PREF_WIDTH = 100;
 	
-	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.9);
+	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.7);
 	
 	/**
 	 * Number of paragraphs to lay out before and after the view port
