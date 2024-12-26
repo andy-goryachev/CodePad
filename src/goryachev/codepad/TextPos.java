@@ -9,16 +9,18 @@ import goryachev.common.util.FH;
 public final class TextPos
 	implements Comparable<TextPos>
 {
-	public static final TextPos ZERO = new TextPos(0, 0);
+	public static final TextPos ZERO = new TextPos(0, 0, true);
 	
 	private final int index;
 	private final int offset;
+	private final boolean leading;
 
 
-	public TextPos(int index, int offset)
+	public TextPos(int index, int offset, boolean leading)
 	{
 		this.index = index;
 		this.offset = offset;
+		this.leading = leading;
 	}
 
 
@@ -36,7 +38,14 @@ public final class TextPos
 	 */
 	public int offset()
 	{
+		// TODO account for leading
 		return offset;
+	}
+	
+	
+	public boolean isLeading()
+	{
+		return leading;
 	}
 	
 	

@@ -91,8 +91,7 @@ public abstract class WrapInfo
 			else
 			{
 				// simple wrapped case
-				int cols = 1 + ((p.getCellCount() - 1) / wrapLimit);
-				return new SimpleWrapped(p, cols);
+				return new SimpleWrapped(p, wrapLimit);
 			}
 		}
 		else
@@ -131,11 +130,7 @@ public abstract class WrapInfo
 		@Override
 		public String getCellText(int cix)
 		{
-			if(cix < paragraph.getTextLength())
-			{
-				return paragraph.getCellText(cix);
-			}
-			return null;
+			return paragraph.getCellText(cix);
 		}
 
 
@@ -209,18 +204,14 @@ public abstract class WrapInfo
 		@Override
 		public int getRowCount()
 		{
-			return cols;
+			return 1 + (getCellCount() - 1) / cols;
 		}
 		
 		
 		@Override
 		public String getCellText(int cix)
 		{
-			if(cix < paragraph.getTextLength())
-			{
-				return paragraph.getCellText(cix);
-			}
-			return null;
+			return paragraph.getCellText(cix);
 		}
 
 

@@ -74,7 +74,7 @@ public abstract class CodeModel
 			int len = getParagraphLength(ix);
 			if(p.offset() > len)
 			{
-				return new TextPos(ix, len);
+				return new TextPos(ix, len, true);
 			}
 			return p;
 		}
@@ -86,7 +86,7 @@ public abstract class CodeModel
 		{
 			ix = sz - 1;
 			int len = getParagraphLength(ix);
-			return new TextPos(ix, len);
+			return new TextPos(ix, len, false);
 		}
 	}
 	
@@ -105,6 +105,6 @@ public abstract class CodeModel
 	public TextPos getEndOfParagraph(int ix)
 	{
 		int cix = getParagraphLength(ix);
-		return new TextPos(ix, cix);
+		return new TextPos(ix, cix, false);
 	}
 }

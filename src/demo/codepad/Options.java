@@ -56,7 +56,7 @@ public class Options
 			Button b2 = new Button("Select Lines");
 			b2.setOnAction((ev) ->
 			{
-				ed.select(TextPos.ZERO, new TextPos(2, 1));
+				ed.select(TextPos.ZERO, new TextPos(2, 1, false));
 			});
 			op.option(new HBox(2, b1, b2));
 		}
@@ -107,6 +107,14 @@ public class Options
 		{
 			p.set(DemoModels.getModel(m));
 		});
-		return c;
+		
+		Button b = new Button("Reload");
+		b.setOnAction((ev) ->
+		{
+			DemoModels s = c.getSelectionModel().getSelectedItem();
+			CodeModel m = DemoModels.getModel(s);
+			p.set(m);
+		});
+		return new HBox(c, b);
 	}
 }

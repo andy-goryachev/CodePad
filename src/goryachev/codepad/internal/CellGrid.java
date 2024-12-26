@@ -19,6 +19,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -203,7 +204,8 @@ public class CellGrid
 		}
 		int cix = a.cellIndexAtViewRow(row) + col;
 		// TODO clamp?
-		return new TextPos(ix, cix);
+		// TODO trailing if at the end of line?
+		return new TextPos(ix, cix, true);
 	}
 
 	
@@ -218,6 +220,11 @@ public class CellGrid
 	{
 		suppressBlink.set(on);
 		cursorOn = true;
+		if(cursorAnimation != null)
+		{
+			cursorAnimation.stop();
+			cursorAnimation.play();
+		}
 		// TODO repaint caret cell?
 	}
 	
@@ -491,34 +498,6 @@ public class CellGrid
 			}
 		}
 		return metrics;
-	}
-	
-	
-	private Color backgroundColor(boolean caretLine, boolean selected, Color lineColor, Color cellBG)
-	{
-		Color c = editor.getBackgroundColor();
-		
-		if(lineColor !=  null)
-		{
-			c = CodePadUtils.mixColor(c, lineColor, Defaults.LINE_COLOR_OPACITY);
-		}
-		
-		if(caretLine)
-		{
-			c = CodePadUtils.mixColor(c, editor.getCaretLineColor(), Defaults.CARET_LINE_OPACITY);
-		}
-		
-		if(selected)
-		{
-			c = CodePadUtils.mixColor(c, editor.getSelectionColor(), Defaults.SELECTION_BACKGROUND_OPACITY);
-		}
-		
-		if(cellBG != null)
-		{
-			c = CodePadUtils.mixColor(c, cellBG, Defaults.CELL_BACKGROUND_OPACITY);
-		}
-		
-		return c;
 	}
 	
 	
@@ -884,9 +863,92 @@ public class CellGrid
 		// https://bugs.openjdk.java.net/browse/JDK-8103438
 		gx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		
-		// FIX background color
+		// background color
 		gx.setFill(editor.getBackgroundColor());
 		gx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	}
+	
+	
+	private Rectangle2D computeSelectionRectangle(SelectionRange sel, int ix, int cellIndex, int count, double height)
+	{
+		if(sel == null)
+		{
+			return null;
+		}
+
+		TextPos s0 = sel.getMin();
+		if(s0 == null)
+		{
+			return null;
+		}
+		
+		TextPos s1 = sel.getMax();
+		if(s1 == null)
+		{
+			return null;
+		}
+		
+		if(s0.equals(s1))
+		{
+			return null;
+		}
+		
+		//
+		
+		TextPos p0 = new TextPos(ix, cellIndex, true);
+		TextPos p1 = new TextPos(ix, cellIndex + count, true);
+		
+		int d0 = p0.compareTo(s0);
+		int d1 = p1.compareTo(s1);
+		
+		// TODO
+		if(d0 < 0)
+		{
+			if(d1 < 0)
+			{
+				
+			}
+			else if(d1 == 0)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+		else if(d0 == 0)
+		{
+			if(d1 < 0)
+			{
+				
+			}
+			else if(d1 == 0)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+		else
+		{
+			if(d1 < 0)
+			{
+				// full width
+			}
+			else if(d1 == 0)
+			{
+				// left edge, right content
+			}
+			else
+			{
+				// left edge, right content
+			}
+		}
+		
+		return null; // FIX
 	}
 	
 	
@@ -911,33 +973,59 @@ public class CellGrid
 		{
 			WrapInfo wi = a.wrapInfoAtViewRow(ix);
 			int cellIndex = a.cellIndexAtViewRow(ix);
-			paintCells(tm, wi, cellIndex, false, x, y);
+			int ct = wrapLimit < 0 ? wi.getCellCount() : Math.min(wrapLimit, wi.getCellCount() - cellIndex);
+			paintCells(tm, wi, cellIndex, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
 		}
 	}
 
 
-	// paints the row (singleCell=false) or a single cell horizontally
-	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, boolean singleCell, double x, double y)
+	// paints a single row horizontally
+	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, int count, double x, double y)
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
 		boolean drawCaret = cursorOn && paintCaret.get();
 		int ix = wi.getIndex();
+		int len = wi.getCellCount();
 		SelectionRange sel = editor.getSelection();
 		boolean caretLine = highlightCaretLine && SelectionHelper.isCaretLine(sel, ix);
 		Color parBG = wi.getBackgroundColor();
-		int ct = singleCell ? 1 : Integer.MAX_VALUE;
+		double lineH = tm.cellHeight + lineSpacing();
 		
-		// FIX background and caret line highlight must extend to canvas width,
-		// selection should not!
+		if(caretLine && (count < viewCols))
+		{
+			count++;
+		}
 		
-		for(int i=0; i<ct; i++)
+		// current paragraph highlight extends to the edge of canvas
+		if(caretLine)
+		{
+			Color bg = editor.getCaretLineColor();
+			gx.setFill(bg);
+			gx.fillRect(0, y, canvas.getWidth(), tm.cellHeight);
+		}
+		
+		// selection highlight extends to the edge of canvas
+		Rectangle2D selR = computeSelectionRectangle(sel, ix, cellIndex0, count, lineH);
+		if(selR != null)
+		{
+			Color bg = editor.getSelectionColor();
+			gx.setFill(bg);
+			gx.fillRect(selR.getMinX(), selR.getMinY(), selR.getWidth(), selR.getHeight());
+		}
+		
+		// paragraph background extends to the edge of canvas
+		if(parBG != null)
+		{
+			gx.setFill(parBG);
+			gx.fillRect(0, y, canvas.getWidth(), tm.cellHeight);
+		}
+		
+		for(int i=0; i<count; i++)
 		{
 			int cix = cellIndex0 + i;
-			int flags = SelectionHelper.getFlags(this, sel, ix, cix);
-			boolean caret = drawCaret && SelectionHelper.isCaret(flags);
-			boolean selected = SelectionHelper.isSelected(flags);
+			boolean caret = drawCaret && SelectionHelper.isCaret(sel, ix, cix);
 			
 			// style
 			CellStyle style = wi.getCellStyle(cix);
@@ -946,11 +1034,11 @@ public class CellGrid
 				style = CellStyle.EMPTY;
 			}
 			
-			// background
-			Color bg = backgroundColor(caretLine, selected, parBG, style.getBackgroundColor());
-			if(bg != null)
+			// cell background
+			Color cellBG = style.getBackgroundColor();
+			if(cellBG != null)
 			{
-				gx.setFill(bg);
+				gx.setFill(cellBG);
 				gx.fillRect(x, y, tm.cellWidth, tm.cellHeight);
 			}
 			
@@ -969,24 +1057,27 @@ public class CellGrid
 			}
 			
 			// text
-			String text = wi.getCellText(cix);
-			if(text != null)
+			if(cix < len)
 			{
-				Color fg = style.getTextColor();
-				if(fg == null)
+				String text = wi.getCellText(cix);
+				if(text != null)
 				{
-					fg = textColor;
-				}
+					Color fg = style.getTextColor();
+					if(fg == null)
+					{
+						fg = textColor;
+					}
+					
+					Font f = getFont(style);
+					gx.setFont(f);
+					gx.setFill(fg);
+					gx.fillText(text, x, y - tm.baseLine, tm.cellWidth);
 				
-				Font f = getFont(style);
-				gx.setFont(f);
-				gx.setFill(fg);
-				gx.fillText(text, x, y - tm.baseLine, tm.cellWidth);
-			
-				if(style.isStrikeThrough())
-				{
-					gx.setFill(textColor);
-					gx.fillRect(x, y + tm.cellHeight / 2.0, tm.cellWidth, 0.5);
+					if(style.isStrikeThrough())
+					{
+						gx.setFill(textColor);
+						gx.fillRect(x, y + tm.cellHeight / 2.0, tm.cellWidth, 0.5);
+					}
 				}
 			}
 			
@@ -1040,6 +1131,12 @@ public class CellGrid
 				int ct = -delta;
 				for(;;)
 				{
+					if(ix < 0)
+					{
+						p = TextPos.ZERO;
+						break;
+					}
+					
 					if(wi == null)
 					{
 						wi = getWrapInfo(ix);
@@ -1050,16 +1147,17 @@ public class CellGrid
 					{
 						cix = wi.getCellIndexAtRow(h - ct) + cx;
 						// TODO clamp?
+						p = new TextPos(ix, cix, true);
 						break;
 					}
 					else
 					{
 						ct -= h;
-						if(ix == 0)
-						{
-							p = TextPos.ZERO;
-							break;
-						}
+//						if(ix == 0)
+//						{
+//							p = TextPos.ZERO;
+//							break;
+//						}
 						ix--;
 						wi = null;
 					}
@@ -1072,6 +1170,12 @@ public class CellGrid
 				int ct = delta;
 				for(;;)
 				{
+					if(ix >= max)
+					{
+						p = editor.getDocumentEnd();
+						break;
+					}
+					
 					if(wi == null)
 					{
 						wi = getWrapInfo(ix);
@@ -1082,23 +1186,22 @@ public class CellGrid
 					{
 						cix = wi.getCellIndexAtRow(ct) + cx;
 						// TODO clamp?
+						p = new TextPos(ix, cix, true);
 						break;
 					}
 					else
 					{
 						ct -= h;
-						if(ix >= max)
-						{
-							p = editor.getDocumentEnd();
-							break;
-						}
+//						if(ix >= max)
+//						{
+//							p = editor.getDocumentEnd();
+//							break;
+//						}
 						wi = null;
 						ix++;
 					}
 				}
 			}
-
-			p = new TextPos(ix, cix);
 		}
 		else
 		{
@@ -1117,7 +1220,7 @@ public class CellGrid
 					{
 						cix = wi.getCellCount();
 					}
-					p = new TextPos(ix, cix);
+					p = new TextPos(ix, cix, true);
 				}
 				else
 				{
