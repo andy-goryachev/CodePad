@@ -5,9 +5,13 @@ import goryachev.codepad.CodePad.Fun;
 import goryachev.codepad.TextPos;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 
 
 /**
@@ -17,6 +21,9 @@ public class CodePadBehavior
 	extends BehaviorBase<CodePad>
 {
 	private final CellGrid grid;
+	private boolean autoScrollUp;
+	private boolean fastAutoScroll;
+	private Timeline autoScrollTimer;
 	
 	
 	public CodePadBehavior(CodePad c, CellGrid g)
@@ -73,7 +80,31 @@ public class CodePadBehavior
 	
 	private void handleMouseDragged(MouseEvent ev)
 	{
-		// TODO
+		if(ev.getButton() != MouseButton.PRIMARY)
+		{
+			return;
+		}
+
+		double y = ev.getY();
+		if(y < 0)
+		{
+			// above the view port
+			autoScroll(y);
+			return;
+		}
+		else if(y > grid.getHeight())
+		{
+			// below the view port
+			autoScroll(y - grid.getHeight());
+			return;
+		}
+		else
+		{
+			stopAutoScroll();
+		}
+
+		TextPos p = getTextPositionFor(ev);
+		control().extendSelection(p);
 	}
 
 	
@@ -229,5 +260,63 @@ public class CodePadBehavior
 	{
         TextPos end = control().getDocumentEnd();
         control().select(TextPos.ZERO, end);
+	}
+	
+	
+	private void autoScroll(double delta)
+	{
+		autoScrollUp = delta < 0;
+		fastAutoScroll = Math.abs(delta) > Defaults.FAST_SCROLL_THRESHOLD;
+		
+		if(autoScrollTimer == null)
+		{
+			Duration autoScrollPeriod = Duration.millis(100); // arbitrary number
+			autoScrollTimer = new Timeline(new KeyFrame(autoScrollPeriod, (ev) ->
+			{
+				autoScroll();
+			}));
+			autoScrollTimer.setCycleCount(Timeline.INDEFINITE);
+			autoScrollTimer.play();
+		}
+	}
+	
+	
+	private void stopAutoScroll()
+	{
+		if(autoScrollTimer != null)
+		{
+			autoScrollTimer.stop();
+			autoScrollTimer = null;
+		}
+	}
+	
+	
+	private void autoScroll()
+	{
+		// TODO move to defaults?
+		double autoScrollStepFast = 200; // arbitrary
+		double autoScrollStepSlow = 20; // arbitrary
+		double delta = fastAutoScroll ? autoScrollStepFast : autoScrollStepSlow;
+		if(autoScrollUp)
+		{
+			delta = -delta;
+		}
+		grid.blockScroll(delta);
+		
+		Point2D pt;
+		if(autoScrollUp)
+		{
+			pt = grid.localToScreen(0, 0);
+		}
+		else
+		{
+			pt = grid.localToScreen(0, grid.getHeight());
+		}
+		
+		TextPos p = control().getTextPositionFor(pt.getX(), pt.getY());
+		if(p != null)
+		{
+			control().extendSelection(p);
+		}
 	}
 }

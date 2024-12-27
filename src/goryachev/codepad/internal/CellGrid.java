@@ -220,12 +220,22 @@ public class CellGrid
 	{
 		suppressBlink.set(on);
 		cursorOn = true;
-		if(cursorAnimation != null)
+		
+		if(on)
 		{
-			cursorAnimation.stop();
-			cursorAnimation.play();
+			if(cursorAnimation != null)
+			{
+				cursorAnimation.stop();
+			}
 		}
-		// TODO repaint caret cell?
+		else
+		{
+			if(cursorAnimation != null)
+			{
+				cursorAnimation.stop();
+				cursorAnimation.play();
+			}
+		}
 	}
 	
 	
@@ -1241,5 +1251,11 @@ public class CellGrid
 		
 		// TODO if below - show on the last row
 		// if above - show on the first row
+	}
+	
+	
+	public void blockScroll(double delta)
+	{
+		// TODO
 	}
 }

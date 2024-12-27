@@ -24,6 +24,8 @@ public class Defaults
 	
 	public static final boolean DISPLAY_CARET = true;
 	
+	public static final double FAST_SCROLL_THRESHOLD = 100; // arbitrary number
+	
 	public static final Font FONT = Font.font("Monospaced", -1);
 	
 	public static final double LINE_SPACING = 0.0;
