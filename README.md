@@ -9,7 +9,7 @@ High Performance, Monospaced Text Editor for JavaFX.
 ## Goals
 
 The goals of this project is to deliver a high performance text editor JavaFX component,
-targeting applications such as code editors or log viewers, which require:
+targeting applications such as code editors or log viewers, which supports:
 
 - large documents up to 2 billion paragraphs
 - very long (millions of characters) paragraphs
@@ -21,7 +21,7 @@ It is currently not a goal to support proportional fonts, right-to-left orientat
 
 ## Warning
 
-This project is currently in the early development stage.  Do not even think of using it in production.
+This project is currently in the early development stage.
 
 
 
