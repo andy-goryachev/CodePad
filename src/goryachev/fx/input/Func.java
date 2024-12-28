@@ -5,9 +5,9 @@ package goryachev.fx.input;
 /**
  * Function Identifier which corresponds to a method in the Control behavior.
  */
-public final class FID
+public final class Func
 {
-	public FID()
+	public Func()
 	{
 	}
 }

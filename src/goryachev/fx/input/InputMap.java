@@ -42,7 +42,7 @@ public class InputMap
 	}
 	
 	
-	public void regKey(KB k, FID f)
+	public void regKey(KB k, Func f)
 	{
 		map.put(k, f);
 		EventType<KeyEvent> t = k.getEventType(); 
@@ -50,7 +50,7 @@ public class InputMap
 	}
 
 
-	public void regFunc(FID f, Runnable r)
+	public void regFunc(Func f, Runnable r)
 	{
 		map.put(f, r);
 	}
@@ -119,7 +119,7 @@ public class InputMap
 			}
 		}
 		
-		if(v instanceof FID f)
+		if(v instanceof Func f)
 		{
 			return exec(f);
 		}
@@ -136,7 +136,7 @@ public class InputMap
 	}
 	
 	
-	private boolean execFunc(FID f)
+	private boolean execFunc(Func f)
 	{
 		Object v = map.get(f);
 		if(v instanceof Runnable r)
@@ -151,7 +151,7 @@ public class InputMap
 	}
 	
 	
-	private boolean execDefaultFunc(FID f)
+	private boolean execDefaultFunc(Func f)
 	{
 		if(skinInputMap != null)
 		{
@@ -211,7 +211,7 @@ public class InputMap
 
 
 	// returns true if the event must be consumed
-	public boolean exec(FID f)
+	public boolean exec(Func f)
 	{
 		Object v = map.get(f);
 		if(v instanceof Runnable r)

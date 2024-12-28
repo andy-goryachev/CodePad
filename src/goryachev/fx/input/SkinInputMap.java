@@ -33,19 +33,19 @@ public class SkinInputMap
 	}
 	
 	
-	public void func(FID f, Runnable r)
+	public void func(Func f, Runnable r)
 	{
 		map.put(f, r);
 	}
 	
 	
-	public void func(FID f, BooleanSupplier r)
+	public void func(Func f, BooleanSupplier r)
 	{
 		map.put(f, r);
 	}
 	
 	
-	public void key(KB k, FID f)
+	public void key(KB k, Func f)
 	{
 		map.put(k, f);
 		EventType t = k.getEventType();
@@ -76,7 +76,7 @@ public class SkinInputMap
 	}
 
 
-	boolean execFunc(FID f)
+	boolean execFunc(Func f)
 	{
 		Object v = map.get(f);
 		if(v instanceof Runnable r)

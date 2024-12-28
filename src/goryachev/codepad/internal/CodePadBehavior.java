@@ -1,7 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
-import goryachev.codepad.CodePad.Fun;
+import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
@@ -36,34 +36,35 @@ public class CodePadBehavior
 	@Override
 	protected void populateSkinInputMap()
 	{
-		func(Fun.MOVE_DOWN, this::moveDown);
-		func(Fun.MOVE_LEFT, this::moveLeft);
-		func(Fun.MOVE_RIGHT, this::moveRight);
-		func(Fun.MOVE_UP, this::moveUp);
-		func(Fun.PAGE_DOWN, this::pageDown);
-		func(Fun.PAGE_UP, this::pageUp);
-		func(Fun.SELECT_DOWN, this::selectDown);
-		func(Fun.SELECT_LEFT, this::selectLeft);
-		func(Fun.SELECT_PAGE_DOWN, this::selectPageDown);
-		func(Fun.SELECT_PAGE_UP, this::selectPageUp);
-		func(Fun.SELECT_RIGHT, this::selectRight);
-		func(Fun.SELECT_UP, this::selectUp);
-		func(Fun.SELECT_ALL, this::selectAll);
+		func(FN.MOVE_DOWN, this::moveDown);
+		func(FN.MOVE_LEFT, this::moveLeft);
+		func(FN.MOVE_RIGHT, this::moveRight);
+		func(FN.MOVE_UP, this::moveUp);
+		func(FN.PAGE_DOWN, this::pageDown);
+		func(FN.PAGE_UP, this::pageUp);
+		func(FN.SELECT_DOWN, this::selectDown);
+		func(FN.SELECT_LEFT, this::selectLeft);
+		func(FN.SELECT_PAGE_DOWN, this::selectPageDown);
+		func(FN.SELECT_PAGE_UP, this::selectPageUp);
+		func(FN.SELECT_RIGHT, this::selectRight);
+		func(FN.SELECT_UP, this::selectUp);
+		func(FN.SELECT_ALL, this::selectAll);
 		
-		key(KB.of(KeyCode.DOWN), Fun.MOVE_DOWN);
-		key(KB.shift(KeyCode.DOWN), Fun.SELECT_DOWN);
-		key(KB.of(KeyCode.LEFT), Fun.MOVE_LEFT);
-		key(KB.shift(KeyCode.LEFT), Fun.SELECT_LEFT);
-		key(KB.of(KeyCode.PAGE_DOWN), Fun.PAGE_DOWN);
-		key(KB.shift(KeyCode.PAGE_DOWN), Fun.SELECT_PAGE_DOWN);
-		key(KB.of(KeyCode.PAGE_UP), Fun.PAGE_UP);
-		key(KB.shift(KeyCode.PAGE_UP), Fun.SELECT_PAGE_UP);
-		key(KB.of(KeyCode.RIGHT), Fun.MOVE_RIGHT);
-		key(KB.shift(KeyCode.RIGHT), Fun.SELECT_RIGHT);
-		key(KB.of(KeyCode.UP), Fun.MOVE_UP);
-		key(KB.shift(KeyCode.UP), Fun.SELECT_UP);
-
-		key(KB.ctrl(KeyCode.A), Fun.SELECT_ALL);
+		key(KB.of(KeyCode.DOWN), FN.MOVE_DOWN);
+		key(KB.of(KeyCode.LEFT), FN.MOVE_LEFT);
+		key(KB.of(KeyCode.PAGE_DOWN), FN.PAGE_DOWN);
+		key(KB.of(KeyCode.PAGE_UP), FN.PAGE_UP);
+		key(KB.of(KeyCode.RIGHT), FN.MOVE_RIGHT);
+		key(KB.of(KeyCode.UP), FN.MOVE_UP);
+		// shift
+		key(KB.shift(KeyCode.DOWN), FN.SELECT_DOWN);
+		key(KB.shift(KeyCode.LEFT), FN.SELECT_LEFT);
+		key(KB.shift(KeyCode.PAGE_DOWN), FN.SELECT_PAGE_DOWN);
+		key(KB.shift(KeyCode.PAGE_UP), FN.SELECT_PAGE_UP);
+		key(KB.shift(KeyCode.RIGHT), FN.SELECT_RIGHT);
+		key(KB.shift(KeyCode.UP), FN.SELECT_UP);
+		// shortcut
+		key(KB.shortcut(KeyCode.A), FN.SELECT_ALL);
 		
 		grid.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
 		grid.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);

@@ -42,19 +42,19 @@ public abstract class BehaviorBase<C extends Control>
 	}
 	
 	
-	public void func(FID f, Runnable r)
+	public void func(Func f, Runnable r)
 	{
 		getSkinInputMap().func(f, r);
 	}
 	
 	
-	public void func(FID f, BooleanSupplier r)
+	public void func(Func f, BooleanSupplier r)
 	{
 		getSkinInputMap().func(f, r);
 	}
 	
 	
-	public void key(KB k, FID f)
+	public void key(KB k, Func f)
 	{
 		getSkinInputMap().key(k, f);
 	}

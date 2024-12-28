@@ -6,7 +6,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
-import goryachev.fx.input.FID;
+import goryachev.fx.input.Func;
 import goryachev.fx.input.InputMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
@@ -53,25 +53,24 @@ public class CodePad
 	extends Control
 {
 	/** CodePad function identifiers. */
-	public static class Fun
+	public static class FN
 	{
-		public static final FID MOVE_DOWN = new FID();
-		public static final FID MOVE_LEFT = new FID();
-		public static final FID MOVE_RIGHT = new FID();
-		public static final FID MOVE_UP = new FID();
-		public static final FID PAGE_DOWN = new FID();
-		public static final FID PAGE_UP = new FID();
-		public static final FID SELECT_ALL = new FID();
-		public static final FID SELECT_DOWN = new FID();
-		public static final FID SELECT_LEFT = new FID();
-		public static final FID SELECT_PAGE_DOWN = new FID();
-		public static final FID SELECT_PAGE_UP = new FID();
-		public static final FID SELECT_RIGHT = new FID();
-		public static final FID SELECT_UP = new FID();
+		public static final Func MOVE_DOWN = new Func();
+		public static final Func MOVE_LEFT = new Func();
+		public static final Func MOVE_RIGHT = new Func();
+		public static final Func MOVE_UP = new Func();
+		public static final Func PAGE_DOWN = new Func();
+		public static final Func PAGE_UP = new Func();
+		public static final Func SELECT_ALL = new Func();
+		public static final Func SELECT_DOWN = new Func();
+		public static final Func SELECT_LEFT = new Func();
+		public static final Func SELECT_PAGE_DOWN = new Func();
+		public static final Func SELECT_PAGE_UP = new Func();
+		public static final Func SELECT_RIGHT = new Func();
+		public static final Func SELECT_UP = new Func();
 	}
 	
 	public static final CssStyle STYLE = new CssStyle();
-	
 	
 	private final Config config;
 	private final InputMap inputMap;
@@ -83,6 +82,7 @@ public class CodePad
 	private StyleableObjectProperty<Color> caretLineColor;
 	private StyleableObjectProperty<Insets> contentPadding;
 	private StyleableBooleanProperty displayCaretProperty;
+	private StyleableBooleanProperty editable;
 	private StyleableObjectProperty<Font> font;
 	private DoubleProperty lineSpacing;
 	private StyleableObjectProperty<Color> selectionColor;
@@ -98,7 +98,6 @@ public class CodePad
 
 		FX.style(this, STYLE);
 		setModel(model);
-		//setBorder(Border.stroke(Color.RED)); // FIX
 	}
 
 
@@ -521,6 +520,54 @@ public class CodePad
 		displayCaretProperty().setValue(on);
 	}
 	
+	
+    /**
+     * Indicates whether this CodeArea can be edited by the user.
+     * 
+     * @defaultValue {@code true}
+     */
+	public final BooleanProperty editableProperty()
+	{
+		if(editable == null)
+		{
+			editable = new StyleableBooleanProperty(Defaults.EDITABLE)
+			{
+				@Override
+				public Object getBean()
+				{
+					return CodePad.this;
+				}
+
+
+				@Override
+				public String getName()
+				{
+					return "editable";
+				}
+
+
+				@Override
+				public CssMetaData getCssMetaData()
+				{
+					return StyleableProperties.EDITABLE;
+				}
+			};
+		}
+		return editable;
+	}
+
+
+	public final boolean isEditable()
+	{
+		return editable == null ? Defaults.EDITABLE : editable.getValue();
+	}
+
+
+	public final void setEditable(boolean on)
+	{
+		editableProperty().setValue(on);
+	}
+
 
 	/**
 	 * The font to be used by the editor.
@@ -999,6 +1046,23 @@ public class CodePad
 				return (StyleableProperty<Boolean>)n.displayCaretProperty();
 			}
 		};
+		
+		// editable
+		private static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-ag-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
+		{
+			@Override
+			public boolean isSettable(CodePad n)
+			{
+				return n.editable == null || !n.editable.isBound(); 
+			}
+
+
+			@Override
+			public StyleableProperty<Boolean> getStyleableProperty(CodePad n)
+			{
+				return (StyleableProperty<Boolean>)n.editableProperty();
+			}
+		};
 
 		// font
 		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-ag-font", Defaults.FONT)
@@ -1111,6 +1175,7 @@ public class CodePad
 			CARET_LINE_COLOR,
 			CONTENT_PADDING,
 			DISPLAY_CARET,
+			EDITABLE,
 			FONT,
 			LINE_SPACING,
 			SELECTION_COLOR,
@@ -1128,14 +1193,14 @@ public class CodePad
 	}
 	
 	
-	private void exec(FID f)
+	private void exec(Func f)
 	{
-		getInputMap().exec(Fun.SELECT_ALL);
+		getInputMap().exec(FN.SELECT_ALL);
 	}
 	
 	
 	public void selectAll()
 	{
-		exec(Fun.SELECT_ALL);
+		exec(FN.SELECT_ALL);
 	}
 }
