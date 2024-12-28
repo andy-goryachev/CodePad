@@ -784,7 +784,6 @@ public class CodePad
      * Values less than 1 are treated as 1.  Values greater than 32 are treated as 32.
      * @defaultValue 8
      */
-	// private final StyleableProperty<Number> tabSize = SPF.createStyleableNumberProperty(this, "tabSize", "-ag-tab-size", (c) -> c.tabSize, Defaults.TAB_SIZE);
 	public final IntegerProperty tabSizeProperty()
 	{
 		if(tabSize == null)
@@ -946,7 +945,7 @@ public class CodePad
 	private static final class StyleableProperties
 	{
 		// aspect ratio
-		private static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-ag-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
+		private static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-fx-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -963,7 +962,7 @@ public class CodePad
 		};
 		
 		// background color
-		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-ag-background-color", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
+		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-background-color", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -980,7 +979,7 @@ public class CodePad
 		};
 		
 		// caret color
-		private static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-ag-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
+		private static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-fx-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -997,7 +996,7 @@ public class CodePad
 		};
 		
 		// caret line color
-		private static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-ag-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
+		private static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-fx-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1014,7 +1013,7 @@ public class CodePad
 		};
 		
 		// content padding
-		private static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-ag-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
+		private static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1031,7 +1030,7 @@ public class CodePad
 		};
 		
 		// display caret
-		private static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-ag-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
+		private static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-fx-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1048,7 +1047,7 @@ public class CodePad
 		};
 		
 		// editable
-		private static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-ag-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
+		private static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-fx-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1065,7 +1064,7 @@ public class CodePad
 		};
 
 		// font
-		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-ag-font", Defaults.FONT)
+		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-fx-font", Defaults.FONT)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1082,7 +1081,7 @@ public class CodePad
 		};
 
 		// line spacing
-		private static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-ag-line-spacing", SizeConverter.getInstance(), 0)
+		private static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-fx-line-spacing", SizeConverter.getInstance(), 0)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1099,7 +1098,7 @@ public class CodePad
 		};
 		
 		// selection background
-		private static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-ag-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
+		private static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-fx-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1116,7 +1115,7 @@ public class CodePad
 		};
 
 		// tab size
-		private static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-ag-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
+		private static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-fx-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1133,7 +1132,7 @@ public class CodePad
 		};
 		
 		// text color
-		private static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-ag-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
+		private static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-fx-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1150,7 +1149,7 @@ public class CodePad
 		};
 
 		// wrap text
-		private static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-ag-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
+		private static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
