@@ -19,7 +19,7 @@ import javafx.scene.input.KeyEvent;
 public class InputMap
 {
 	private final Control control;
-	// FID -> Runnable
+	// Func -> Runnable
 	// KB -> Func or Runnable
 	// EventType -> EHandlers, or null for key binding handler
 	static final Object TYPES = new Object();
