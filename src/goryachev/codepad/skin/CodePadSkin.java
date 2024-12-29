@@ -67,6 +67,9 @@ public class CodePadSkin
 		// for some reason, adding event filter to grid did not work
 		disconnector.addEventFilter(ed, KeyEvent.KEY_PRESSED, (ev) -> grid.suppressBlinking(true));
 		disconnector.addEventFilter(ed, KeyEvent.KEY_RELEASED, (ev) -> grid.suppressBlinking(false));
+		
+		ed.addEventFilter(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("editor"));
+		grid.addEventFilter(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("grid"));
 	}
 
 

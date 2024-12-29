@@ -3,14 +3,12 @@ package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
-import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
@@ -104,10 +102,6 @@ public class CodePadBehavior
 		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
 		grid.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
 		grid.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
-		
-		// FIX does not work???
-		//grid.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
-		//grid.addEventFilter(KeyEvent.KEY_RELEASED, this::handleKeyReleased);
 	}
 	
 	
@@ -191,23 +185,8 @@ public class CodePadBehavior
 	
 	private void handleMouseReleased(MouseEvent ev)
 	{		
-		// TODO
 		grid.suppressBlinking(false);
 		grid.clearPhantomX();
-	}
-	
-	
-	// FIX dnw
-	private void handleKeyPressed(KeyEvent ev)
-	{
-		grid.suppressBlinking(true);
-	}
-	
-	
-	// FIX dnw
-	private void handleKeyReleased(KeyEvent ev)
-	{
-		grid.suppressBlinking(false);
 	}
 	
 	
@@ -361,7 +340,7 @@ public class CodePadBehavior
 	private void autoScroll(double delta)
 	{
 		autoScrollUp = delta < 0;
-		fastAutoScroll = Math.abs(delta) > Defaults.FAST_SCROLL_THRESHOLD;
+		fastAutoScroll = Math.abs(delta) > Defaults.AUTO_SCROLL_THRESHOLD;
 		
 		if(autoScrollTimer == null)
 		{

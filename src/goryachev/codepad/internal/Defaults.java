@@ -7,7 +7,7 @@ import javafx.util.Duration;
 
 
 /**
- * Defaults.
+ * Default Values of Properties and Other Parameters.
  */
 public class Defaults
 {
@@ -18,20 +18,19 @@ public class Defaults
 	public static final Duration AUTO_SCROLL_PERIOD = Duration.millis(100); // arbitrary number
 	public static final double AUTO_SCROLL_STEP_FAST = 200; // arbitrary number
 	public static final double AUTO_SCROLL_STEP_SLOW = 20; // arbitrary number
+	public static final double AUTO_SCROLL_THRESHOLD = 100; // arbitrary number
 	
 	public static final Color BACKGROUND_COLOR = Color.WHITE;
 	
 	public static final Color CARET_COLOR = Color.BLACK;
 	
-	public static final Color CARET_LINE_COLOR = Color.rgb(255, 200, 255, 0.3);
+	public static final Color CARET_LINE_COLOR = Color.rgb(204, 224, 255, 0.3);
 	
 	public static final Insets CONTENT_PADDING = null;
 	
 	public static final boolean DISPLAY_CARET = true;
 	
 	public static final boolean EDITABLE = true;
-	
-	public static final double FAST_SCROLL_THRESHOLD = 100; // arbitrary number
 	
 	public static final Font FONT = Font.font("Monospaced", -1);
 	
