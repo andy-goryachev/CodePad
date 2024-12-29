@@ -104,7 +104,6 @@ public class CodePad
 	
 	public static final CssStyle STYLE = new CssStyle();
 	
-	private final Config config;
 	private final InputMap inputMap;
 	private SimpleObjectProperty<CodeModel> model;
 	private final SelectionModel selectionModel = new SelectionModel();
@@ -123,21 +122,13 @@ public class CodePad
 	private StyleableBooleanProperty wrapText;
 
 
-	public CodePad(Config config, CodeModel model)
+	public CodePad(CodeModel model)
 	{
-		this.config = config.copy();
 		this.inputMap = new InputMap(this);
-
 		FX.style(this, STYLE);
 		setModel(model);
 	}
 
-
-	public CodePad(CodeModel model)
-	{
-		this(Config.getDefault(), model);
-	}
-	
 	
 	public InputMap getInputMap()
 	{
@@ -656,8 +647,6 @@ public class CodePad
 	}
 	
 	
-	
-	
     /**
      * Defines the vertical space between lines, in pixels.
      *
@@ -693,7 +682,6 @@ public class CodePad
 				@Override
 				public void invalidated()
 				{
-					// TODO only if changed
 					requestLayout();
 				}
 			};
@@ -846,7 +834,6 @@ public class CodePad
 				@Override
 				protected void invalidated()
 				{
-					// TODO only if effective tab size changed
 					requestLayout();
 				}
 			};
