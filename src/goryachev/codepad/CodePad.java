@@ -55,19 +55,51 @@ public class CodePad
 	/** CodePad function identifiers. */
 	public static class FN
 	{
+		public static final Func BACKSPACE = new Func();
+		public static final Func COPY = new Func();
+		public static final Func COPY_PLAIN_TEXT = new Func();
+		public static final Func CUT = new Func();
+		public static final Func DELETE = new Func();
+		public static final Func DELETE_PARAGRAPH = new Func();
+		public static final Func DELETE_TO_PARAGRAPH_START = new Func();
+		public static final Func DELETE_WORD_NEXT = new Func();
+		public static final Func DELETE_WORD_PREVIOUS = new Func();
+		public static final Func ERROR_FEEDBACK = new Func();
+		public static final Func FOCUS_NEXT = new Func();
+		public static final Func FOCUS_PREVIOUS = new Func();
+		public static final Func INSERT_LINE_BREAK = new Func();
+		public static final Func INSERT_TAB = new Func();
 		public static final Func MOVE_DOWN = new Func();
 		public static final Func MOVE_LEFT = new Func();
 		public static final Func MOVE_RIGHT = new Func();
+		public static final Func MOVE_TO_DOCUMENT_END = new Func();
+		public static final Func MOVE_TO_DOCUMENT_START = new Func();
+		public static final Func MOVE_TO_LINE_END = new Func();
+		public static final Func MOVE_TO_LINE_START = new Func();
+		public static final Func MOVE_TO_PARAGRAPH_END = new Func();
+		public static final Func MOVE_TO_PARAGRAPH_START = new Func();
 		public static final Func MOVE_UP = new Func();
+		public static final Func MOVE_WORD_NEXT = new Func();
+		public static final Func MOVE_WORD_PREVIOUS = new Func();
 		public static final Func PAGE_DOWN = new Func();
 		public static final Func PAGE_UP = new Func();
+		public static final Func PASTE = new Func();
+		public static final Func PASTE_PLAIN_TEXT = new Func();
+		public static final Func REDO = new Func();
 		public static final Func SELECT_ALL = new Func();
 		public static final Func SELECT_DOWN = new Func();
 		public static final Func SELECT_LEFT = new Func();
 		public static final Func SELECT_PAGE_DOWN = new Func();
 		public static final Func SELECT_PAGE_UP = new Func();
+		public static final Func SELECT_PARAGRAPH = new Func();
 		public static final Func SELECT_RIGHT = new Func();
+		public static final Func SELECT_TO_DOCUMENT_END = new Func();
+		public static final Func SELECT_TO_DOCUMENT_START = new Func();
+		public static final Func SELECT_TO_LINE_END = new Func();
+		public static final Func SELECT_TO_LINE_START = new Func();
 		public static final Func SELECT_UP = new Func();
+		public static final Func SELECT_WORD = new Func();
+		public static final Func UNDO = new Func();
 	}
 	
 	public static final CssStyle STYLE = new CssStyle();
@@ -962,7 +994,7 @@ public class CodePad
 		};
 		
 		// background color
-		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-background-color", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
+		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-color-background", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1198,8 +1230,272 @@ public class CodePad
 	}
 	
 	
+	public void backspace()
+	{
+		exec(FN.BACKSPACE);
+	}
+	
+	
+	public void copy()
+	{
+		exec(FN.COPY);
+	}
+
+	
+	public void copyPlainText()
+	{
+		exec(FN.COPY_PLAIN_TEXT);
+	}
+	
+	
+	public void cut()
+	{
+		exec(FN.CUT);
+	}
+	
+	
+	public void delete()
+	{
+		exec(FN.DELETE);
+	}
+	
+	
+	public void deleteParagraph()
+	{
+		exec(FN.DELETE_PARAGRAPH);
+	}
+	
+	
+	public void deleteToParagraphStart()
+	{
+		exec(FN.DELETE_TO_PARAGRAPH_START);
+	}
+	
+	
+	public void deleteWordNext()
+	{
+		exec(FN.DELETE_WORD_NEXT);
+	}
+	
+	
+	public void deleteWordPrevious()
+	{
+		exec(FN.DELETE_WORD_PREVIOUS);
+	}
+	
+	
+	public void errorFeedback()
+	{
+		exec(FN.DELETE_WORD_PREVIOUS);
+	}
+	
+	
+	public void focusNext()
+	{
+		exec(FN.FOCUS_NEXT);
+	}
+	
+	
+	public void focusPrevious()
+	{
+		exec(FN.FOCUS_PREVIOUS);
+	}
+	
+	
+	public void insertLineBreak()
+	{
+		exec(FN.INSERT_LINE_BREAK);
+	}
+	
+	
+	public void insertTab()
+	{
+		exec(FN.INSERT_TAB);
+	}
+	
+	
+	public void moveDown()
+	{
+		exec(FN.MOVE_DOWN);
+	}
+	
+	
+	public void moveLeft()
+	{
+		exec(FN.MOVE_LEFT);
+	}
+	
+	
+	public void moveRight()
+	{
+		exec(FN.MOVE_RIGHT);
+	}
+	
+	
+	public void moveToDocumentEnd()
+	{
+		exec(FN.MOVE_TO_DOCUMENT_END);
+	}
+	
+	
+	public void moveToDocumentStart()
+	{
+		exec(FN.MOVE_TO_DOCUMENT_START);
+	}
+	
+	
+	public void moveToLineEnd()
+	{
+		exec(FN.MOVE_TO_LINE_END);
+	}
+	
+	
+	public void moveToLineStart()
+	{
+		exec(FN.MOVE_TO_LINE_START);
+	}
+	
+	
+	public void moveToParagraphEnd()
+	{
+		exec(FN.MOVE_TO_PARAGRAPH_END);
+	}
+	
+	
+	public void moveToParagraphStart()
+	{
+		exec(FN.MOVE_TO_PARAGRAPH_START);
+	}
+	
+	
+	public void moveUp()
+	{
+		exec(FN.MOVE_UP);
+	}
+	
+	
+	public void moveWordNext()
+	{
+		exec(FN.MOVE_WORD_NEXT);
+	}
+	
+	
+	public void moveWordPrevious()
+	{
+		exec(FN.MOVE_WORD_PREVIOUS);
+	}
+	
+	
+	public void pageDown()
+	{
+		exec(FN.PAGE_DOWN);
+	}
+	
+	
+	public void pageUp()
+	{
+		exec(FN.PAGE_UP);
+	}
+	
+	
+	public void paste()
+	{
+		exec(FN.PASTE);
+	}
+	
+	
+	public void pastePlainText()
+	{
+		exec(FN.PASTE_PLAIN_TEXT);
+	}
+	
+	
+	public void redo()
+	{
+		exec(FN.REDO);
+	}
+	
+	
 	public void selectAll()
 	{
 		exec(FN.SELECT_ALL);
+	}
+	
+	
+	public void selectDown()
+	{
+		exec(FN.SELECT_DOWN);
+	}
+	
+	
+	public void selectLeft()
+	{
+		exec(FN.SELECT_LEFT);
+	}
+	
+	
+	public void selectPageDown()
+	{
+		exec(FN.SELECT_PAGE_DOWN);
+	}
+
+	
+	public void selectPageUp()
+	{
+		exec(FN.SELECT_PAGE_UP);
+	}
+	
+	
+	public void selectParagraph()
+	{
+		exec(FN.SELECT_PARAGRAPH);
+	}
+	
+	
+	public void selectRight()
+	{
+		exec(FN.SELECT_RIGHT);
+	}
+	
+	
+	public void selectToDocumentEnd()
+	{
+		exec(FN.SELECT_TO_DOCUMENT_END);
+	}
+	
+	
+	public void selectToDocumentStart()
+	{
+		exec(FN.SELECT_TO_DOCUMENT_START);
+	}
+	
+	
+	public void selectToLineEnd()
+	{
+		exec(FN.SELECT_TO_LINE_END);
+	}
+	
+	
+	public void selectToLineStart()
+	{
+		exec(FN.SELECT_TO_LINE_START);
+	}
+	
+	
+	public void selectUp()
+	{
+		exec(FN.SELECT_UP);
+	}
+	
+	
+	public void selectWord()
+	{
+		exec(FN.SELECT_WORD);
+	}
+	
+	
+	public void undo()
+	{
+		exec(FN.UNDO);
 	}
 }

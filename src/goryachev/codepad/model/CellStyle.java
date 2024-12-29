@@ -54,6 +54,20 @@ public interface CellStyle
 		}
 		
 		
+		public Builder bold()
+		{
+			bold = true;
+			return this;
+		}
+		
+		
+		public Builder italic()
+		{
+			italic = true;
+			return this;
+		}
+		
+		
 		public Builder strikeThrough()
 		{
 			strikeThrough = true;

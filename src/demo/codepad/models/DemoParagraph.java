@@ -12,7 +12,11 @@ public class DemoParagraph
 	extends CodeParagraph
 {
 	private static final Color GREEN_BG = Color.rgb(0, 255, 0, 0.2);
+	private static final CellStyle BOLD = CellStyle.builder().bold().build();
+	private static final CellStyle BOLD_ITALIC = CellStyle.builder().bold().italic().build();
 	private static final CellStyle GRAY = CellStyle.builder().textColor(Color.GRAY).build();
+	private static final CellStyle GREEN = CellStyle.builder().background(Color.rgb(0, 255, 0, 0.7)).build();
+	private static final CellStyle ITALIC = CellStyle.builder().italic().build();
 	private static final CellStyle RED = CellStyle.builder().textColor(Color.RED).build();
 	private static final CellStyle STRIKETHROUGH = CellStyle.builder().strikeThrough().build();
 	private static final CellStyle UNDERLINE = CellStyle.builder().underline().build();
@@ -83,9 +87,16 @@ public class DemoParagraph
 			return STRIKETHROUGH;
 		case "a":
 		case "e":
-		case "i":
 		case "o":
 			return GRAY;
+		case "i":
+			return ITALIC;
+		case "b":
+			return BOLD;
+		case "L":
+			return BOLD_ITALIC;
+		case "x":
+			return GREEN;
 		case "0":
 		case "1":
 		case "2":

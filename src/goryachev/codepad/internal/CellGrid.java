@@ -29,6 +29,8 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -517,10 +519,18 @@ public class CellGrid
 		{
 			if(st.isItalic())
 			{
+				if(boldItalicFont == null)
+				{
+					boldItalicFont = Font.font(baseFont.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, baseFont.getSize());
+				}
 				return boldItalicFont;
 			}
 			else
 			{
+				if(boldFont == null)
+				{
+					boldFont = Font.font(baseFont.getFamily(), FontWeight.BOLD, FontPosture.REGULAR, baseFont.getSize());
+				}
 				return boldFont;
 			}
 		}
@@ -528,6 +538,10 @@ public class CellGrid
 		{
 			if(st.isItalic())
 			{
+				if(italicFont == null)
+				{
+					italicFont = Font.font(baseFont.getFamily(), FontPosture.ITALIC, baseFont.getSize());
+				}
 				return italicFont;
 			}
 			else
