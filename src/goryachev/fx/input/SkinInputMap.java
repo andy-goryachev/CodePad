@@ -22,8 +22,8 @@ public class SkinInputMap
 	}
 	
 	
-	// FID -> Runnable, BooleanSupplier
-	// KB -> FID
+	// Func -> Runnable, BooleanSupplier
+	// KB -> Func
 	// EventType -> EventHandler or null for key binding handler
 	private final CMap<Object,Object> map = new CMap<>(16);
 	

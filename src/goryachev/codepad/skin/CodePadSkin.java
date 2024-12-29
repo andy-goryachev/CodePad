@@ -11,6 +11,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SkinBase;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 
 
@@ -63,6 +64,9 @@ public class CodePadSkin
 		disconnector.addInvalidationListener(grid::handleVerticalScroll, vscroll.valueProperty());
 		disconnector.addInvalidationListener(grid::handleHorizontalScroll, hscroll.valueProperty());
 		disconnector.addChangeListener(ed.selectionProperty(), false, grid::handleSelectionChange);
+		// for some reason, adding event filter to grid did not work
+		disconnector.addEventFilter(ed, KeyEvent.KEY_PRESSED, (ev) -> grid.suppressBlinking(true));
+		disconnector.addEventFilter(ed, KeyEvent.KEY_RELEASED, (ev) -> grid.suppressBlinking(false));
 	}
 
 

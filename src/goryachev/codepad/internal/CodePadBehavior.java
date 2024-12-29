@@ -9,6 +9,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
@@ -70,6 +71,10 @@ public class CodePadBehavior
 		grid.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
 		grid.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
 		grid.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+		
+		// FIX does not work???
+		//grid.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
+		//grid.addEventFilter(KeyEvent.KEY_RELEASED, this::handleKeyReleased);
 	}
 	
 	
@@ -144,7 +149,21 @@ public class CodePadBehavior
 	}
 	
 	
-	protected TextPos getTextPositionFor(MouseEvent ev)
+	// FIX dnw
+	private void handleKeyPressed(KeyEvent ev)
+	{
+		grid.suppressBlinking(true);
+	}
+	
+	
+	// FIX dnw
+	private void handleKeyReleased(KeyEvent ev)
+	{
+		grid.suppressBlinking(false);
+	}
+	
+	
+	public TextPos getTextPositionFor(MouseEvent ev)
 	{
 		double x = ev.getScreenX();
 		double y = ev.getScreenY();
@@ -246,13 +265,16 @@ public class CodePadBehavior
 	// combine with previous method?
 	private void moveCaret(TextPos p, boolean extendSelection)
 	{
-		if(extendSelection)
+		if(p != null)
 		{
-			control().extendSelection(p);
-		}
-		else
-		{
-			control().select(p);
+			if(extendSelection)
+			{
+				control().extendSelection(p);
+			}
+			else
+			{
+				control().select(p);
+			}
 		}
 	}
 	

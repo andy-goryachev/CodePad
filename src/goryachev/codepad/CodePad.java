@@ -79,8 +79,8 @@ public class CodePad
 		public static final Func MOVE_TO_PARAGRAPH_END = new Func();
 		public static final Func MOVE_TO_PARAGRAPH_START = new Func();
 		public static final Func MOVE_UP = new Func();
-		public static final Func MOVE_WORD_NEXT = new Func();
-		public static final Func MOVE_WORD_PREVIOUS = new Func();
+		public static final Func MOVE_WORD_LEFT = new Func();
+		public static final Func MOVE_WORD_RIGHT = new Func();
 		public static final Func PAGE_DOWN = new Func();
 		public static final Func PAGE_UP = new Func();
 		public static final Func PASTE = new Func();
@@ -99,6 +99,8 @@ public class CodePad
 		public static final Func SELECT_TO_LINE_START = new Func();
 		public static final Func SELECT_UP = new Func();
 		public static final Func SELECT_WORD = new Func();
+		public static final Func SELECT_WORD_LEFT = new Func();
+		public static final Func SELECT_WORD_RIGHT = new Func();
 		public static final Func UNDO = new Func();
 	}
 	
@@ -1361,15 +1363,15 @@ public class CodePad
 	}
 	
 	
-	public void moveWordNext()
+	public void moveWordLeft()
 	{
-		exec(FN.MOVE_WORD_NEXT);
+		exec(FN.MOVE_WORD_LEFT);
 	}
 	
 	
-	public void moveWordPrevious()
+	public void moveWordRight()
 	{
-		exec(FN.MOVE_WORD_PREVIOUS);
+		exec(FN.MOVE_WORD_RIGHT);
 	}
 	
 	
@@ -1478,6 +1480,18 @@ public class CodePad
 	public void selectWord()
 	{
 		exec(FN.SELECT_WORD);
+	}
+	
+	
+	public void selectWordLeft()
+	{
+		exec(FN.SELECT_WORD_LEFT);
+	}
+	
+	
+	public void selectWordRight()
+	{
+		exec(FN.SELECT_WORD_RIGHT);
 	}
 	
 	

@@ -1098,7 +1098,7 @@ public class CellGrid
 		WrapInfo wi = getWrapInfo(ix);
 		
 		// initial row and column
-		int rx = wi.getRowAtCellIndex(cix);
+		int rx = wi.getRowAtCellIndex(cix); // TODO used?
 		int cx;
 		if(phantomx < 0)
 		{
@@ -1240,11 +1240,52 @@ public class CellGrid
 	}
 	
 	
-	public TextPos horizontalMove(TextPos from, int dx)
+	public TextPos horizontalMove(TextPos from, int delta)
 	{
-		scrollToVisible(from);
-		// TODO
-		return from;
+		int ix = from.index();
+		int cix = from.offset() + delta;
+		WrapInfo wi = getWrapInfo(ix);
+		
+		if(delta < 0)
+		{
+			if(cix >= 0)
+			{
+				return new TextPos(ix, cix, true);
+			}
+			else
+			{
+				if(ix == 0)
+				{
+					return null;
+				}
+				else
+				{
+					--ix;
+					wi = getWrapInfo(ix);
+					return new TextPos(ix, wi.getCellCount(), true);
+				}
+			}
+		}
+		else
+		{
+			int len = wi.getCellCount();
+			if(cix <= len)
+			{
+				return new TextPos(ix, cix, true);
+			}
+			else
+			{
+				if(ix == editor.getParagraphCount())
+				{
+					return null;
+				}
+				else
+				{
+					ix++;
+					return new TextPos(ix, 0, true);
+				}
+			}
+		}
 	}
 	
 	

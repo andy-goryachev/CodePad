@@ -38,7 +38,7 @@ public class EHandlers
 		{
 			ix = -ix;
 			insert(ix, pri);
-			// avoid storing key binding handler which is null
+			// don't store the key binding handler which is null
 			if(h != null)
 			{
 				insert(++ix, h);
@@ -46,11 +46,8 @@ public class EHandlers
 		}
 		else
 		{
-			if(h == null)
-			{
-				insert(ix, pri);
-			}
-			else
+			// don't store the key binding handler which is null
+			if(h != null)
 			{
 				insert(ix, h);
 			}

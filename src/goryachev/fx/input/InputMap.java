@@ -20,7 +20,7 @@ public class InputMap
 {
 	private final Control control;
 	// FID -> Runnable
-	// KB -> FID or Runnable
+	// KB -> Func or Runnable
 	// EventType -> EHandlers, or null for key binding handler
 	static final Object TYPES = new Object();
 	private final CMap<Object,Object> map = new CMap<>(16);
@@ -119,18 +119,21 @@ public class InputMap
 			}
 		}
 		
-		if(v instanceof Func f)
+		if(v != null)
 		{
-			return exec(f);
-		}
-		else if(v instanceof Runnable r)
-		{
-			r.run();
-			return true;
-		}
-		else if(v instanceof BooleanSupplier h)
-		{
-			return h.getAsBoolean();
+			if(v instanceof Func f)
+			{
+				return exec(f);
+			}
+			else if(v instanceof Runnable r)
+			{
+				r.run();
+				return true;
+			}
+			else if(v instanceof BooleanSupplier h)
+			{
+				return h.getAsBoolean();
+			}
 		}
 		return false;
 	}
