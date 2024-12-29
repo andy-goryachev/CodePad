@@ -3,6 +3,7 @@ package goryachev.codepad;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
+import goryachev.codepad.model.CodeParagraph;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
@@ -189,7 +190,28 @@ public class CodePad
 	}
 	
 	
-	public int getParagraphCount()
+	/**
+	 * Returns the {@link CodeParagraph} for the given {@code index},
+	 * or null if the model is {@code null} or the specified {@code index} is outside of the
+	 * model boundaries.
+	 * 
+	 * @return CodeParagraph or null
+	 */
+	public final CodeParagraph getParagraph(int ix)
+	{
+		CodeModel m = getModel();
+		if(m != null)
+		{
+			if((ix >= 0) && (ix < m.size()))
+			{
+				return m.getParagraph(ix);
+			}
+		}
+		return null;
+	}
+	
+	
+	public final int getParagraphCount()
 	{
 		CodeModel m = getModel();
 		return m == null ? 0 : m.size();
@@ -1215,7 +1237,7 @@ public class CodePad
 	
 	private void exec(Func f)
 	{
-		getInputMap().exec(FN.SELECT_ALL);
+		getInputMap().exec(f);
 	}
 	
 	

@@ -207,7 +207,7 @@ public class CellGrid
 		int cix = a.cellIndexAtViewRow(row) + col;
 		// TODO clamp?
 		// TODO trailing if at the end of line?
-		return new TextPos(ix, cix, true);
+		return TextPos.of(ix, cix);
 	}
 
 	
@@ -919,8 +919,8 @@ public class CellGrid
 		
 		//
 		
-		TextPos p0 = new TextPos(ix, cellIndex, true);
-		TextPos p1 = new TextPos(ix, cellIndex + viewCols, true);
+		TextPos p0 = TextPos.of(ix, cellIndex);
+		TextPos p1 = TextPos.of(ix, cellIndex + viewCols);
 		
 		if(s1.compareTo(p0) <= 0)
 		{
@@ -1136,7 +1136,7 @@ public class CellGrid
 					{
 						cix = wi.getCellIndexAtRow(h - ct) + cx;
 						// TODO clamp?
-						p = new TextPos(ix, cix, true);
+						p = TextPos.of(ix, cix);
 						break;
 					}
 					else
@@ -1175,7 +1175,7 @@ public class CellGrid
 					{
 						cix = wi.getCellIndexAtRow(ct) + cx;
 						// TODO clamp?
-						p = new TextPos(ix, cix, true);
+						p = TextPos.of(ix, cix);
 						break;
 					}
 					else
@@ -1209,7 +1209,7 @@ public class CellGrid
 					{
 						cix = wi.getCellCount();
 					}
-					p = new TextPos(ix, cix, true);
+					p = TextPos.of(ix, cix);
 				}
 				else
 				{
@@ -1250,7 +1250,7 @@ public class CellGrid
 		{
 			if(cix >= 0)
 			{
-				return new TextPos(ix, cix, true);
+				return TextPos.of(ix, cix);
 			}
 			else
 			{
@@ -1262,7 +1262,7 @@ public class CellGrid
 				{
 					--ix;
 					wi = getWrapInfo(ix);
-					return new TextPos(ix, wi.getCellCount(), true);
+					return TextPos.of(ix, wi.getCellCount());
 				}
 			}
 		}
@@ -1271,7 +1271,7 @@ public class CellGrid
 			int len = wi.getCellCount();
 			if(cix <= len)
 			{
-				return new TextPos(ix, cix, true);
+				return TextPos.of(ix, cix);
 			}
 			else
 			{
@@ -1282,7 +1282,7 @@ public class CellGrid
 				else
 				{
 					ix++;
-					return new TextPos(ix, 0, true);
+					return TextPos.of(ix, 0);
 				}
 			}
 		}

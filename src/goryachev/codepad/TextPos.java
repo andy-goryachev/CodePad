@@ -22,6 +22,12 @@ public final class TextPos
 		this.offset = offset;
 		this.leading = leading;
 	}
+	
+	
+	public static TextPos of(int index, int offset)
+	{
+		return new TextPos(index, offset, true);
+	}
 
 
 	/**

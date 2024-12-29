@@ -3,6 +3,7 @@ package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
+import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
 import javafx.animation.KeyFrame;
@@ -12,7 +13,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.util.Duration;
 
 
 /**
@@ -37,19 +37,52 @@ public class CodePadBehavior
 	@Override
 	protected void populateSkinInputMap()
 	{
+		//func(FN.BACKSPACE, this::);
+		//func(FN.COPY, this::);
+		//func(FN.COPY_PLAIN_TEXT, this::);
+		//func(FN.CUT, this::);
+		//func(FN.DELETE, this::);
+		//func(FN.DELETE_PARAGRAPH, this::);
+		//func(FN.DELETE_TO_PARAGRAPH_START, this::);
+		//func(FN.DELETE_WORD_NEXT, this::);
+		//func(FN.DELETE_WORD_PREVIOUS, this::);
+		//func(FN.FOCUS_NEXT, this::);
+		//func(FN.FOCUS_PREVIOUS, this::);
+		//func(FN.INSERT_LINE_BREAK, this::);
+		//func(FN.INSERT_TAB, this::);
 		func(FN.MOVE_DOWN, this::moveDown);
 		func(FN.MOVE_LEFT, this::moveLeft);
 		func(FN.MOVE_RIGHT, this::moveRight);
+		//func(FN.MOVE_TO_DOCUMENT_END, this::);
+		//func(FN.MOVE_TO_DOCUMENT_START, this::);
+		//func(FN.MOVE_TO_LINE_END, this::);
+		//func(FN.MOVE_TO_LINE_START, this::);
+		//func(FN.MOVE_TO_PARAGRAPH_END, this::);
+		//func(FN.MOVE_TO_PARAGRAPH_START, this::);
 		func(FN.MOVE_UP, this::moveUp);
+		//func(FN.MOVE_WORD_LEFT, this::);
+		//func(FN.MOVE_WORD_RIGHT, this::);
 		func(FN.PAGE_DOWN, this::pageDown);
 		func(FN.PAGE_UP, this::pageUp);
+		//func(FN.PASTE, this::);
+		//func(FN.PASTE_PLAIN_TEXT, this::);
+		//func(FN.REDO, this::);
+		func(FN.SELECT_ALL, this::selectAll);
 		func(FN.SELECT_DOWN, this::selectDown);
 		func(FN.SELECT_LEFT, this::selectLeft);
 		func(FN.SELECT_PAGE_DOWN, this::selectPageDown);
 		func(FN.SELECT_PAGE_UP, this::selectPageUp);
+		func(FN.SELECT_PARAGRAPH, this::selectParagraph);
 		func(FN.SELECT_RIGHT, this::selectRight);
+		//func(FN.SELECT_TO_DOCUMENT_END, this::);
+		//func(FN.SELECT_TO_DOCUMENT_START, this::);
+		//func(FN.SELECT_TO_LINE_END, this::);
+		//func(FN.SELECT_TO_LINE_START, this::);
 		func(FN.SELECT_UP, this::selectUp);
-		func(FN.SELECT_ALL, this::selectAll);
+		//func(FN.SELECT_WORD, this::);
+		//func(FN.SELECT_WORD_LEFT, this::);
+		//func(FN.SELECT_WORD_RIGHT, this::);
+		//func(FN.UNDO, this::);
 		
 		key(KB.of(KeyCode.DOWN), FN.MOVE_DOWN);
 		key(KB.of(KeyCode.LEFT), FN.MOVE_LEFT);
@@ -67,10 +100,10 @@ public class CodePadBehavior
 		// shortcut
 		key(KB.shortcut(KeyCode.A), FN.SELECT_ALL);
 		
-		grid.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
-		grid.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
-		grid.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
-		grid.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+		grid.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
+		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
+		grid.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
+		grid.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
 		
 		// FIX does not work???
 		//grid.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
@@ -80,7 +113,21 @@ public class CodePadBehavior
 	
 	private void handleMouseClicked(MouseEvent ev)
 	{
-		// TODO primary button, 2 clicks: select word, 3 clicks: select paragraph 
+		if(ev.getButton() == MouseButton.PRIMARY)
+		{
+			int clicks = ev.getClickCount();
+			switch(clicks)
+			{
+			case 2:
+				control().selectWord();
+				ev.consume();
+				break;
+			case 3:
+				control().selectParagraph();
+				ev.consume();
+				break;
+			}
+		}
 	}
 
 	
@@ -138,6 +185,7 @@ public class CodePadBehavior
 		{
 			control().select(p, p);
 		}
+		ev.consume();
 	}
 
 	
@@ -231,6 +279,30 @@ public class CodePadBehavior
 	}
 	
 	
+	public boolean selectParagraph()
+	{
+		TextPos p = control().getCaretPosition();
+		if(p != null)
+		{
+			int ix = p.index();
+			TextPos start = TextPos.of(ix, 0);
+			ix++;
+			TextPos end;
+			if(ix <= control().getParagraphCount())
+			{
+				end = TextPos.of(ix, 0);
+			}
+			else
+			{
+				end = start;
+			}
+			control().select(start, end);
+			return true;
+		}
+		return false;
+	}
+	
+	
 	public void selectRight()
 	{
 		move(false, 1, true);
@@ -293,8 +365,7 @@ public class CodePadBehavior
 		
 		if(autoScrollTimer == null)
 		{
-			Duration autoScrollPeriod = Duration.millis(100); // arbitrary number
-			autoScrollTimer = new Timeline(new KeyFrame(autoScrollPeriod, (ev) ->
+			autoScrollTimer = new Timeline(new KeyFrame(Defaults.AUTO_SCROLL_PERIOD, (ev) ->
 			{
 				autoScroll();
 			}));
@@ -316,10 +387,7 @@ public class CodePadBehavior
 	
 	private void autoScroll()
 	{
-		// TODO move to defaults?
-		double autoScrollStepFast = 200; // arbitrary
-		double autoScrollStepSlow = 20; // arbitrary
-		double delta = fastAutoScroll ? autoScrollStepFast : autoScrollStepSlow;
+		double delta = fastAutoScroll ? Defaults.AUTO_SCROLL_STEP_FAST : Defaults.AUTO_SCROLL_STEP_SLOW;
 		if(autoScrollUp)
 		{
 			delta = -delta;

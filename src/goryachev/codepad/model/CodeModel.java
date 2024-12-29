@@ -74,7 +74,7 @@ public abstract class CodeModel
 			int len = getParagraphLength(ix);
 			if(p.offset() > len)
 			{
-				return new TextPos(ix, len, true);
+				return TextPos.of(ix, len);
 			}
 			return p;
 		}

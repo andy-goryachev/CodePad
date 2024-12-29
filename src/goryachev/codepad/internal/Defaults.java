@@ -3,6 +3,7 @@ package goryachev.codepad.internal;
 import javafx.geometry.Insets;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 
 /**
@@ -13,6 +14,10 @@ public class Defaults
 	public static final double ASPECT_RATIO = 0.4;
 	public static final double ASPECT_RATIO_MIN = 0.05;
 	public static final double ASPECT_RATIO_MAX = 1.0;
+	
+	public static final Duration AUTO_SCROLL_PERIOD = Duration.millis(100); // arbitrary number
+	public static final double AUTO_SCROLL_STEP_FAST = 200; // arbitrary number
+	public static final double AUTO_SCROLL_STEP_SLOW = 20; // arbitrary number
 	
 	public static final Color BACKGROUND_COLOR = Color.WHITE;
 	
