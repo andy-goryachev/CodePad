@@ -51,8 +51,8 @@ public class CodePadBehavior
 		func(FN.MOVE_DOWN, this::moveDown);
 		func(FN.MOVE_LEFT, this::moveLeft);
 		func(FN.MOVE_RIGHT, this::moveRight);
-		//func(FN.MOVE_TO_DOCUMENT_END, this::);
-		//func(FN.MOVE_TO_DOCUMENT_START, this::);
+		func(FN.MOVE_TO_DOCUMENT_END, this::moveToDocumentEnd);
+		func(FN.MOVE_TO_DOCUMENT_START, this::moveToDocumentStart);
 		//func(FN.MOVE_TO_LINE_END, this::);
 		//func(FN.MOVE_TO_LINE_START, this::);
 		//func(FN.MOVE_TO_PARAGRAPH_END, this::);
@@ -72,8 +72,8 @@ public class CodePadBehavior
 		func(FN.SELECT_PAGE_UP, this::selectPageUp);
 		func(FN.SELECT_PARAGRAPH, this::selectParagraph);
 		func(FN.SELECT_RIGHT, this::selectRight);
-		//func(FN.SELECT_TO_DOCUMENT_END, this::);
-		//func(FN.SELECT_TO_DOCUMENT_START, this::);
+		func(FN.SELECT_TO_DOCUMENT_END, this::selectToDocumentEnd);
+		func(FN.SELECT_TO_DOCUMENT_START, this::selectToDocumentStart);
 		//func(FN.SELECT_TO_LINE_END, this::);
 		//func(FN.SELECT_TO_LINE_START, this::);
 		func(FN.SELECT_UP, this::selectUp);
@@ -97,6 +97,25 @@ public class CodePadBehavior
 		key(KB.shift(KeyCode.UP), FN.SELECT_UP);
 		// shortcut
 		key(KB.shortcut(KeyCode.A), FN.SELECT_ALL);
+		
+		if(isMac())
+		{
+			// command
+			key(KB.command(KeyCode.DOWN), FN.MOVE_TO_DOCUMENT_END); // TODO this might be shortcut-home, cross platform
+			key(KB.command(KeyCode.UP), FN.MOVE_TO_DOCUMENT_START); // TODO this might be shortcut-home, cross platform
+			// command-shift
+			key(KB.commandShift(KeyCode.DOWN), FN.SELECT_TO_DOCUMENT_END); // TODO this might be shortcut-home, cross platform
+			key(KB.commandShift(KeyCode.UP), FN.SELECT_TO_DOCUMENT_START); // TODO this might be shortcut-home, cross platform
+		}
+		else
+		{
+			// ctrl
+			key(KB.ctrl(KeyCode.END), FN.MOVE_TO_DOCUMENT_END);
+			key(KB.ctrl(KeyCode.HOME), FN.MOVE_TO_DOCUMENT_START);
+			// ctrl-shift
+			key(KB.ctrlShift(KeyCode.END), FN.SELECT_TO_DOCUMENT_END);
+			key(KB.ctrlShift(KeyCode.HOME), FN.SELECT_TO_DOCUMENT_START);
+		}
 		
 		grid.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
 		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
@@ -214,8 +233,21 @@ public class CodePadBehavior
 	{
 		move(false, 1, false);
 	}
-	
-	
+
+
+	public void moveToDocumentEnd()
+	{
+		TextPos p = control().getDocumentEnd();
+		moveCaret(p, false);
+	}
+
+
+	public void moveToDocumentStart()
+	{
+		moveCaret(TextPos.ZERO, false);
+	}
+
+
 	public void moveUp()
 	{
 		move(true, -1, false);
@@ -288,6 +320,19 @@ public class CodePadBehavior
 	}
 	
 	
+	public void selectToDocumentEnd()
+	{
+		TextPos p = control().getDocumentEnd();
+		moveCaret(p, true);
+	}
+
+	
+	public void selectToDocumentStart()
+	{
+		moveCaret(TextPos.ZERO, true);
+	}
+	
+	
 	public void selectUp()
 	{
 		move(true, -1, true);
@@ -313,7 +358,6 @@ public class CodePadBehavior
 	}
 	
 	
-	// combine with previous method?
 	private void moveCaret(TextPos p, boolean extendSelection)
 	{
 		if(p != null)

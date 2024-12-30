@@ -23,8 +23,8 @@ public class Defaults
 	public static final Color BACKGROUND_COLOR = Color.WHITE;
 	
 	public static final Color CARET_COLOR = Color.BLACK;
-	
 	public static final Color CARET_LINE_COLOR = Color.rgb(204, 224, 255, 0.3);
+	public static final double CARET_WIDTH = 2.0;
 	
 	public static final Insets CONTENT_PADDING = null;
 	

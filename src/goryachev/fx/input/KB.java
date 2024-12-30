@@ -101,6 +101,12 @@ public class KB
 	{
 		return create(k, KMod.COMMAND);
 	}
+	
+	
+	public static KB commandShift(KeyCode k)
+	{
+		return create(k, KMod.COMMAND, KMod.SHIFT);
+	}
 
 
 	public static KB ctrl(KeyCode k)

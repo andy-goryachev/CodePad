@@ -55,17 +55,6 @@ public final class SelectionRange
     }
 
 
-	public boolean isCaret(int ix, int cix)
-	{
-		TextPos p = getCaret();
-		if(p == null)
-		{
-			return false;
-		}
-		return (p.index() == ix) && (p.offset() == cix);
-	}
-
-
 	public boolean contains(int ix, int cix)
 	{
 		if(min == null || max == null)

@@ -1,5 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx.input;
+import goryachev.common.util.CPlatform;
 import java.util.function.BooleanSupplier;
 import javafx.scene.control.Control;
 
@@ -57,5 +58,23 @@ public abstract class BehaviorBase<C extends Control>
 	public void key(KB k, Func f)
 	{
 		getSkinInputMap().key(k, f);
+	}
+	
+	
+	public boolean isMac()
+	{
+		return CPlatform.isMac();
+	}
+	
+	
+	public boolean isLinux()
+	{
+		return CPlatform.isLinux();
+	}
+	
+	
+	public boolean isWindows()
+	{
+		return CPlatform.isWindows();
 	}
 }

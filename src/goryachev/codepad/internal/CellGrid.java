@@ -971,10 +971,10 @@ public class CellGrid
 		}
 		
 		boolean leftEdge = (s0.compareTo(p0) < 0);
-		double x0 = leftEdge ? 0.0 : x + (s0.offset() - cellIndex) * cellWidth;
+		double x0 = leftEdge ? 0.0 : x + (s0.cellIndex() - cellIndex) * cellWidth;
 		
 		boolean rightEdge = (s1.compareTo(p1) >= 0);
-		double x1 = rightEdge ? canvas.getWidth() : x + (s1.offset() - cellIndex) * cellWidth;
+		double x1 = rightEdge ? canvas.getWidth() : x + (s1.cellIndex() - cellIndex) * cellWidth;
 		
 		return new Rectangle2D(x0, y, x1 - x0, height);
 	}
@@ -1013,11 +1013,11 @@ public class CellGrid
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
-		boolean drawCaret = cursorOn && paintCaret.get();
 		int ix = wi.getIndex();
 		int len = wi.getCellCount();
 		SelectionRange sel = editor.getSelection();
-		boolean caretLine = highlightCaretLine && SelectionHelper.isCaretLine(sel, ix);
+		boolean drawCaret = cursorOn && paintCaret.get() && (sel != null);
+		boolean caretLine = highlightCaretLine && (sel != null) && sel.isCaretLine(ix);
 		Color parBG = wi.getBackgroundColor();
 		double lineH = tm.cellHeight + lineSpacing();
 		
@@ -1053,8 +1053,7 @@ public class CellGrid
 		for(int i=0; i<count; i++)
 		{
 			int cix = cellIndex0 + i;
-			boolean caret = drawCaret && SelectionHelper.isCaret(sel, ix, cix);
-			
+
 			// style
 			CellStyle style = wi.getCellStyle(cix);
 			if(style == null)
@@ -1071,11 +1070,23 @@ public class CellGrid
 			}
 			
 			// caret
-			if(caret)
+			if(caretLine && drawCaret)
 			{
-				// TODO insert mode
-				gx.setFill(editor.getCaretColor());
-				gx.fillRect(x, y, 2, tm.cellHeight);
+				TextPos ca = sel.getCaret();
+				if(ca.caretCellIndex() == cix)
+				{
+					gx.setFill(editor.getCaretColor());
+					// TODO insert mode
+					double caretWidth = snapSizeX(Defaults.CARET_WIDTH);
+					if(ca.isLeading())
+					{
+						gx.fillRect(x, y, caretWidth, tm.cellHeight);
+					}
+					else
+					{
+						gx.fillRect(x + tm.cellWidth - caretWidth, y, caretWidth, tm.cellHeight);
+					}
+				}
 			}
 			
 			if(style.isUnderline())
@@ -1133,7 +1144,7 @@ public class CellGrid
 	public TextPos verticalMove(TextPos from, int delta)
 	{
 		int ix = from.index();
-		int cix = from.offset();
+		int cix = from.cellIndex();
 		WrapInfo wi = getWrapInfo(ix);
 		
 		// initial row and column
@@ -1266,7 +1277,7 @@ public class CellGrid
 			{
 				// above
 				wi = getWrapInfo(ix);
-				cix = wi.getCellIndexAtRow(wi.getRowAtCellIndex(p.offset()));
+				cix = wi.getCellIndexAtRow(wi.getRowAtCellIndex(p.cellIndex()));
 				// TODO check if ix == 0
 				setOrigin(ix, cix, origin.xoffset(), origin.yoffset());
 			}
@@ -1282,11 +1293,12 @@ public class CellGrid
 	public TextPos horizontalMove(TextPos from, int delta)
 	{
 		int ix = from.index();
-		int cix = from.offset() + delta;
+		int cix = from.cellIndex() + delta;
 		WrapInfo wi = getWrapInfo(ix);
 		
 		if(delta < 0)
 		{
+			// move left
 			if(cix >= 0)
 			{
 				return TextPos.of(ix, cix);
@@ -1307,6 +1319,7 @@ public class CellGrid
 		}
 		else
 		{
+			// move right
 			int len = wi.getCellCount();
 			if(cix <= len)
 			{

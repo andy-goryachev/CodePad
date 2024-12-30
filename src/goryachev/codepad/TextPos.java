@@ -4,7 +4,12 @@ import goryachev.common.util.FH;
 
 
 /**
- * Position within the text, corresponding to the insertion point between the characters.
+ * Position within the text, characterized by the three values:
+ * <pre>
+ * - paragraph index
+ * - cell index which corresponds to the insertion point
+ * - leading or trailing bias
+ * </pre>
  */
 public final class TextPos
 	implements Comparable<TextPos>
@@ -12,26 +17,26 @@ public final class TextPos
 	public static final TextPos ZERO = new TextPos(0, 0, true);
 	
 	private final int index;
-	private final int offset;
+	private final int cix;
 	private final boolean leading;
 
 
-	public TextPos(int index, int offset, boolean leading)
+	public TextPos(int index, int cellIndex, boolean leading)
 	{
 		this.index = index;
-		this.offset = offset;
+		this.cix = cellIndex;
 		this.leading = leading;
 	}
 	
 	
-	public static TextPos of(int index, int offset)
+	public static TextPos of(int index, int cellIndex)
 	{
-		return new TextPos(index, offset, true);
+		return new TextPos(index, cellIndex, true);
 	}
 
 
 	/**
-	 * Returns 0-based model index.
+	 * Returns 0-based paragraph index in the model.
 	 */
 	public int index()
 	{
@@ -40,18 +45,36 @@ public final class TextPos
 
 
 	/**
-	 * Returns 0-based character offset.
+	 * Returns 0-based cell index.
 	 */
-	public int offset()
+	public int cellIndex()
 	{
-		// TODO account for leading
-		return offset;
+		return cix;
 	}
 	
 	
 	public boolean isLeading()
 	{
 		return leading;
+	}
+	
+	
+	/**
+	 * Caret cell index: the cell index where to draw the caret.
+	 * In the insert mode, the caret is drawn as a line at the left edge of the cell (leading=true)
+	 * or the right edge (leading=false).
+	 * In the overwrite mode, TBD.
+	 */
+	public int caretCellIndex()
+	{
+		if(!leading)
+		{
+			if(cix > 0)
+			{
+				return cix - 1;
+			}
+		}
+		return cix;
 	}
 	
 	
@@ -69,7 +92,7 @@ public final class TextPos
 	 */
 	public int getColumn()
 	{
-		return offset + 1;
+		return cix + 1;
 	}
 
 
@@ -82,7 +105,7 @@ public final class TextPos
 		}
 		else if(x instanceof TextPos p)
 		{
-			return (index == p.index) && (offset == p.offset);
+			return (index == p.index) && (cix == p.cix);
 		}
 		return false;
 	}
@@ -93,7 +116,7 @@ public final class TextPos
 	{
 		int h = FH.hash(TextPos.class);
 		h = FH.hash(h, index);
-		return FH.hash(h, offset);
+		return FH.hash(h, cix);
 	}
 
 
@@ -103,7 +126,7 @@ public final class TextPos
 		int d = index - p.index;
 		if(d == 0)
 		{
-			return offset - p.offset;
+			return cix - p.cix;
 		}
 		return d;
 	}
@@ -112,7 +135,7 @@ public final class TextPos
 	@Override
 	public String toString()
 	{
-		return "TextPos{index=" + index + ", offset=" + offset + "}";
+		return "TextPos{index=" + index + ", offset=" + cix + "}";
 	}
 	
 	
@@ -121,7 +144,7 @@ public final class TextPos
 	 * == 0 if the position is the same
 	 * < 0 if the position at (ix, cix) is after this TextPos.
 	 */
-	public int compareTo(int ix, int cix)
+	public int compareTo(int ix, int cellIndex)
 	{
 		if(index < ix)
 		{
@@ -129,7 +152,7 @@ public final class TextPos
 		}
 		else if(index == ix)
 		{
-			return offset - cix;
+			return cix - cellIndex;
 		}
 		return 1;
 	}
