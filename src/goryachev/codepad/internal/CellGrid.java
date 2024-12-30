@@ -318,7 +318,9 @@ public class CellGrid
 	// TODO maybe invalidateXXX instead
 	public void setWrapText(boolean on)
 	{
-		setOrigin(origin.index(), 0, contentPaddingLeft, contentPaddingTop);
+		int ix = origin.index();
+		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
+		setOrigin(ix, 0, contentPaddingLeft, yoff);
 		cache.clear();
 		arrangement = null;
 		requestLayout();
@@ -376,7 +378,48 @@ public class CellGrid
 
 	public void handleHorizontalScroll()
 	{
-		// TODO
+		if(handleScrollEvents)
+		{
+			double val = hscroll.getValue();
+			double max = hscroll.getMax();
+			double min = hscroll.getMin();
+			double pos = (val - min) / max;
+			
+			TextCellMetrics tm = textCellMetrics();
+			Arrangement a = arrangement();
+			int maxCells = a.maxCellCount();
+			double w = contentPaddingLeft + contentPaddingRight + maxCells * tm.cellWidth;
+			double cw = canvas.getWidth();
+			
+			int cix;
+			double xoff;
+			if(w < cw)
+			{
+				cix = 0;
+				xoff = contentPaddingLeft;
+			}
+			else
+			{
+				double x = ((w - cw) * val) - contentPaddingLeft;
+				if(x < 0)
+				{
+					cix = 0;
+					xoff = -x;
+				}
+				else
+				{
+					cix = (int)(x / tm.cellWidth);
+					xoff = 0.0;
+				}
+			}
+			
+			int ix = origin.index();
+			double yoff = origin.yoffset();
+			if(setOrigin(ix, cix, xoff, yoff))
+			{
+				requestLayout();
+			}
+		}
 	}
 
 
@@ -395,10 +438,6 @@ public class CellGrid
 			// 3. if arr.rowCount > slidingWindowSize, shift the origin down by [(arr.rowCount - slidingWindowSize) * pos]
 
 			double val = vscroll.getValue();
-			
-			// FIX
-			//val = 1;
-			
 			double max = vscroll.getMax();
 			double min = vscroll.getMin();
 			double pos = (val - min) / max;

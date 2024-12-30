@@ -86,6 +86,7 @@ public class Arrangement
 					// wrapping the same paragraph
 					continue;
 				}
+				cix = 0;
 			}
 			else
 			{
@@ -94,10 +95,9 @@ public class Arrangement
 				{
 					maxCellCount = w;
 				}
+				cix = startCellIndex;
 			}
 			
-			// next paragraph
-			cix = 0;
 			ix++;
 			wi = null;
 		}
@@ -167,6 +167,12 @@ public class Arrangement
 			return false;
 		}
 		return maxCellCount > viewCols;
+	}
+	
+	
+	public int maxCellCount()
+	{
+		return maxCellCount;
 	}
 	
 	

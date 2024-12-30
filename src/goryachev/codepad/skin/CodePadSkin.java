@@ -64,12 +64,8 @@ public class CodePadSkin
 		disconnector.addInvalidationListener(grid::handleVerticalScroll, vscroll.valueProperty());
 		disconnector.addInvalidationListener(grid::handleHorizontalScroll, hscroll.valueProperty());
 		disconnector.addChangeListener(ed.selectionProperty(), false, grid::handleSelectionChange);
-		// for some reason, adding event filter to grid did not work
 		disconnector.addEventFilter(ed, KeyEvent.KEY_PRESSED, (ev) -> grid.suppressBlinking(true));
 		disconnector.addEventFilter(ed, KeyEvent.KEY_RELEASED, (ev) -> grid.suppressBlinking(false));
-		
-		ed.addEventFilter(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("editor"));
-		grid.addEventFilter(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("grid"));
 	}
 
 
@@ -78,6 +74,7 @@ public class CodePadSkin
 	 */
 	protected ScrollBar createVScrollBar()
 	{
+		// TODO support uncinditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 
@@ -87,6 +84,7 @@ public class CodePadSkin
 	 */
 	protected ScrollBar createHScrollBar()
 	{
+		// TODO support uncinditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 
