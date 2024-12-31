@@ -1,5 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad;
+import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
@@ -98,6 +99,8 @@ public class CodePad
 		public static final Func SELECT_TO_DOCUMENT_START = new Func();
 		public static final Func SELECT_TO_LINE_END = new Func();
 		public static final Func SELECT_TO_LINE_START = new Func();
+		public static final Func SELECT_TO_PARAGRAPH_END = new Func();
+		public static final Func SELECT_TO_PARAGRAPH_START = new Func();
 		public static final Func SELECT_UP = new Func();
 		public static final Func SELECT_WORD = new Func();
 		public static final Func SELECT_WORD_LEFT = new Func();

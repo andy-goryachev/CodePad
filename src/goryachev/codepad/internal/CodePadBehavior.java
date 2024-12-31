@@ -56,8 +56,8 @@ public class CodePadBehavior
 		func(FN.MOVE_TO_DOCUMENT_START, this::moveToDocumentStart);
 		func(FN.MOVE_TO_LINE_END, this::moveToLineEnd);
 		func(FN.MOVE_TO_LINE_START, this::moveToLineStart);
-		//func(FN.MOVE_TO_PARAGRAPH_END, this::);
-		//func(FN.MOVE_TO_PARAGRAPH_START, this::);
+		func(FN.MOVE_TO_PARAGRAPH_END, this::moveToParagraphEnd);
+		func(FN.MOVE_TO_PARAGRAPH_START, this::moveToParagraphStart);
 		func(FN.MOVE_UP, this::moveUp);
 		//func(FN.MOVE_WORD_LEFT, this::);
 		//func(FN.MOVE_WORD_RIGHT, this::);
@@ -77,6 +77,8 @@ public class CodePadBehavior
 		func(FN.SELECT_TO_DOCUMENT_START, this::selectToDocumentStart);
 		func(FN.SELECT_TO_LINE_END, this::selectToLineEnd);
 		func(FN.SELECT_TO_LINE_START, this::selectToLineStart);
+		func(FN.SELECT_TO_PARAGRAPH_END, this::selectToParagraphEnd);
+		func(FN.SELECT_TO_PARAGRAPH_START, this::selectToParagraphStart);
 		func(FN.SELECT_UP, this::selectUp);
 		//func(FN.SELECT_WORD, this::);
 		//func(FN.SELECT_WORD_LEFT, this::);
@@ -226,39 +228,60 @@ public class CodePadBehavior
 	private TextPos lineEnd()
 	{
 		TextPos ca = control().getCaretPosition();
-		if(ca == null)
+		if(ca != null)
 		{
-			return null;
+			if(control().isWrapText())
+			{
+				return grid.lineEnd(ca);
+			}
+			else
+			{
+				CodeParagraph par = control().getParagraph(ca.index());
+				return TextPos.of(ca.index(), par.getCellCount());
+			}
 		}
-		
-		if(control().isWrapText())
-		{
-			return grid.lineEnd(ca);
-		}
-		else
-		{
-			CodeParagraph par = control().getParagraph(ca.index());
-			return TextPos.of(ca.index(), par.getCellCount());
-		}
+		return null;		
 	}
 	
 	
 	private TextPos lineStart()
 	{
 		TextPos ca = control().getCaretPosition();
-		if(ca == null)
+		if(ca != null)
 		{
-			return null;
+			if(control().isWrapText())
+			{
+				return grid.lineStart(ca);
+			}
+			else
+			{
+				return TextPos.of(ca.index(), 0);
+			}
 		}
-		
-		if(control().isWrapText())
+		return null;
+	}
+
+	
+	private TextPos paragraphEnd()
+	{
+		TextPos ca = control().getCaretPosition();
+		if(ca != null)
 		{
-			return grid.lineStart(ca);
+			CodeParagraph par = control().getParagraph(ca.index());
+			return TextPos.of(ca.index(), par.getCellCount());
 		}
-		else
+		return null;
+	}
+	
+	
+	private TextPos paragraphStart()
+	{
+		TextPos ca = control().getCaretPosition();
+		if(ca != null)
 		{
 			return TextPos.of(ca.index(), 0);
 		}
+		return null;
 	}
 	
 	
@@ -303,6 +326,20 @@ public class CodePadBehavior
 	public void moveToLineStart()
 	{
 		TextPos p = lineStart();
+		moveCaret(p, false);
+	}
+	
+	
+	public void moveToParagraphEnd()
+	{
+		TextPos p = paragraphEnd();
+		moveCaret(p, false);
+	}
+	
+	
+	public void moveToParagraphStart()
+	{
+		TextPos p = paragraphStart();
 		moveCaret(p, false);
 	}
 
@@ -402,6 +439,20 @@ public class CodePadBehavior
 	public void selectToLineStart()
 	{
 		TextPos p = lineStart();
+		moveCaret(p, true);
+	}
+	
+	
+	public void selectToParagraphEnd()
+	{
+		TextPos p = paragraphEnd();
+		moveCaret(p, true);
+	}
+	
+	
+	public void selectToParagraphStart()
+	{
+		TextPos p = paragraphStart();
 		moveCaret(p, true);
 	}
 	

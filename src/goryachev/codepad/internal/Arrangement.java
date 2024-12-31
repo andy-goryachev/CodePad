@@ -377,7 +377,7 @@ public class Arrangement
 	}
 	
 	
-	// returns [ index, cellIndex ] or null
+	// returns [index, cellIndex] or null
 	public int[] getPosition(int row, int col)
 	{
 		WrapInfo wi = wrapInfoAtViewRow(row);
