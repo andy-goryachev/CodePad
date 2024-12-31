@@ -1,6 +1,6 @@
 # CodePad
 
-High Performance, Monospaced Text Editor for JavaFX.
+High Performance, Monospaced Code Text Editor for JavaFX.
 
 [ screenshot ]
 
@@ -16,6 +16,11 @@ targeting applications such as code editors or log viewers, which supports:
 - syntax highlighting
 
 It is currently not a goal to support proportional fonts, right-to-left orientation, or bidirectional text.
+
+For these features,
+[demand](https://bugs.openjdk.org/browse/JDK-8301121) integration of the
+[RichTextArea (Incubator)](https://github.com/andy-goryachev-oracle/Test/blob/main/doc/RichTextArea/RichTextArea.md)
+project into the JavaFX core.
 
 
 
