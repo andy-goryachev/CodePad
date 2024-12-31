@@ -131,6 +131,12 @@ public class KB
 	{
 		return create(k, KMod.OPTION);
 	}
+	
+	
+	public static KB optionShift(KeyCode k)
+	{
+		return create(k, KMod.OPTION, KMod.SHIFT);
+	}
 
 
 	public static KB shift(KeyCode k)

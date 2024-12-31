@@ -4,6 +4,7 @@ import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CodeParagraph;
+import goryachev.common.util.D;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
 import javafx.animation.KeyFrame;
@@ -36,19 +37,20 @@ public class CodePadBehavior
 	@Override
 	protected void populateSkinInputMap()
 	{
-		//func(FN.BACKSPACE, this::);
-		//func(FN.COPY, this::);
-		//func(FN.COPY_PLAIN_TEXT, this::);
-		//func(FN.CUT, this::);
-		//func(FN.DELETE, this::);
-		//func(FN.DELETE_PARAGRAPH, this::);
-		//func(FN.DELETE_TO_PARAGRAPH_START, this::);
-		//func(FN.DELETE_WORD_NEXT, this::);
-		//func(FN.DELETE_WORD_PREVIOUS, this::);
-		//func(FN.FOCUS_NEXT, this::);
-		//func(FN.FOCUS_PREVIOUS, this::);
-		//func(FN.INSERT_LINE_BREAK, this::);
-		//func(FN.INSERT_TAB, this::);
+		// functions
+		func(FN.BACKSPACE, this::backspace);
+		func(FN.COPY, this::copy);
+		func(FN.COPY_PLAIN_TEXT, this::copyPlainText);
+		func(FN.CUT, this::cut);
+		func(FN.DELETE, this::delete);
+		func(FN.DELETE_PARAGRAPH, this::deleteParagraph);
+		func(FN.DELETE_TO_PARAGRAPH_START, this::deleteToParagraphStart);
+		func(FN.DELETE_WORD_NEXT, this::deleteWordNext);
+		func(FN.DELETE_WORD_PREVIOUS, this::deleteWordPrevious);
+		func(FN.FOCUS_NEXT, this::focusNext);
+		func(FN.FOCUS_PREVIOUS, this::focusPrevious);
+		func(FN.INSERT_LINE_BREAK, this::insertLineBreak);
+		func(FN.INSERT_TAB, this::insertTab);
 		func(FN.MOVE_DOWN, this::moveDown);
 		func(FN.MOVE_LEFT, this::moveLeft);
 		func(FN.MOVE_RIGHT, this::moveRight);
@@ -59,13 +61,13 @@ public class CodePadBehavior
 		func(FN.MOVE_TO_PARAGRAPH_END, this::moveToParagraphEnd);
 		func(FN.MOVE_TO_PARAGRAPH_START, this::moveToParagraphStart);
 		func(FN.MOVE_UP, this::moveUp);
-		//func(FN.MOVE_WORD_LEFT, this::);
-		//func(FN.MOVE_WORD_RIGHT, this::);
+		func(FN.MOVE_WORD_LEFT, this::moveWordLeft);
+		func(FN.MOVE_WORD_RIGHT, this::moveWordRight);
 		func(FN.PAGE_DOWN, this::pageDown);
 		func(FN.PAGE_UP, this::pageUp);
-		//func(FN.PASTE, this::);
-		//func(FN.PASTE_PLAIN_TEXT, this::);
-		//func(FN.REDO, this::);
+		func(FN.PASTE, this::paste);
+		func(FN.PASTE_PLAIN_TEXT, this::pastePlainText);
+		func(FN.REDO, this::redo);
 		func(FN.SELECT_ALL, this::selectAll);
 		func(FN.SELECT_DOWN, this::selectDown);
 		func(FN.SELECT_LEFT, this::selectLeft);
@@ -80,18 +82,27 @@ public class CodePadBehavior
 		func(FN.SELECT_TO_PARAGRAPH_END, this::selectToParagraphEnd);
 		func(FN.SELECT_TO_PARAGRAPH_START, this::selectToParagraphStart);
 		func(FN.SELECT_UP, this::selectUp);
-		//func(FN.SELECT_WORD, this::);
-		//func(FN.SELECT_WORD_LEFT, this::);
-		//func(FN.SELECT_WORD_RIGHT, this::);
-		//func(FN.UNDO, this::);
+		func(FN.SELECT_WORD, this::selectWord);
+		func(FN.SELECT_WORD_LEFT, this::selectWordLeft);
+		func(FN.SELECT_WORD_RIGHT, this::selectWordRight);
+		func(FN.UNDO, this::undo);
 		
+		// key bindings
+		key(KB.of(KeyCode.BACK_SPACE), FN.BACKSPACE);
+		key(KB.of(KeyCode.COPY), FN.COPY);
+		key(KB.of(KeyCode.CUT), FN.CUT);
+		key(KB.of(KeyCode.DELETE), FN.DELETE);
 		key(KB.of(KeyCode.DOWN), FN.MOVE_DOWN);
 		key(KB.of(KeyCode.END), FN.MOVE_TO_LINE_END);
+		key(KB.of(KeyCode.ENTER), FN.INSERT_LINE_BREAK);
 		key(KB.of(KeyCode.HOME), FN.MOVE_TO_LINE_START);
 		key(KB.of(KeyCode.LEFT), FN.MOVE_LEFT);
 		key(KB.of(KeyCode.PAGE_DOWN), FN.PAGE_DOWN);
 		key(KB.of(KeyCode.PAGE_UP), FN.PAGE_UP);
+		key(KB.of(KeyCode.PASTE), FN.PASTE);
 		key(KB.of(KeyCode.RIGHT), FN.MOVE_RIGHT);
+		key(KB.of(KeyCode.TAB), FN.INSERT_TAB);
+		key(KB.of(KeyCode.UNDO), FN.UNDO);
 		key(KB.of(KeyCode.UP), FN.MOVE_UP);
 		// ctrl
 		key(KB.ctrl(KeyCode.END), FN.MOVE_TO_DOCUMENT_END);
@@ -100,6 +111,7 @@ public class CodePadBehavior
 		key(KB.ctrlShift(KeyCode.END), FN.SELECT_TO_DOCUMENT_END);
 		key(KB.ctrlShift(KeyCode.HOME), FN.SELECT_TO_DOCUMENT_START);
 		// shift
+		key(KB.shift(KeyCode.BACK_SPACE), FN.BACKSPACE);
 		key(KB.shift(KeyCode.DOWN), FN.SELECT_DOWN);
 		key(KB.shift(KeyCode.END), FN.SELECT_TO_LINE_END);
 		key(KB.shift(KeyCode.HOME), FN.SELECT_TO_LINE_START);
@@ -110,6 +122,18 @@ public class CodePadBehavior
 		key(KB.shift(KeyCode.UP), FN.SELECT_UP);
 		// shortcut
 		key(KB.shortcut(KeyCode.A), FN.SELECT_ALL);
+		key(KB.shortcut(KeyCode.C), FN.COPY);
+		key(KB.shortcut(KeyCode.D), FN.DELETE_PARAGRAPH);
+		key(KB.shortcut(KeyCode.V), FN.PASTE);
+		key(KB.shortcut(KeyCode.X), FN.CUT);
+		key(KB.shortcut(KeyCode.Z), FN.UNDO);
+		// shift-shortcut
+		key(KB.shiftShortcut(KeyCode.V), FN.PASTE_PLAIN_TEXT);
+		
+		if(isLinux())
+		{
+			key(KB.ctrlShift(KeyCode.Z), FN.REDO);
+		}
 		
 		if(isMac())
 		{
@@ -123,6 +147,32 @@ public class CodePadBehavior
 			key(KB.commandShift(KeyCode.LEFT), FN.SELECT_TO_LINE_START);
 			key(KB.commandShift(KeyCode.RIGHT), FN.SELECT_TO_LINE_END);
 			key(KB.commandShift(KeyCode.UP), FN.SELECT_TO_DOCUMENT_START);
+			key(KB.commandShift(KeyCode.Z), FN.REDO);
+			// option
+			key(KB.option(KeyCode.BACK_SPACE), FN.DELETE_WORD_PREVIOUS);
+			key(KB.option(KeyCode.DELETE), FN.DELETE_WORD_NEXT);
+			key(KB.option(KeyCode.LEFT), FN.MOVE_WORD_LEFT);
+			key(KB.option(KeyCode.RIGHT), FN.MOVE_WORD_RIGHT);
+			// option-shift
+			key(KB.optionShift(KeyCode.LEFT), FN.SELECT_WORD_LEFT);
+			key(KB.optionShift(KeyCode.RIGHT), FN.SELECT_WORD_RIGHT);
+		}
+		else
+		{
+			// ctrl
+			key(KB.ctrl(KeyCode.BACK_SPACE), FN.DELETE_WORD_PREVIOUS);
+			key(KB.ctrl(KeyCode.DELETE), FN.DELETE_WORD_NEXT);
+			key(KB.ctrl(KeyCode.LEFT), FN.MOVE_WORD_LEFT);
+			key(KB.ctrl(KeyCode.RIGHT), FN.MOVE_WORD_RIGHT);
+			// ctrl-shift
+			key(KB.ctrlShift(KeyCode.LEFT), FN.SELECT_WORD_LEFT);
+			key(KB.ctrlShift(KeyCode.RIGHT), FN.SELECT_WORD_RIGHT);
+		}
+		
+		if(isWindows())
+		{
+			// ctrl
+			key(KB.ctrl(KeyCode.Y), FN.REDO);
 		}
 		
 		grid.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
@@ -285,6 +335,97 @@ public class CodePadBehavior
 	}
 	
 	
+	public void backspace()
+	{
+		// TODO
+		D.print("backspace");
+	}
+	
+	
+	public void copy()
+	{
+		// TODO
+		D.print("copy");
+	}
+	
+	
+	public void copyPlainText()
+	{
+		// TODO
+		D.print("copyPlainText");
+	}
+	
+	
+	public void cut()
+	{
+		// TODO
+		D.print("cut");
+	}
+	
+	
+	public void delete()
+	{
+		// TODO
+		D.print("delete");
+	}
+	
+	
+	public void deleteParagraph()
+	{
+		// TODO
+		D.print("deleteParagraph");
+	}
+	
+	
+	public void deleteToParagraphStart()
+	{
+		// TODO
+		D.print("deleteToParagraphStart");
+	}
+	
+	
+	public void deleteWordNext()
+	{
+		// TODO
+		D.print("deleteWordNext");
+	}
+	
+	
+	public void deleteWordPrevious()
+	{
+		// TODO
+		D.print("deleteWordPrevious");
+	}
+	
+	
+	public void focusNext()
+	{
+		// TODO
+		D.print("focusNext");
+	}
+	
+	
+	public void focusPrevious()
+	{
+		// TODO
+		D.print("focusPrevious");
+	}
+	
+	
+	public void insertLineBreak()
+	{
+		// TODO
+		D.print("insertLineBreak");
+	}
+	
+	
+	public void insertTab()
+	{
+		// TODO
+		D.print("insertTab");
+	}
+	
+	
 	public void moveDown()
 	{
 		move(true, 1, false);
@@ -350,6 +491,20 @@ public class CodePadBehavior
 	}
 	
 	
+	public void moveWordLeft()
+	{
+		// TODO
+		D.print("moveWordLeft");
+	}
+	
+	
+	public void moveWordRight()
+	{
+		// TODO
+		D.print("moveWordRight");
+	}
+	
+	
 	public void pageDown()
 	{
 		move(true, grid.getPageSize(), false);
@@ -359,6 +514,27 @@ public class CodePadBehavior
 	public void pageUp()
 	{
 		move(true, -grid.getPageSize(), false);
+	}
+	
+	
+	public void paste()
+	{
+		// TODO
+		D.print("paste");
+	}
+	
+	
+	public void pastePlainText()
+	{
+		// TODO
+		D.print("pastePlainText");
+	}
+
+	
+	public void redo()
+	{
+		// TODO
+		D.print("redo");
 	}
 	
 	
@@ -460,6 +636,34 @@ public class CodePadBehavior
 	public void selectUp()
 	{
 		move(true, -1, true);
+	}
+	
+	
+	public void selectWord()
+	{
+		// TODO
+		D.print("selectWord");
+	}
+	
+	
+	public void selectWordLeft()
+	{
+		// TODO
+		D.print("selectWordLeft");
+	}
+	
+	
+	public void selectWordRight()
+	{
+		// TODO
+		D.print("selectWordRight");
+	}
+	
+	
+	public void undo()
+	{
+		// TODO
+		D.print("undo");
 	}
 
 	
