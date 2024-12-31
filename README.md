@@ -1,6 +1,6 @@
 # CodePad
 
-High Performance, Monospaced Code Text Editor for JavaFX.
+High Performance, Monospaced Code Editor for JavaFX.
 
 [ screenshot ]
 
