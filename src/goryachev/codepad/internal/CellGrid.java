@@ -207,8 +207,20 @@ public class CellGrid
 			}
 		}
 		int cix = a.cellIndexAtViewRow(row) + col;
-		// TODO clamp?
-		// TODO trailing if at the end of line?
+		WrapInfo wi = a.wrapInfoAtViewRow(row);
+		if(cix >= wi.getCellCount())
+		{
+			// clamp
+			cix = Math.max(0, wi.getCellCount());
+		}
+		else
+		{
+			if((wrapLimit > 0) && (col == wrapLimit))
+			{
+				// trailing at the end of a wrapped row
+				return new TextPos(ix, cix, false);
+			}
+		}
 		return TextPos.of(ix, cix);
 	}
 
