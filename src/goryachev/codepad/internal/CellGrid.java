@@ -8,7 +8,6 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
-import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -173,8 +172,7 @@ public class CellGrid
 			TextPos caret = sel.getCaret();
 			if(isVisible(caret))
 			{
-				// TODO repaint only the damaged area
-				paintAll();
+				paintCaretLine();
 			}
 		}
 	}
@@ -252,6 +250,9 @@ public class CellGrid
 				cursorAnimation.play();
 			}
 		}
+		
+		// TODO repaint caret line only
+		paintCaretLine();
 	}
 	
 	
@@ -994,6 +995,13 @@ public class CellGrid
 	}
 	
 	
+	public void paintCaretLine()
+	{
+		// TODO optimize
+		paintAll();
+	}
+	
+	
 	public void paintAll()
 	{
 		// can cache because this method will be called on change
@@ -1409,10 +1417,48 @@ public class CellGrid
 		// TODO
 	}
 	
+
+	public TextPos lineStart(TextPos from)
+	{
+		GridPos p = getCoordinates(from);
+		if(p == null)
+		{
+			return null;
+		}
+		return getPosition(p.row(), 0);
+	}
 	
-//	private int columnFor(TextPos p)
-//	{
-//		WrapInfo wi = getWrapInfo(p.index());
-//		return wi.
-//	}
+	
+	public TextPos lineEnd(TextPos from)
+	{
+		GridPos p = getCoordinates(from);
+		if(p == null)
+		{
+			return null;
+		}
+		return getPosition(p.row(), viewCols);
+	}
+	
+	
+	public GridPos getCoordinates(TextPos p)
+	{
+		return arrangement().getCoordinates(p);
+	}
+	
+	
+	public TextPos getPosition(int row, int col)
+	{
+		int[] indexes = arrangement().getPosition(row, col);
+		if(indexes != null)
+		{
+			int ix = indexes[0];
+			int cix = indexes[1];
+			if((wrapLimit > 0) && (col == viewCols))
+			{
+				return new TextPos(ix, cix, false);
+			}
+			return TextPos.of(ix, cix);
+		}
+		return null;
+	}
 }

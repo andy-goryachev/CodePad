@@ -207,9 +207,9 @@ public class Arrangement
 	}
 
 
-	public int cellIndexAtViewRow(int ix)
+	public int cellIndexAtViewRow(int row)
 	{
-		return offsets.get(ix);
+		return offsets.get(row);
 	}
 
 
@@ -354,4 +354,42 @@ public class Arrangement
 //
 //		return null;
 //	}
+	
+	
+	public GridPos getCoordinates(TextPos p)
+	{
+		int ix = p.index();
+		int cix = p.caretCellIndex();
+		
+		for(int i=rows.size()-1; i>=0; --i)
+		{
+			WrapInfo wi = rows.get(i);
+			if(wi.getIndex() == ix)
+			{
+				int x = cix - cellIndexAtViewRow(i);
+				if((x >= 0) && (x < viewCols))
+				{
+					return new GridPos(i, x);
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	// returns [ index, cellIndex ] or null
+	public int[] getPosition(int row, int col)
+	{
+		WrapInfo wi = wrapInfoAtViewRow(row);
+		if(wi != null)
+		{
+			int cix = cellIndexAtViewRow(row) + col;
+			return new int[]
+			{
+				wi.getIndex(),
+				Math.min(cix, wi.getCellCount())
+			};
+		}
+		return null;
+	}
 }

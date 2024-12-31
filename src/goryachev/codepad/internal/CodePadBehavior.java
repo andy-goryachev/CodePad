@@ -3,6 +3,7 @@ package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
+import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
 import javafx.animation.KeyFrame;
@@ -53,8 +54,8 @@ public class CodePadBehavior
 		func(FN.MOVE_RIGHT, this::moveRight);
 		func(FN.MOVE_TO_DOCUMENT_END, this::moveToDocumentEnd);
 		func(FN.MOVE_TO_DOCUMENT_START, this::moveToDocumentStart);
-		//func(FN.MOVE_TO_LINE_END, this::);
-		//func(FN.MOVE_TO_LINE_START, this::);
+		func(FN.MOVE_TO_LINE_END, this::moveToLineEnd);
+		func(FN.MOVE_TO_LINE_START, this::moveToLineStart);
 		//func(FN.MOVE_TO_PARAGRAPH_END, this::);
 		//func(FN.MOVE_TO_PARAGRAPH_START, this::);
 		func(FN.MOVE_UP, this::moveUp);
@@ -74,8 +75,8 @@ public class CodePadBehavior
 		func(FN.SELECT_RIGHT, this::selectRight);
 		func(FN.SELECT_TO_DOCUMENT_END, this::selectToDocumentEnd);
 		func(FN.SELECT_TO_DOCUMENT_START, this::selectToDocumentStart);
-		//func(FN.SELECT_TO_LINE_END, this::);
-		//func(FN.SELECT_TO_LINE_START, this::);
+		func(FN.SELECT_TO_LINE_END, this::selectToLineEnd);
+		func(FN.SELECT_TO_LINE_START, this::selectToLineStart);
 		func(FN.SELECT_UP, this::selectUp);
 		//func(FN.SELECT_WORD, this::);
 		//func(FN.SELECT_WORD_LEFT, this::);
@@ -83,13 +84,23 @@ public class CodePadBehavior
 		//func(FN.UNDO, this::);
 		
 		key(KB.of(KeyCode.DOWN), FN.MOVE_DOWN);
+		key(KB.of(KeyCode.END), FN.MOVE_TO_LINE_END);
+		key(KB.of(KeyCode.HOME), FN.MOVE_TO_LINE_START);
 		key(KB.of(KeyCode.LEFT), FN.MOVE_LEFT);
 		key(KB.of(KeyCode.PAGE_DOWN), FN.PAGE_DOWN);
 		key(KB.of(KeyCode.PAGE_UP), FN.PAGE_UP);
 		key(KB.of(KeyCode.RIGHT), FN.MOVE_RIGHT);
 		key(KB.of(KeyCode.UP), FN.MOVE_UP);
+		// ctrl
+		key(KB.ctrl(KeyCode.END), FN.MOVE_TO_DOCUMENT_END);
+		key(KB.ctrl(KeyCode.HOME), FN.MOVE_TO_DOCUMENT_START);
+		// ctrl-shift
+		key(KB.ctrlShift(KeyCode.END), FN.SELECT_TO_DOCUMENT_END);
+		key(KB.ctrlShift(KeyCode.HOME), FN.SELECT_TO_DOCUMENT_START);
 		// shift
 		key(KB.shift(KeyCode.DOWN), FN.SELECT_DOWN);
+		key(KB.shift(KeyCode.END), FN.SELECT_TO_LINE_END);
+		key(KB.shift(KeyCode.HOME), FN.SELECT_TO_LINE_START);
 		key(KB.shift(KeyCode.LEFT), FN.SELECT_LEFT);
 		key(KB.shift(KeyCode.PAGE_DOWN), FN.SELECT_PAGE_DOWN);
 		key(KB.shift(KeyCode.PAGE_UP), FN.SELECT_PAGE_UP);
@@ -101,20 +112,15 @@ public class CodePadBehavior
 		if(isMac())
 		{
 			// command
-			key(KB.command(KeyCode.DOWN), FN.MOVE_TO_DOCUMENT_END); // TODO this might be shortcut-home, cross platform
-			key(KB.command(KeyCode.UP), FN.MOVE_TO_DOCUMENT_START); // TODO this might be shortcut-home, cross platform
+			key(KB.command(KeyCode.DOWN), FN.MOVE_TO_DOCUMENT_END);
+			key(KB.command(KeyCode.LEFT), FN.MOVE_TO_LINE_START);
+			key(KB.command(KeyCode.RIGHT), FN.MOVE_TO_LINE_END);
+			key(KB.command(KeyCode.UP), FN.MOVE_TO_DOCUMENT_START);
 			// command-shift
-			key(KB.commandShift(KeyCode.DOWN), FN.SELECT_TO_DOCUMENT_END); // TODO this might be shortcut-home, cross platform
-			key(KB.commandShift(KeyCode.UP), FN.SELECT_TO_DOCUMENT_START); // TODO this might be shortcut-home, cross platform
-		}
-		else
-		{
-			// ctrl
-			key(KB.ctrl(KeyCode.END), FN.MOVE_TO_DOCUMENT_END);
-			key(KB.ctrl(KeyCode.HOME), FN.MOVE_TO_DOCUMENT_START);
-			// ctrl-shift
-			key(KB.ctrlShift(KeyCode.END), FN.SELECT_TO_DOCUMENT_END);
-			key(KB.ctrlShift(KeyCode.HOME), FN.SELECT_TO_DOCUMENT_START);
+			key(KB.commandShift(KeyCode.DOWN), FN.SELECT_TO_DOCUMENT_END);
+			key(KB.commandShift(KeyCode.LEFT), FN.SELECT_TO_LINE_START);
+			key(KB.commandShift(KeyCode.RIGHT), FN.SELECT_TO_LINE_END);
+			key(KB.commandShift(KeyCode.UP), FN.SELECT_TO_DOCUMENT_START);
 		}
 		
 		grid.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
@@ -217,6 +223,45 @@ public class CodePadBehavior
 	}
 	
 	
+	private TextPos lineEnd()
+	{
+		TextPos ca = control().getCaretPosition();
+		if(ca == null)
+		{
+			return null;
+		}
+		
+		if(control().isWrapText())
+		{
+			return grid.lineEnd(ca);
+		}
+		else
+		{
+			CodeParagraph par = control().getParagraph(ca.index());
+			return TextPos.of(ca.index(), par.getCellCount());
+		}
+	}
+	
+	
+	private TextPos lineStart()
+	{
+		TextPos ca = control().getCaretPosition();
+		if(ca == null)
+		{
+			return null;
+		}
+		
+		if(control().isWrapText())
+		{
+			return grid.lineStart(ca);
+		}
+		else
+		{
+			return TextPos.of(ca.index(), 0);
+		}
+	}
+	
+	
 	public void moveDown()
 	{
 		move(true, 1, false);
@@ -245,6 +290,20 @@ public class CodePadBehavior
 	public void moveToDocumentStart()
 	{
 		moveCaret(TextPos.ZERO, false);
+	}
+	
+	
+	public void moveToLineEnd()
+	{
+		TextPos p = lineEnd();
+		moveCaret(p, false);
+	}
+	
+	
+	public void moveToLineStart()
+	{
+		TextPos p = lineStart();
+		moveCaret(p, false);
 	}
 
 
@@ -330,6 +389,20 @@ public class CodePadBehavior
 	public void selectToDocumentStart()
 	{
 		moveCaret(TextPos.ZERO, true);
+	}
+	
+	
+	public void selectToLineEnd()
+	{
+		TextPos p = lineEnd();
+		moveCaret(p, true);
+	}
+	
+	
+	public void selectToLineStart()
+	{
+		TextPos p = lineStart();
+		moveCaret(p, true);
 	}
 	
 	
