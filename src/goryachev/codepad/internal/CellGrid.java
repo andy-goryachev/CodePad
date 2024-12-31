@@ -8,6 +8,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
+import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -70,6 +71,7 @@ public class CellGrid
 	private int viewRows;
 	// number of columns that result in no hsb
 	private int viewCols;
+	// negative if no wrap
 	private int wrapLimit;
 	private final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
 	private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
@@ -1294,13 +1296,24 @@ public class CellGrid
 	{
 		int ix = from.index();
 		int cix = from.cellIndex() + delta;
-		WrapInfo wi = getWrapInfo(ix);
 		
 		if(delta < 0)
 		{
 			// move left
 			if(cix >= 0)
 			{
+				// check if needs to apply special logic around the soft wrapping break
+				if(wrapLimit > 0)
+				{
+					if(from.isLeading())
+					{
+						int col = cix % wrapLimit;
+						if(col == (wrapLimit - 1))
+						{
+							return new TextPos(ix, cix + 1, false);
+						}
+					}
+				}
 				return TextPos.of(ix, cix);
 			}
 			else
@@ -1312,7 +1325,7 @@ public class CellGrid
 				else
 				{
 					--ix;
-					wi = getWrapInfo(ix);
+					WrapInfo wi = getWrapInfo(ix);
 					return TextPos.of(ix, wi.getCellCount());
 				}
 			}
@@ -1320,9 +1333,27 @@ public class CellGrid
 		else
 		{
 			// move right
+			WrapInfo wi = getWrapInfo(ix);
 			int len = wi.getCellCount();
 			if(cix <= len)
 			{
+				// check if needs to apply special logic around the soft wrapping break
+				if((wrapLimit > 0) && (cix != 0))
+				{
+					if(from.isLeading())
+					{
+						int col = cix % wrapLimit;
+						if(col == 0)
+						{
+							// create a tailing pos
+							return new TextPos(ix, cix, false);
+						}
+					}
+					else
+					{
+						return TextPos.of(ix, from.cellIndex());
+					}
+				}
 				return TextPos.of(ix, cix);
 			}
 			else
@@ -1365,4 +1396,11 @@ public class CellGrid
 	{
 		// TODO
 	}
+	
+	
+//	private int columnFor(TextPos p)
+//	{
+//		WrapInfo wi = getWrapInfo(p.index());
+//		return wi.
+//	}
 }

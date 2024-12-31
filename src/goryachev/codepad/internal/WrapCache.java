@@ -43,6 +43,10 @@ public class WrapCache
 	}
 	
 	
+	/**
+	 * Returns a non-null WrapInfo.  This method either returns a cached instance,
+	 * or creates and places one in the cache. 
+	 */
 	public WrapInfo getWrapInfo(int modelIndex, int wrapLimit)
 	{
 		if(data == null)
