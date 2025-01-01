@@ -8,6 +8,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
+import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -180,7 +181,11 @@ public class CellGrid
 	
 	private boolean isVisible(TextPos p)
 	{
-		return p == null ? false : arrangement().isVisible(p);
+		if(p == null)
+		{
+			return false;
+		}
+		return (arrangement().getRelativePosition(p) == RelativePosition.VISIBLE);
 	}
 	
 	
@@ -386,6 +391,12 @@ public class CellGrid
 	
 	public void handleSelectionChange(Object src, SelectionRange old, SelectionRange sel)
 	{
+		TextPos p = sel.getCaret();
+		if(p != null)
+		{
+			scrollToVisible(p);
+		}
+		
 		// TODO repaint damaged area: union of old and new selection ranges
 		paintAll();
 	}
@@ -1305,6 +1316,7 @@ public class CellGrid
 			}
 		}
 		
+		/*
 		Arrangement a = arrangement();
 		if(!a.isVisible(p))
 		{
@@ -1323,6 +1335,7 @@ public class CellGrid
 //				// below
 //			}
 		}
+		*/
 		return p;
 	}
 	
@@ -1407,23 +1420,58 @@ public class CellGrid
 	}
 	
 	
-	public void scrollToVisible(TextPos p)
+	public void scrollToVisible(TextPos from)
 	{
-		// ? too early
-//		Arrangement a = arrangement();
-//		if(a.isVisible(p))
-//		{
-//			return;
-//		}
-//		
-//		Origin or = a.scrollToVisible(caret);
-//		if(or != null)
-//		{
-//			setOrigin(or);
-//		}
-		
-		// TODO if below - show on the last row
-		// if above - show on the first row
+		// FIX wrap off: left, right?
+		boolean wrap = editor.isWrapText();
+		RelativePosition rel = arrangement().getRelativePosition(from);
+		D.print(rel);// FIX
+		switch(rel)
+		{
+		case ABOVE:
+			if(wrap)
+			{
+				// TODO handle trailing pos separately!
+				
+				// set origin to the caret row
+				int ix = from.index();
+				int cix = (from.cellIndex() / viewCols) * viewCols;
+				double xoff;
+				double yoff;
+				if(ix == 0)
+				{
+					xoff = contentPaddingLeft;
+					yoff = contentPaddingTop;
+				}
+				else
+				{
+					xoff = 0.0;
+					yoff = 0.0;
+				}
+				setOrigin(ix, cix, xoff, yoff);
+			}
+			else
+			{
+				// TODO
+			}
+			break;
+		case BELOW:
+			if(wrap)
+			{
+				TextPos p = verticalMove(from, -viewRows);
+				
+				int ix = p.index();
+				int cix = p.cellIndex();
+				setOrigin(ix, cix, 0.0, 0.0); 
+			}
+			else
+			{
+				// TODO
+			}
+			break;
+		default:
+			return;
+		}
 	}
 	
 	

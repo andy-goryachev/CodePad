@@ -254,28 +254,11 @@ public class Arrangement
 		return bottomIndex;
 	}
 
-
-//	public double averageRowsPerParagraph()
-//	{
-//		int d = bottomIndex - topIndex;
-//		if(d == 0)
-//		{
-//			return 1;
-//		}
-//		return getRowCount() / d;
-//	}
-	
 	
 	public int getRowCount()
 	{
 		return topRows + bottomRows + visibleRowCount;
 	}
-	
-	
-//	public int getModelSize()
-//	{
-//		return modelSize;
-//	}
 	
 	
 	public int getSlidingWindowRowCount()
@@ -319,43 +302,31 @@ public class Arrangement
 	}
 
 
-	public boolean isVisible(TextPos p)
+	public RelativePosition getRelativePosition(TextPos p)
 	{
 		int last = rows.size() - 1;
 		if(last < 0)
 		{
-			return false;
+			return RelativePosition.UNDETERMINED;
 		}
-		
+
 		WrapInfo wi = rows.get(0);
 		int cix = offsets.get(0);
 		if(p.compareTo(wi.getIndex(), cix) < 0)
 		{
-			return false;
+			return RelativePosition.ABOVE;
 		}
-		
+
 		wi = rows.get(last);
 		cix = offsets.get(last);
 		if(p.compareTo(wi.getIndex(), cix + viewCols) > 0)
 		{
-			return false;
+			return RelativePosition.BELOW;
 		}
-		return true;
+		return RelativePosition.VISIBLE;
 	}
 
 
-//	public Origin scrollToVisible(TextPos caret)
-//	{
-//		if(a.isVisible(caret))
-//		{
-//			return;
-//		}
-//		
-//
-//		return null;
-//	}
-	
-	
 	public GridPos getCoordinates(TextPos p)
 	{
 		int ix = p.index();
