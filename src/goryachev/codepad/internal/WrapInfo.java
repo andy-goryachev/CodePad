@@ -1,5 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
+import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeParagraph;
 import javafx.scene.paint.Color;
@@ -69,6 +70,24 @@ public abstract class WrapInfo
 			return paragraph.getCellStyle(cix);
 		}
 		return null;
+	}
+	
+	
+	public TextPos clamp(int cix)
+	{
+		if(cix < 0)
+		{
+			cix = 0;
+		}
+		else
+		{
+			int len = getCellCount();
+			if(cix >= len)
+			{
+				cix = len;
+			}
+		}
+		return TextPos.of(getIndex(), cix);
 	}
 	
 	

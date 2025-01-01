@@ -1094,6 +1094,7 @@ public class CellGrid
 			// caret
 			if(caretLine && drawCaret)
 			{
+				@SuppressWarnings("null")
 				TextPos ca = sel.getCaret();
 				if(ca.caretCellIndex() == cix)
 				{
@@ -1170,16 +1171,16 @@ public class CellGrid
 		WrapInfo wi = getWrapInfo(ix);
 		
 		// initial row and column
-		int rx = wi.getRowAtCellIndex(cix); // TODO used?
-		int cx;
+		int row = wi.getRowAtCellIndex(cix);
+		int col;
 		if(phantomx < 0)
 		{
-			cx = cix % viewCols;
-			phantomx = cx;
+			col = cix % viewCols;
+			phantomx = col;
 		}
 		else
 		{
-			cx = phantomx;
+			col = phantomx;
 		}
 
 		TextPos p;
@@ -1203,25 +1204,31 @@ public class CellGrid
 						wi = getWrapInfo(ix);
 					}
 					
-					int h = wi.getRowCount();
-					if(ct < h)
+					if(row >= 0)
 					{
-						cix = wi.getCellIndexAtRow(h - ct) + cx;
-						// TODO clamp?
-						p = TextPos.of(ix, cix);
-						break;
+						if(ct <= row)
+						{
+							cix = wi.getCellIndexAtRow(row - ct) + col;
+							p = wi.clamp(cix);
+							break;
+						}
+						ct -= (row + 1);
+						row = -1;
 					}
 					else
 					{
+						int h = wi.getRowCount();
+						if(ct < h)
+						{
+							cix = wi.getCellIndexAtRow(h - 1 - ct) + col;
+							p = wi.clamp(cix);
+							break;
+						}
 						ct -= h;
-//						if(ix == 0)
-//						{
-//							p = TextPos.ZERO;
-//							break;
-//						}
-						ix--;
-						wi = null;
 					}
+					
+					ix--;
+					wi = null;
 				}
 			}
 			else
@@ -1241,26 +1248,34 @@ public class CellGrid
 					{
 						wi = getWrapInfo(ix);
 					}
-					
+
 					int h = wi.getRowCount();
-					if(ct < h)
+
+					if(row >= 0)
 					{
-						cix = wi.getCellIndexAtRow(ct) + cx;
-						// TODO clamp?
-						p = TextPos.of(ix, cix);
-						break;
+						if(ct + row < h)
+						{
+							cix = wi.getCellIndexAtRow(row + ct) + col;
+							p = wi.clamp(cix);
+							break;
+						}
+						
+						ct -= (h - row);
+						row = -1;
 					}
 					else
 					{
+						if(ct < h)
+						{
+							cix = wi.getCellIndexAtRow(ct) + col;
+							p = wi.clamp(cix);
+							break;
+						}
 						ct -= h;
-//						if(ix >= max)
-//						{
-//							p = editor.getDocumentEnd();
-//							break;
-//						}
-						wi = null;
-						ix++;
 					}
+
+					wi = null;
+					ix++;
 				}
 			}
 		}
