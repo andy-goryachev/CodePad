@@ -8,7 +8,6 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
-import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -286,7 +285,10 @@ public class CellGrid
 	
 	private Timeline createCursorAnimation()
 	{
-		Timeline t = new Timeline(new KeyFrame(Duration.millis(500), (ev) -> blinkCursor()));
+		Timeline t = new Timeline(new KeyFrame(Duration.millis(500), (ev) ->
+		{
+			blinkCursor();
+		}));
 		t.setCycleCount(Timeline.INDEFINITE);
 		t.play();
 		return t;
@@ -391,10 +393,13 @@ public class CellGrid
 	
 	public void handleSelectionChange(Object src, SelectionRange old, SelectionRange sel)
 	{
-		TextPos p = sel.getCaret();
-		if(p != null)
+		if(sel != null)
 		{
-			scrollToVisible(p);
+			TextPos p = sel.getCaret();
+			if(p != null)
+			{
+				scrollToVisible(p);
+			}
 		}
 		
 		// TODO repaint damaged area: union of old and new selection ranges
@@ -1303,6 +1308,7 @@ public class CellGrid
 				if(ix < sz)
 				{
 					wi = getWrapInfo(ix);
+					cix = origin.cellIndex() + col;
 					if(cix > wi.getCellCount())
 					{
 						cix = wi.getCellCount();
@@ -1420,24 +1426,24 @@ public class CellGrid
 	}
 	
 	
-	public void scrollToVisible(TextPos from)
+	public void scrollToVisible(TextPos pos)
 	{
-		// FIX wrap off: left, right?
 		boolean wrap = editor.isWrapText();
-		RelativePosition rel = arrangement().getRelativePosition(from);
-		D.print(rel);// FIX
+		RelativePosition rel = arrangement().getRelativePosition(pos);
+
+		int ix = pos.index();
+		int cix;
+		double xoff;
+		double yoff;
 		switch(rel)
 		{
 		case ABOVE:
 			if(wrap)
 			{
-				// TODO handle trailing pos separately!
+				// TODO handle trailing bias differently
 				
 				// set origin to the caret row
-				int ix = from.index();
-				int cix = (from.cellIndex() / viewCols) * viewCols;
-				double xoff;
-				double yoff;
+				cix = (pos.cellIndex() / viewCols) * viewCols;
 				if(ix == 0)
 				{
 					xoff = contentPaddingLeft;
@@ -1452,25 +1458,58 @@ public class CellGrid
 			}
 			else
 			{
-				// TODO
+				yoff = (ix == 0) ? contentPaddingTop : 0.0;
+				setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
 			}
+			break;
+		case ABOVE_LEFT:
+			ix = pos.index();
+			cix = pos.cellIndex();
+			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
+			yoff = (ix == 0) ? contentPaddingTop : 0.0;
+			setOrigin(ix, cix, xoff, yoff);
+			break;
+		case ABOVE_RIGHT:
+			ix = pos.index();
+			cix = Math.max(0, pos.cellIndex() - viewCols);
+			yoff = (ix == 0) ? contentPaddingTop : 0.0;
+			setOrigin(ix, cix, 0.0, yoff);
 			break;
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = verticalMove(from, -viewRows);
-				
-				int ix = p.index();
-				int cix = p.cellIndex();
+				TextPos p = verticalMove(pos, -viewRows);
+				ix = p.index();
+				cix = p.cellIndex();
 				setOrigin(ix, cix, 0.0, 0.0); 
 			}
 			else
 			{
-				// TODO
+				ix = Math.max(0, ix - viewRows);
+				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
-		default:
-			return;
+		case BELOW_LEFT:
+			ix = Math.max(0, ix - viewRows);
+			cix = pos.caretCellIndex();
+			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
+			setOrigin(ix, cix, xoff, 0.0);
+			break;
+		case BELOW_RIGHT:
+			ix = Math.max(0, ix - viewRows);
+			cix = Math.max(0, pos.cellIndex() - viewCols);
+			setOrigin(ix, cix, 0.0, 0.0);
+			break;
+		case LEFT:
+			// TODO avoid showing mostly empty line (detect when at the last symbol)
+			cix = pos.cellIndex();
+			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
+			setOrigin(origin.index(), cix, xoff, origin.yoffset());
+			break;
+		case RIGHT:
+			cix = Math.max(0, pos.cellIndex() - viewCols);
+			setOrigin(origin.index(), cix, 0.0, origin.yoffset());
+			break;
 		}
 	}
 	

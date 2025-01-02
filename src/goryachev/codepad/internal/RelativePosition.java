@@ -3,12 +3,18 @@ package goryachev.codepad.internal;
 
 
 /**
- * Describes the Text Position Relative to the View Port.
+ * Describes the Text Position Relative to the Viewport.
  */
 public enum RelativePosition
 {
 	ABOVE,
-	VISIBLE,
+	ABOVE_LEFT,
+	ABOVE_RIGHT,
 	BELOW,
+	BELOW_LEFT,
+	BELOW_RIGHT,
+	LEFT,
+	RIGHT,
+	VISIBLE,
 	UNDETERMINED
 }

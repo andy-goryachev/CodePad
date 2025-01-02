@@ -78,7 +78,7 @@ public class Arrangement
 			numRows--;
 			rc++;
 			
-			if(wrapLimit > 0)
+			if(isWrap())
 			{
 				cix += wrapLimit;
 				if(cix < wi.getCellCount())
@@ -137,7 +137,7 @@ public class Arrangement
 			nrows += wi.getRowCount();
 			ix++;
 			
-			if(wrapLimit < 0)
+			if(!isWrap())
 			{
 				int w = wi.getCellCount();
 				if(w > maxCellCount)
@@ -162,7 +162,7 @@ public class Arrangement
 	
 	public boolean isHsbNeeded()
 	{
-		if(wrapLimit > 0)
+		if(isWrap())
 		{
 			return false;
 		}
@@ -228,6 +228,12 @@ public class Arrangement
 	public int getWrapLimit()
 	{
 		return wrapLimit;
+	}
+	
+	
+	private boolean isWrap()
+	{
+		return wrapLimit > 0;
 	}
 	
 	
@@ -304,24 +310,68 @@ public class Arrangement
 
 	public RelativePosition getRelativePosition(TextPos p)
 	{
-		int last = rows.size() - 1;
+		int viewRows = rows.size();
+		int last = viewRows - 1;
 		if(last < 0)
 		{
 			return RelativePosition.UNDETERMINED;
 		}
-
-		WrapInfo wi = rows.get(0);
-		int cix = offsets.get(0);
-		if(p.compareTo(wi.getIndex(), cix) < 0)
+		
+		if(isWrap())
 		{
-			return RelativePosition.ABOVE;
+			WrapInfo wi = rows.get(0);
+			int cix = offsets.get(0);
+			if(p.compareTo(wi.getIndex(), cix) < 0)
+			{
+				return RelativePosition.ABOVE;
+			}
+	
+			wi = rows.get(last);
+			cix = offsets.get(last);
+			if(p.compareTo(wi.getIndex(), cix + viewCols) >= 0)
+			{
+				return RelativePosition.BELOW;
+			}
 		}
-
-		wi = rows.get(last);
-		cix = offsets.get(last);
-		if(p.compareTo(wi.getIndex(), cix + viewCols) > 0)
+		else
 		{
-			return RelativePosition.BELOW;
+			int x = p.cellIndex() - startCellIndex; 
+			int y = p.index() - startIndex;
+			if(x < 0)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_LEFT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_LEFT;
+				}
+				return RelativePosition.LEFT;
+			}
+			else if(x >= viewCols)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_RIGHT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_RIGHT;
+				}
+				return RelativePosition.RIGHT;
+			}
+			else
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW;
+				}
+			}
 		}
 		return RelativePosition.VISIBLE;
 	}

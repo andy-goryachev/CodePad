@@ -1,7 +1,6 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx.input;
 import goryachev.common.util.CMap;
-import goryachev.common.util.D;
 import goryachev.fx.input.internal.EHandlers;
 import goryachev.fx.input.internal.HPriority;
 import java.util.Map;
@@ -77,9 +76,9 @@ public class SkinInputMap
 	}
 
 
+	// called from InputMap
 	boolean execFunc(Func f)
 	{
-		D.print(f);
 		Object v = map.get(f);
 		if(v instanceof Runnable r)
 		{
@@ -94,12 +93,14 @@ public class SkinInputMap
 	}
 
 
+	// called from InputMap
 	Object valueFor(KB k)
 	{
 		return map.get(k);
 	}
 	
 	
+	// called from InputMap
 	void forEachHandler(Client c)
 	{
 		for(Map.Entry<Object,Object> en: map.entrySet())

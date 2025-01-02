@@ -262,6 +262,7 @@ public class CodePadBehavior
 	
 	private void handleMouseReleased(MouseEvent ev)
 	{		
+		stopAutoScroll();
 		grid.suppressBlinking(false);
 		grid.clearPhantomX();
 	}
