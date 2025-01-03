@@ -1426,6 +1426,20 @@ public class CellGrid
 	}
 	
 	
+	// to avoid showing an empty line, returns a better charIndex
+	// when navigating left and arriving at the end of line
+	private int checkEndOfLine(int ix, int cix)
+	{
+		WrapInfo wi = getWrapInfo(ix);
+		int len = wi.getCellCount();
+		if(cix >= len)
+		{
+			return Math.max(0, len - viewCols);
+		}
+		return cix;
+	}
+	
+	
 	public void scrollToVisible(TextPos pos)
 	{
 		boolean wrap = editor.isWrapText();
@@ -1465,6 +1479,7 @@ public class CellGrid
 		case ABOVE_LEFT:
 			ix = pos.index();
 			cix = pos.cellIndex();
+			cix = checkEndOfLine(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
 			setOrigin(ix, cix, xoff, yoff);
@@ -1492,17 +1507,18 @@ public class CellGrid
 		case BELOW_LEFT:
 			ix = Math.max(0, ix - viewRows);
 			cix = pos.caretCellIndex();
+			cix = checkEndOfLine(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(ix, cix, xoff, 0.0);
-			break;
+			break;			
 		case BELOW_RIGHT:
 			ix = Math.max(0, ix - viewRows);
 			cix = Math.max(0, pos.cellIndex() - viewCols);
 			setOrigin(ix, cix, 0.0, 0.0);
 			break;
 		case LEFT:
-			// TODO avoid showing mostly empty line (detect when at the last symbol)
 			cix = pos.cellIndex();
+			cix = checkEndOfLine(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
