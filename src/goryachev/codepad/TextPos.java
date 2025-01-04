@@ -60,12 +60,12 @@ public final class TextPos
 	
 	
 	/**
-	 * Caret cell index: the cell index where to draw the caret.
+	 * The index of the cell where caret is painted.
 	 * In the insert mode, the caret is drawn as a line at the left edge of the cell (leading=true)
 	 * or the right edge (leading=false).
 	 * In the overwrite mode, TBD.
 	 */
-	public int caretCellIndex()
+	public int paintCellIndex()
 	{
 		if(!leading)
 		{
@@ -141,7 +141,7 @@ public final class TextPos
 	
 	/**
 	 * Returns a value > 0 if the position at (ix, cix) is before this TextPos,
-	 * == 0 if the position is the same
+	 * == 0 if the position is the same,
 	 * < 0 if the position at (ix, cix) is after this TextPos.
 	 */
 	public int compareTo(int ix, int cellIndex)
@@ -152,7 +152,7 @@ public final class TextPos
 		}
 		else if(index == ix)
 		{
-			return cix - cellIndex;
+			return paintCellIndex() - cellIndex;
 		}
 		return 1;
 	}

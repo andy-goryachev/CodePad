@@ -288,7 +288,7 @@ public class CodePadBehavior
 			else
 			{
 				CodeParagraph par = control().getParagraph(ca.index());
-				return TextPos.of(ca.index(), par.getCellCount());
+				return new TextPos(ca.index(), par.getCellCount(), false);
 			}
 		}
 		return null;		
@@ -676,11 +676,12 @@ public class CodePadBehavior
 			TextPos p;
 			if(vertical)
 			{
-				p = grid.verticalMove(caret, delta);
+				p = grid.moveVertically(caret, delta, true);
 			}
 			else
 			{
-				p = grid.horizontalMove(caret, delta);
+				p = grid.moveHorizontally(caret, delta);
+				grid.clearPhantomX();
 			}
 			moveCaret(p, select);
 		}

@@ -13,6 +13,7 @@ public class Arrangement
 {
 	private final WrapCache cache;
 	private final int modelSize;
+	private final int viewRows;
 	private final int viewCols;
 	private final int wrapLimit;
 	private final int startIndex;
@@ -28,10 +29,11 @@ public class Arrangement
 	private int topIndex;
 	
 	
-	public Arrangement(WrapCache cache, int modelSize, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
+	public Arrangement(WrapCache cache, int modelSize, int viewRows, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
 	{
 		this.cache = cache;
 		this.modelSize = modelSize;
+		this.viewRows = viewRows;
 		this.viewCols = viewCols;
 		this.wrapLimit = wrapLimit;
 		this.startIndex = startIndex;
@@ -310,7 +312,6 @@ public class Arrangement
 
 	public RelativePosition getRelativePosition(TextPos p)
 	{
-		int viewRows = rows.size();
 		int last = viewRows - 1;
 		if(last < 0)
 		{
@@ -359,6 +360,13 @@ public class Arrangement
 				{
 					return RelativePosition.BELOW_RIGHT;
 				}
+				else if(x == viewCols) // FIX does not work!
+				{
+					if(!p.isLeading())
+					{
+						return RelativePosition.VISIBLE;
+					}
+				}
 				return RelativePosition.RIGHT;
 			}
 			else
@@ -380,7 +388,7 @@ public class Arrangement
 	public GridPos getCoordinates(TextPos p)
 	{
 		int ix = p.index();
-		int cix = p.caretCellIndex();
+		int cix = p.paintCellIndex();
 		
 		for(int i=rows.size()-1; i>=0; --i)
 		{

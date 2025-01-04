@@ -59,6 +59,7 @@ public class CellGrid
 	private Font boldFont;
 	private Font boldItalicFont;
 	private Font italicFont;
+	private boolean wrap;
 	private Arrangement arrangement;
 	private double aspectRatio;
 	private double contentPaddingTop;
@@ -166,7 +167,6 @@ public class CellGrid
 	private void refreshCursor()
 	{
 		SelectionRange sel = editor.getSelection();
-		// TODO create binding of(model, parent window, non-null selection)
 		if(sel != null)
 		{
 			TextPos caret = sel.getCaret();
@@ -337,13 +337,14 @@ public class CellGrid
 	}
 
 
-	// TODO maybe invalidateXXX instead
 	public void setWrapText(boolean on)
 	{
+		wrap = on;
 		int ix = origin.index();
 		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
 		setOrigin(ix, 0, contentPaddingLeft, yoff);
 		cache.clear();
+		clearPhantomX();
 		arrangement = null;
 		requestLayout();
 	}
@@ -637,7 +638,7 @@ public class CellGrid
 		int modelSize = editor.getParagraphCount();
 		int ix = origin.index();
 		int cix = origin.cellIndex();
-		Arrangement a = new Arrangement(cache, modelSize, viewCols, wrapLimit, ix, cix);
+		Arrangement a = new Arrangement(cache, modelSize, viewRows, viewCols, wrapLimit, ix, cix);
 		a.layoutViewPort(viewRows);
 		
 		// lay out bottom half of the sliding window
@@ -1039,7 +1040,7 @@ public class CellGrid
 		{
 			WrapInfo wi = a.wrapInfoAtViewRow(ix);
 			int cellIndex = a.cellIndexAtViewRow(ix);
-			int ct = wrapLimit < 0 ? wi.getCellCount() : Math.min(wrapLimit, wi.getCellCount() - cellIndex);
+			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cellIndex) : wi.getCellCount();
 			paintCells(tm, wi, cellIndex, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
 		}
@@ -1112,7 +1113,7 @@ public class CellGrid
 			{
 				@SuppressWarnings("null")
 				TextPos ca = sel.getCaret();
-				if(ca.caretCellIndex() == cix)
+				if(ca.paintCellIndex() == cix)
 				{
 					gx.setFill(editor.getCaretColor());
 					// TODO insert mode
@@ -1180,29 +1181,36 @@ public class CellGrid
 	}
 	
 	
-	public TextPos verticalMove(TextPos from, int delta)
+	public TextPos moveVertically(TextPos from, int delta, boolean usePhantomX)
 	{
 		int ix = from.index();
 		int cix = from.cellIndex();
 		WrapInfo wi = getWrapInfo(ix);
+		boolean wrap = editor.isWrapText();
 		
 		// initial row and column
 		int row = wi.getRowAtCellIndex(cix);
-		int col;
-		if(phantomx < 0)
-		{
-			col = cix % viewCols;
-			phantomx = col;
-		}
-		else
-		{
-			col = phantomx;
-		}
 
-		TextPos p;
-		boolean wrap = editor.isWrapText();
 		if(wrap)
 		{
+			int col;
+			if(usePhantomX)
+			{
+				if(phantomx < 0)
+				{
+					col = cix % viewCols;
+					phantomx = col;
+				}
+				else
+				{
+					col = phantomx;
+				}
+			}
+			else
+			{
+				col = cix % viewCols;
+			}
+			
 			if(delta < 0)
 			{
 				// going up
@@ -1211,8 +1219,7 @@ public class CellGrid
 				{
 					if(ix < 0)
 					{
-						p = TextPos.ZERO;
-						break;
+						return TextPos.ZERO;
 					}
 					
 					if(wi == null)
@@ -1225,8 +1232,24 @@ public class CellGrid
 						if(ct <= row)
 						{
 							cix = wi.getCellIndexAtRow(row - ct) + col;
-							p = wi.clamp(cix);
-							break;
+							TextPos p = wi.clamp(cix);
+							if(from.isLeading())
+							{
+								return p;
+							}
+							else if(col == 0)
+							{
+								if(p.cellIndex() > 0)
+								{
+									return new TextPos(p.index(), p.cellIndex(), false);
+								}
+								ct++; // FIX wrong!
+							}
+							else
+							{
+								// one more step FIX wrong!
+								ct++;
+							}
 						}
 						ct -= (row + 1);
 						row = -1;
@@ -1237,8 +1260,7 @@ public class CellGrid
 						if(ct < h)
 						{
 							cix = wi.getCellIndexAtRow(h - 1 - ct) + col;
-							p = wi.clamp(cix);
-							break;
+							return wi.clamp(cix);
 						}
 						ct -= h;
 					}
@@ -1256,8 +1278,7 @@ public class CellGrid
 				{
 					if(ix >= max)
 					{
-						p = editor.getDocumentEnd();
-						break;
+						return editor.getDocumentEnd();
 					}
 					
 					if(wi == null)
@@ -1272,8 +1293,7 @@ public class CellGrid
 						if(ct + row < h)
 						{
 							cix = wi.getCellIndexAtRow(row + ct) + col;
-							p = wi.clamp(cix);
-							break;
+							return wi.clamp(cix);
 						}
 						
 						ct -= (h - row);
@@ -1284,8 +1304,7 @@ public class CellGrid
 						if(ct < h)
 						{
 							cix = wi.getCellIndexAtRow(ct) + col;
-							p = wi.clamp(cix);
-							break;
+							return wi.clamp(cix);
 						}
 						ct -= h;
 					}
@@ -1297,10 +1316,23 @@ public class CellGrid
 		}
 		else
 		{
+			// no wrap
+			if(usePhantomX)
+			{
+				if(phantomx < 0)
+				{
+					phantomx = cix;
+				}
+				else
+				{
+					cix = phantomx;
+				}
+			}
+
 			ix += delta;
 			if(ix < 0)
 			{
-				p = TextPos.ZERO;
+				return TextPos.ZERO;
 			}
 			else
 			{
@@ -1308,45 +1340,22 @@ public class CellGrid
 				if(ix < sz)
 				{
 					wi = getWrapInfo(ix);
-					cix = origin.cellIndex() + col;
 					if(cix > wi.getCellCount())
 					{
 						cix = wi.getCellCount();
 					}
-					p = TextPos.of(ix, cix);
+					return TextPos.of(ix, cix);
 				}
 				else
 				{
-					p = editor.getDocumentEnd();
+					return editor.getDocumentEnd();
 				}
 			}
 		}
-		
-		/*
-		Arrangement a = arrangement();
-		if(!a.isVisible(p))
-		{
-			// move origin
-			ix = p.index();
-			//if(ix <= a.getStartIndex())
-			{
-				// above
-				wi = getWrapInfo(ix);
-				cix = wi.getCellIndexAtRow(wi.getRowAtCellIndex(p.cellIndex()));
-				// TODO check if ix == 0
-				setOrigin(ix, cix, origin.xoffset(), origin.yoffset());
-			}
-//			else
-//			{
-//				// below
-//			}
-		}
-		*/
-		return p;
 	}
 	
 	
-	public TextPos horizontalMove(TextPos from, int delta)
+	public TextPos moveHorizontally(TextPos from, int delta)
 	{
 		int ix = from.index();
 		int cix = from.cellIndex() + delta;
@@ -1444,6 +1453,7 @@ public class CellGrid
 	{
 		boolean wrap = editor.isWrapText();
 		RelativePosition rel = arrangement().getRelativePosition(pos);
+		log.debug(rel);
 
 		int ix = pos.index();
 		int cix;
@@ -1457,18 +1467,9 @@ public class CellGrid
 				// TODO handle trailing bias differently
 				
 				// set origin to the caret row
-				cix = (pos.cellIndex() / viewCols) * viewCols;
-				if(ix == 0)
-				{
-					xoff = contentPaddingLeft;
-					yoff = contentPaddingTop;
-				}
-				else
-				{
-					xoff = 0.0;
-					yoff = 0.0;
-				}
-				setOrigin(ix, cix, xoff, yoff);
+				cix = (pos.paintCellIndex() / viewCols) * viewCols;
+				yoff = (ix == 0) ? contentPaddingTop : 0.0;
+				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
 			else
 			{
@@ -1493,26 +1494,26 @@ public class CellGrid
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = verticalMove(pos, -viewRows);
+				TextPos p = moveVertically(TextPos.of(origin.index(), origin.cellIndex()), 1, false);
 				ix = p.index();
 				cix = p.cellIndex();
-				setOrigin(ix, cix, 0.0, 0.0); 
+				setOrigin(ix, cix, contentPaddingLeft, 0.0); 
 			}
 			else
 			{
-				ix = Math.max(0, ix - viewRows);
+				ix = Math.max(0, ix - viewRows + 1);
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
 			ix = Math.max(0, ix - viewRows);
-			cix = pos.caretCellIndex();
+			cix = pos.paintCellIndex();
 			cix = checkEndOfLine(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(ix, cix, xoff, 0.0);
 			break;			
 		case BELOW_RIGHT:
-			ix = Math.max(0, ix - viewRows);
+			ix = Math.max(0, ix - viewRows + 1);
 			cix = Math.max(0, pos.cellIndex() - viewCols);
 			setOrigin(ix, cix, 0.0, 0.0);
 			break;
