@@ -140,6 +140,41 @@ public class CodePad
 	{
 		return inputMap;
 	}
+	
+	
+	/**
+	 * Moves the caret to the specified position.
+	 * When the {@code extendSelection} flag is {@code true}, the selection is extended to the new position.
+	 * When the {@code clearPhantomPosition} is {@code true}, the "phantom x position", or the column from which the vertical navigation
+	 * has started, is cleared.
+	 * 
+	 * @param p the position to move the caret to
+	 * @param extendSelection whether to extend selection or not
+	 * @param clearPhantomPosition whether to clear (remove) phantom x position
+	 */
+	public final void moveCaret(TextPos p, boolean extendSelection, boolean clearPhantomPosition)
+	{
+		if(p != null)
+		{
+			if(extendSelection)
+			{
+				extendSelection(p);
+			}
+			else
+			{
+				select(p);
+			}
+			
+			if(clearPhantomPosition)
+			{
+				Object v = getSkin();
+				if(v instanceof CodePadSkin skin)
+				{
+					skin.clearPhantomX();
+				}
+			}
+		}
+	}
 
 
 	public void select(TextPos p)

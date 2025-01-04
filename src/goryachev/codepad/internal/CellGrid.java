@@ -208,12 +208,12 @@ public class CellGrid
 				return editor.getDocumentEnd();
 			}
 		}
+		
 		int cix = a.cellIndexAtViewRow(row) + col;
 		WrapInfo wi = a.wrapInfoAtViewRow(row);
 		if(cix >= wi.getCellCount())
 		{
-			// clamp
-			cix = Math.max(0, wi.getCellCount());
+			return wi.clamp(wi.getCellCount());
 		}
 		else
 		{

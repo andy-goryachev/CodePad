@@ -149,4 +149,10 @@ public class CodePadSkin
 		Point2D p = grid.screenToLocal(screenx, screeny);
 		return grid.getTextPos(p);
 	}
+
+
+	public void clearPhantomX()
+	{
+		grid.clearPhantomX();
+	}
 }

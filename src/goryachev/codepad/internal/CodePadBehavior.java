@@ -429,66 +429,66 @@ public class CodePadBehavior
 	
 	public void moveDown()
 	{
-		move(true, 1, false);
+		moveVertically(1, false);
 	}
 	
 	
 	public void moveLeft()
 	{
-		move(false, -1, false);
+		moveHorizontally(-1, false);
 	}
 	
 	
 	public void moveRight()
 	{
-		move(false, 1, false);
+		moveHorizontally(1, false);
 	}
 
 
 	public void moveToDocumentEnd()
 	{
 		TextPos p = control().getDocumentEnd();
-		moveCaret(p, false);
+		control().moveCaret(p, false, true);
 	}
 
 
 	public void moveToDocumentStart()
 	{
-		moveCaret(TextPos.ZERO, false);
+		control().moveCaret(TextPos.ZERO, false, true);
 	}
 	
 	
 	public void moveToLineEnd()
 	{
 		TextPos p = lineEnd();
-		moveCaret(p, false);
+		control().moveCaret(p, false, true);
 	}
 	
 	
 	public void moveToLineStart()
 	{
 		TextPos p = lineStart();
-		moveCaret(p, false);
+		control().moveCaret(p, false, true);
 	}
 	
 	
 	public void moveToParagraphEnd()
 	{
 		TextPos p = paragraphEnd();
-		moveCaret(p, false);
+		control().moveCaret(p, false, true);
 	}
 	
 	
 	public void moveToParagraphStart()
 	{
 		TextPos p = paragraphStart();
-		moveCaret(p, false);
+		control().moveCaret(p, false, true);
 	}
 
 
 	public void moveUp()
 	{
-		move(true, -1, false);
+		moveVertically(-1, false);
 	}
 	
 	
@@ -508,13 +508,13 @@ public class CodePadBehavior
 	
 	public void pageDown()
 	{
-		move(true, grid.getPageSize(), false);
+		moveVertically(grid.getPageSize(), false);
 	}
 	
 	
 	public void pageUp()
 	{
-		move(true, -grid.getPageSize(), false);
+		moveVertically(-grid.getPageSize(), false);
 	}
 	
 	
@@ -541,25 +541,25 @@ public class CodePadBehavior
 	
 	public void selectDown()
 	{
-		move(true, 1, true);
+		moveVertically(1, true);
 	}
 	
 	
 	public void selectLeft()
 	{
-		move(false, -1, true);
+		moveHorizontally(-1, true);
 	}
 	
 	
 	public void selectPageDown()
 	{
-		move(true, grid.getPageSize(), true);
+		moveVertically(grid.getPageSize(), true);
 	}
 	
 	
 	public void selectPageUp()
 	{
-		move(true, -grid.getPageSize(), true);
+		moveVertically(-grid.getPageSize(), true);
 	}
 	
 	
@@ -589,54 +589,54 @@ public class CodePadBehavior
 	
 	public void selectRight()
 	{
-		move(false, 1, true);
+		moveHorizontally(1, true);
 	}
 	
 	
 	public void selectToDocumentEnd()
 	{
 		TextPos p = control().getDocumentEnd();
-		moveCaret(p, true);
+		control().moveCaret(p, true, true);
 	}
 
 	
 	public void selectToDocumentStart()
 	{
-		moveCaret(TextPos.ZERO, true);
+		control().moveCaret(TextPos.ZERO, true, true);
 	}
 	
 	
 	public void selectToLineEnd()
 	{
 		TextPos p = lineEnd();
-		moveCaret(p, true);
+		control().moveCaret(p, true, true);
 	}
 	
 	
 	public void selectToLineStart()
 	{
 		TextPos p = lineStart();
-		moveCaret(p, true);
+		control().moveCaret(p, true, true);
 	}
 	
 	
 	public void selectToParagraphEnd()
 	{
 		TextPos p = paragraphEnd();
-		moveCaret(p, true);
+		control().moveCaret(p, true, true);
 	}
 	
 	
 	public void selectToParagraphStart()
 	{
 		TextPos p = paragraphStart();
-		moveCaret(p, true);
+		control().moveCaret(p, true, true);
 	}
 	
 	
 	public void selectUp()
 	{
-		move(true, -1, true);
+		moveVertically(-1, true);
 	}
 	
 	
@@ -668,38 +668,24 @@ public class CodePadBehavior
 	}
 
 	
-	private void move(boolean vertical, int delta, boolean select)
+	private void moveHorizontally(int delta, boolean select)
 	{
 		TextPos caret = control().getCaretPosition();
 		if(caret != null)
 		{
-			TextPos p;
-			if(vertical)
-			{
-				p = grid.moveVertically(caret, delta, true);
-			}
-			else
-			{
-				p = grid.moveHorizontally(caret, delta);
-				grid.clearPhantomX();
-			}
-			moveCaret(p, select);
+			TextPos p = grid.moveHorizontally(caret, delta);
+			control().moveCaret(p, select, true);
 		}
 	}
 	
 	
-	private void moveCaret(TextPos p, boolean extendSelection)
+	private void moveVertically(int delta, boolean select)
 	{
-		if(p != null)
+		TextPos caret = control().getCaretPosition();
+		if(caret != null)
 		{
-			if(extendSelection)
-			{
-				control().extendSelection(p);
-			}
-			else
-			{
-				control().select(p);
-			}
+			TextPos p = grid.moveVertically(caret, delta, true);
+			control().moveCaret(p, select, false);
 		}
 	}
 	
