@@ -350,7 +350,7 @@ public class Arrangement
 				}
 				return RelativePosition.LEFT;
 			}
-			else if(x >= viewCols)
+			else if(x > viewCols)
 			{
 				if(y < 0)
 				{
@@ -359,13 +359,6 @@ public class Arrangement
 				else if(y >= viewRows)
 				{
 					return RelativePosition.BELOW_RIGHT;
-				}
-				else if(x == viewCols) // FIX does not work!
-				{
-					if(!p.isLeading())
-					{
-						return RelativePosition.VISIBLE;
-					}
 				}
 				return RelativePosition.RIGHT;
 			}

@@ -84,7 +84,7 @@ public abstract class WrapInfo
 			int len = getCellCount();
 			if(cix >= len)
 			{
-				cix = len;
+				return new TextPos(getIndex(), len, false);
 			}
 		}
 		return TextPos.of(getIndex(), cix);

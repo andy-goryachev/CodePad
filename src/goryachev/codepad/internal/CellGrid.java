@@ -1060,9 +1060,12 @@ public class CellGrid
 		Color parBG = wi.getBackgroundColor();
 		double lineH = tm.cellHeight + lineSpacing();
 		
-		if(caretLine && (count < viewCols))
+		if(caretLine)
 		{
-			count++;
+			if((wrap && (count < viewCols)) || !wrap)
+			{
+				count++;
+			}
 		}
 		
 		// current paragraph highlight extends to the edge of canvas
@@ -1417,7 +1420,7 @@ public class CellGrid
 						return TextPos.of(ix, from.cellIndex());
 					}
 				}
-				return TextPos.of(ix, cix);
+				return wi.clamp(cix);
 			}
 			else
 			{
@@ -1435,15 +1438,14 @@ public class CellGrid
 	}
 	
 	
-	// to avoid showing an empty line, returns a better charIndex
-	// when navigating left and arriving at the end of line
-	private int checkEndOfLine(int ix, int cix)
+	// try showing more of a short line
+	private int adjustToMaximizeViewableText(int ix, int cix)
 	{
 		WrapInfo wi = getWrapInfo(ix);
-		int len = wi.getCellCount();
-		if(cix >= len)
+		int mx = Math.min(viewCols / 2, wi.getCellCount());
+		if(cix >= mx)
 		{
-			return Math.max(0, len - viewCols);
+			return Math.max(0, mx - viewCols);
 		}
 		return cix;
 	}
@@ -1480,7 +1482,7 @@ public class CellGrid
 		case ABOVE_LEFT:
 			ix = pos.index();
 			cix = pos.cellIndex();
-			cix = checkEndOfLine(ix, cix);
+			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
 			setOrigin(ix, cix, xoff, yoff);
@@ -1508,7 +1510,7 @@ public class CellGrid
 		case BELOW_LEFT:
 			ix = Math.max(0, ix - viewRows);
 			cix = pos.paintCellIndex();
-			cix = checkEndOfLine(ix, cix);
+			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(ix, cix, xoff, 0.0);
 			break;			
@@ -1519,7 +1521,7 @@ public class CellGrid
 			break;
 		case LEFT:
 			cix = pos.cellIndex();
-			cix = checkEndOfLine(ix, cix);
+			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
