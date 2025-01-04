@@ -8,6 +8,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
+import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -188,14 +189,14 @@ public class CellGrid
 	}
 	
 	
-	public TextPos getTextPos(Point2D local)
+	public TextPos textPosAtPoint(Point2D local)
 	{
 		double x = local.getX() - origin.xoffset();
 		double y = local.getY() - origin.yoffset();
-		Arrangement a = arrangement();
 		TextCellMetrics tm = textCellMetrics();
 		int row = (int)(y / (tm.cellHeight + lineSpacing()));
 		int col = (int)Math.round(x / tm.cellWidth);
+		Arrangement a = arrangement();
 		int ix = a.indexAtViewRow(row);
 		if(ix < 0)
 		{
@@ -208,8 +209,10 @@ public class CellGrid
 				return editor.getDocumentEnd();
 			}
 		}
+
+		// clamp to viewCols in wrapped mode
+		int cix = a.cellIndexAtViewRow(row) + (wrap ? Math.min(viewCols, col) : col);
 		
-		int cix = a.cellIndexAtViewRow(row) + col;
 		WrapInfo wi = a.wrapInfoAtViewRow(row);
 		if(cix >= wi.getCellCount())
 		{
@@ -217,7 +220,7 @@ public class CellGrid
 		}
 		else
 		{
-			if((wrapLimit > 0) && (col == wrapLimit))
+			if((wrapLimit > 0) && (col >= wrapLimit))
 			{
 				// trailing at the end of a wrapped row
 				return new TextPos(ix, cix, false);
@@ -1290,7 +1293,13 @@ public class CellGrid
 
 					if(row >= 0)
 					{
-						if(ct + row < h)
+						// TODO !leading case
+//						if((col == 0) && !from.isLeading())
+//						{
+//							return TextPos.of(from.index(), from.cellIndex());
+//						}
+						
+						if(ct + row <= h)
 						{
 //							if((col == 0) && !from.isLeading())
 //							{
@@ -1461,7 +1470,7 @@ public class CellGrid
 		RelativePosition rel = arrangement().getRelativePosition(pos);
 		log.debug(rel);
 
-		int ix = pos.index();
+		int ix;
 		int cix;
 		double xoff;
 		double yoff;
@@ -1473,12 +1482,14 @@ public class CellGrid
 				// TODO handle trailing bias differently
 				
 				// set origin to the caret row
+				ix = pos.index();
 				cix = (pos.paintCellIndex() / viewCols) * viewCols;
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
 				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
 			else
 			{
+				ix = pos.index();
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
 			}
@@ -1508,11 +1519,13 @@ public class CellGrid
 			}
 			else
 			{
+				ix = pos.index();
 				ix = Math.max(0, ix - viewRows + 1);
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
+			ix = pos.index();
 			ix = Math.max(0, ix - viewRows);
 			cix = pos.paintCellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
@@ -1520,11 +1533,13 @@ public class CellGrid
 			setOrigin(ix, cix, xoff, 0.0);
 			break;			
 		case BELOW_RIGHT:
+			ix = pos.index();
 			ix = Math.max(0, ix - viewRows + 1);
 			cix = Math.max(0, pos.cellIndex() - viewCols);
 			setOrigin(ix, cix, 0.0, 0.0);
 			break;
 		case LEFT:
+			ix = pos.index();
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;

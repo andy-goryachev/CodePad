@@ -135,7 +135,7 @@ public final class TextPos
 	@Override
 	public String toString()
 	{
-		return "TextPos{index=" + index + ", offset=" + cix + "}";
+		return "TextPos{index=" + index + ", offset=" + cix + ", leading=" + leading + "}";
 	}
 	
 	

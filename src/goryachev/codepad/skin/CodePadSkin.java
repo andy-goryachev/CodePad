@@ -147,7 +147,7 @@ public class CodePadSkin
 			return TextPos.ZERO;
 		}
 		Point2D p = grid.screenToLocal(screenx, screeny);
-		return grid.getTextPos(p);
+		return grid.textPosAtPoint(p);
 	}
 
 
