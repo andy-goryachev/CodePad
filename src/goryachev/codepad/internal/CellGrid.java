@@ -696,7 +696,6 @@ public class CellGrid
 		}
 		
 		int size = editor.getParagraphCount();
-		boolean wrap = editor.isWrapText();
 		int tabSize = tabSize();
 		double lineSpacing = lineSpacing();
 		TextCellMetrics tm = textCellMetrics();
@@ -1028,7 +1027,6 @@ public class CellGrid
 		int maxy = a.getVisibleRowCount();
 		int wrapLimit = a.getWrapLimit();
 		TextCellMetrics tm = textCellMetrics();
-		boolean wrap = editor.isWrapText();
 		double lineSpacing = lineSpacing();
 		
 		clearCanvas();
@@ -1189,7 +1187,6 @@ public class CellGrid
 		int ix = from.index();
 		int cix = from.cellIndex();
 		WrapInfo wi = getWrapInfo(ix);
-		boolean wrap = editor.isWrapText();
 		
 		// initial row and column
 		int row = wi.getRowAtCellIndex(cix);
@@ -1295,7 +1292,15 @@ public class CellGrid
 					{
 						if(ct + row < h)
 						{
+//							if((col == 0) && !from.isLeading())
+//							{
+//								return TextPos.of(from.index(), from.cellIndex());
+//							}
 							cix = wi.getCellIndexAtRow(row + ct) + col;
+							if(!from.isLeading())
+							{
+								return new TextPos(ix, cix, false);
+							}
 							return wi.clamp(cix);
 						}
 						
@@ -1453,7 +1458,6 @@ public class CellGrid
 	
 	public void scrollToVisible(TextPos pos)
 	{
-		boolean wrap = editor.isWrapText();
 		RelativePosition rel = arrangement().getRelativePosition(pos);
 		log.debug(rel);
 
@@ -1496,9 +1500,10 @@ public class CellGrid
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = moveVertically(TextPos.of(origin.index(), origin.cellIndex()), 1, false);
-				ix = p.index();
+				TextPos p = moveVertically(pos, 1 - viewRows, false);
 				cix = p.cellIndex();
+				cix = (cix / wrapLimit) * wrapLimit;
+				ix = p.index();
 				setOrigin(ix, cix, contentPaddingLeft, 0.0); 
 			}
 			else
