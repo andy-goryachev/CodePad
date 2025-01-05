@@ -327,6 +327,7 @@ public class Arrangement
 				return RelativePosition.ABOVE;
 			}
 	
+			last = Math.min(last, rows.size() - 1);
 			wi = rows.get(last);
 			cix = offsets.get(last);
 			if(p.compareTo(wi.getIndex(), cix + viewCols) >= 0)
