@@ -310,35 +310,20 @@ public final class FX
 	@Deprecated // use CssStyle.set()
 	public static void style(Styleable n, CssStyle style)
 	{
-		n.getStyleClass().add(style.getName());
+		if(style != null)
+		{
+			style.set(n);
+		}
 	}
 	
 	
 	/** adds or removes the specified style, depending on the condition */
 	@Deprecated // use CssStyle.set()
-	public static void style(Styleable n, boolean condition, CssStyle st)
+	public static void style(Styleable n, boolean condition, CssStyle style)
 	{
-		if(n == null)
+		if(style != null)
 		{
-			return;
-		}
-		else if(st == null)
-		{
-			return;
-		}
-		
-		String name = st.getName();
-		ObservableList<String> ss = n.getStyleClass();
-		if(condition)
-		{
-			if(!ss.contains(name))
-			{
-				ss.add(st.getName());
-			}
-		}
-		else
-		{
-			ss.remove(name);
+			style.set(n, condition);
 		}
 	}
 	
