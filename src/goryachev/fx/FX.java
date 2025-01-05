@@ -307,6 +307,7 @@ public final class FX
 	
 	
 	/** adds a style to a Styleable */
+	@Deprecated // use CssStyle.set()
 	public static void style(Styleable n, CssStyle style)
 	{
 		n.getStyleClass().add(style.getName());
@@ -314,6 +315,7 @@ public final class FX
 	
 	
 	/** adds or removes the specified style, depending on the condition */
+	@Deprecated // use CssStyle.set()
 	public static void style(Styleable n, boolean condition, CssStyle st)
 	{
 		if(n == null)
@@ -1302,19 +1304,19 @@ public final class FX
 
 	public static void disableAlternativeRowColor(FxTable<?> table)
 	{
-		FX.style(table.table, CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR);
+		CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR.set(table.table);
 	}
 	
 	
 	public static void disableAlternativeRowColor(TableView<?> table)
 	{
-		FX.style(table, CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR);
+		CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR.set(table);
 	}
 	
 	
 	public static void disableAlternativeRowColor(ListView<?> v)
 	{
-		FX.style(v, CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR);
+		CommonStyles.DISABLE_ALTERNATIVE_ROW_COLOR.set(v);
 	}
 
 

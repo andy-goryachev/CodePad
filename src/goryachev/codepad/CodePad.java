@@ -131,7 +131,7 @@ public class CodePad
 	public CodePad(CodeModel model)
 	{
 		this.inputMap = new InputMap(this);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 		setModel(model);
 	}
 

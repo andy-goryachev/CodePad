@@ -30,7 +30,7 @@ public class FxDialog<T>
 		super(name);
 		
 		initModality(Modality.APPLICATION_MODAL);
-		FX.style(getContentPane(), PANE);
+		PANE.set(getContentPane());
 		
 		pane = new BorderPane();
 		setCenter(pane);

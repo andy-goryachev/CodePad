@@ -61,7 +61,7 @@ public class CPane
 	/** sets standard padding and gaps */
 	public void setDefaultStyle()
 	{
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	

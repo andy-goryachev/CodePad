@@ -46,7 +46,7 @@ public class FlatToggleButton
 	
 	private void init()
 	{
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	

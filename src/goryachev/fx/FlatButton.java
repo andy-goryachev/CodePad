@@ -15,41 +15,41 @@ public class FlatButton
 	public FlatButton(String text, FxAction a)
 	{
 		super(text, a);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	
 	public FlatButton(String text, Runnable action)
 	{
 		super(text, action);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	
 	public FlatButton(String text)
 	{
 		super(text);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	
 	public FlatButton(Node icon)
 	{
 		super(icon);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	
 	public FlatButton(Node icon, FxAction a)
 	{
 		super(icon, a);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	
 	public FlatButton(Node icon, Runnable action)
 	{
 		super(icon, action);
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 }

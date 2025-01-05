@@ -20,14 +20,14 @@ public class FxButton
 	{
 		super(text);
 		a.attach(this);
-		FX.style(this, style);
+		style.set(this);
 	}
 	
 	
 	public FxButton(String text, CssStyle style)
 	{
 		super(text);
-		FX.style(this, style);
+		style.set(this);
 	}
 	
 	

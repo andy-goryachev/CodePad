@@ -19,7 +19,7 @@ public class FxToolBar
 	
 	public FxToolBar()
 	{
-		FX.style(this, STYLE);
+		STYLE.set(this);
 	}
 	
 	

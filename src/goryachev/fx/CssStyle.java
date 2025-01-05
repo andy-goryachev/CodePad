@@ -1,12 +1,12 @@
 // Copyright © 2016-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import javafx.scene.Node;
+import goryachev.fx.internal.CssLoader;
+import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 
 
 /**
- * CSS Style.
+ * CSS Style Identifier.
  * 
  * Usage example:
  * <pre>
@@ -17,66 +17,85 @@ import javafx.scene.Node;
  *     EXAMPLE.set(pane);
  * }
  * <pre>
+ * 
+ * @see FxStyleSheet
  */
 public class CssStyle
 {
-	private Object name;
+	private final String name;
+	private static int seq;
 	
 	
 	public CssStyle()
 	{
-		name = new Throwable().getStackTrace()[1];
+		name = generateName(new Throwable().getStackTrace()[1]);
 	}
 	
 	
 	public String getName()
 	{
-		if(name instanceof StackTraceElement s)
-		{
-			name = resolveName(s);
-		}
-		return name.toString();
+		return name;
 	}
 	
 	
 	@Override
 	public String toString()
 	{
-		return getName();
+		return name;
 	}
 	
 	
-	public void set(Node n)
+	/**
+	 * Adds the CssStyle to the Styleable.
+	 */
+	public void set(Styleable n)
 	{
-		n.getStyleClass().add(getName());
-	}
-	
-	
-	private String resolveName(StackTraceElement st)
-	{
-		String className = st.getClassName();
-		try
+		ObservableList<String> ss = n.getStyleClass();
+		if(!ss.contains(name))
 		{
-			Class c = Class.forName(className);
-			className = className.replace('.', '_');
-
-			Field[] fs = c.getDeclaredFields();
-			for(Field f: fs)
+			n.getStyleClass().add(getName());
+		}
+	}
+	
+	
+	/**
+	 * Adds or removes the CssStyle based on the condition.
+	 */
+	public void set(Styleable n, boolean condition)
+	{
+		if(n == null)
+		{
+			return;
+		}
+		
+		String name = getName();
+		ObservableList<String> ss = n.getStyleClass();
+		if(condition)
+		{
+			if(!ss.contains(name))
 			{
-				int m = f.getModifiers();
-				if(Modifier.isStatic(m) && Modifier.isFinal(m))
-				{
-					Object v = f.get(null);
-					if(v == this)
-					{
-						return className + '_' + f.getName();
-					}
-				}
+				ss.add(name);
 			}
 		}
-		catch(Exception e)
-		{ }
-
-		return className + "_L" + st.getLineNumber();
+		else
+		{
+			ss.remove(name);
+		}
+	}
+	
+	
+	private static String generateName(StackTraceElement s)
+	{
+		if(CssLoader.DUMP)
+		{
+			return s.getClassName().replace('.', '_') + "_L" + s.getLineNumber();
+		}
+		else
+		{
+			synchronized(CssStyle.class)
+			{
+				return "S" + (seq++);
+			}
+		}
 	}
 }

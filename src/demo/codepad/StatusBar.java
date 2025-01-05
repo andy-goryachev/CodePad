@@ -29,7 +29,7 @@ public class StatusBar
 	
 	public StatusBar()
 	{
-		FX.style(this, PANE);
+		PANE.set(this);
 		
 		leading = FX.label(LABEL_LEADING);
 		

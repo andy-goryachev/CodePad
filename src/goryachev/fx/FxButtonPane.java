@@ -20,7 +20,7 @@ public class FxButtonPane
 	public FxButtonPane()
 	{
 		super(5);
-		FX.style(this, PANE);
+		PANE.set(this);
 	}
 	
 	

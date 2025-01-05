@@ -25,7 +25,7 @@ public class StyledTextFlow
 	public void append(CssStyle style, CharSequence text)
 	{
 		Text t = new Text(text.toString());
-		FX.style(t, style);
+		style.set(t);
 		getChildren().add(t);
 	}
 }

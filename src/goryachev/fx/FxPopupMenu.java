@@ -21,7 +21,7 @@ public class FxPopupMenu
 		setAutoHide(true);
 		setAutoFix(true);
 		
-		FX.style(this, MENU);
+		MENU.set(this);
 	}
 	
 	
