@@ -223,7 +223,7 @@ public class CellGrid
 			if((wrapLimit > 0) && (col >= wrapLimit))
 			{
 				// trailing at the end of a wrapped row
-				return new TextPos(ix, cix, false);
+				return TextPos.trailing(ix, cix);
 			}
 		}
 		return TextPos.of(ix, cix);
@@ -1187,190 +1187,201 @@ public class CellGrid
 	
 	public TextPos moveVertically(TextPos from, int delta, boolean usePhantomX)
 	{
+		if(wrap)
+		{
+			return moveVerticallyWrapped(from, delta, usePhantomX);
+		}
+		else
+		{
+			return moveVerticallyNonWrapped(from, delta, usePhantomX);
+		}
+	}
+		
+	
+	private TextPos moveVerticallyNonWrapped(TextPos from, int delta, boolean usePhantomX)
+	{
 		int ix = from.index();
 		int cix = from.cellIndex();
 		WrapInfo wi = getWrapInfo(ix);
 		
-		// initial row and column
+		if(usePhantomX)
+		{
+			if(phantomx < 0)
+			{
+				phantomx = cix;
+			}
+			else
+			{
+				cix = phantomx;
+			}
+		}
+
+		ix += delta;
+		if(ix < 0)
+		{
+			return TextPos.ZERO;
+		}
+		else
+		{
+			int sz = editor.getParagraphCount();
+			if(ix < sz)
+			{
+				wi = getWrapInfo(ix);
+				return wi.clamp(cix);
+			}
+			else
+			{
+				return editor.getDocumentEnd();
+			}
+		}
+	}
+
+	
+	private TextPos moveVerticallyWrapped(TextPos from, int delta, boolean usePhantomX)
+	{
+		int ix = from.index();
+		int cix = from.cellIndex();
+		WrapInfo wi = getWrapInfo(ix);
 		int row = wi.getRowAtCellIndex(cix);
 
-		if(wrap)
+		int col;
+		if(usePhantomX)
 		{
-			int col;
-			if(usePhantomX)
-			{
-				if(phantomx < 0)
-				{
-					col = cix % viewCols;
-					phantomx = col;
-				}
-				else
-				{
-					col = phantomx;
-				}
-			}
-			else
+			if(phantomx < 0)
 			{
 				col = cix % viewCols;
-			}
-			
-			if(delta < 0)
-			{
-				// going up
-				int ct = -delta;
-				for(;;)
-				{
-					if(ix < 0)
-					{
-						return TextPos.ZERO;
-					}
-					
-					if(wi == null)
-					{
-						wi = getWrapInfo(ix);
-					}
-					
-					if(row >= 0)
-					{
-						if(ct <= row)
-						{
-							cix = wi.getCellIndexAtRow(row - ct) + col;
-							TextPos p = wi.clamp(cix);
-							if(from.isLeading())
-							{
-								return p;
-							}
-							else if(col == 0)
-							{
-								if(p.cellIndex() > 0)
-								{
-									return new TextPos(p.index(), p.cellIndex(), false);
-								}
-								ct++; // FIX wrong!
-							}
-							else
-							{
-								// one more step FIX wrong!
-								ct++;
-							}
-						}
-						ct -= (row + 1);
-						row = -1;
-					}
-					else
-					{
-						int h = wi.getRowCount();
-						if(ct < h)
-						{
-							cix = wi.getCellIndexAtRow(h - 1 - ct) + col;
-							return wi.clamp(cix);
-						}
-						ct -= h;
-					}
-					
-					ix--;
-					wi = null;
-				}
+				phantomx = col;
 			}
 			else
 			{
-				// going down
-				int max = editor.getParagraphCount();
-				int ct = delta;
-				for(;;)
-				{
-					if(ix >= max)
-					{
-						return editor.getDocumentEnd();
-					}
-					
-					if(wi == null)
-					{
-						wi = getWrapInfo(ix);
-					}
-
-					int h = wi.getRowCount();
-
-					if(row >= 0)
-					{
-						// TODO !leading case
-//						if((col == 0) && !from.isLeading())
-//						{
-//							return TextPos.of(from.index(), from.cellIndex());
-//						}
-						
-						if(ct + row <= h)
-						{
-//							if((col == 0) && !from.isLeading())
-//							{
-//								return TextPos.of(from.index(), from.cellIndex());
-//							}
-							cix = wi.getCellIndexAtRow(row + ct) + col;
-							if(!from.isLeading())
-							{
-								return new TextPos(ix, cix, false);
-							}
-							return wi.clamp(cix);
-						}
-						
-						ct -= (h - row);
-						row = -1;
-					}
-					else
-					{
-						if(ct < h)
-						{
-							cix = wi.getCellIndexAtRow(ct) + col;
-							return wi.clamp(cix);
-						}
-						ct -= h;
-					}
-
-					wi = null;
-					ix++;
-				}
+				col = phantomx;
 			}
 		}
 		else
 		{
-			// no wrap
-			if(usePhantomX)
+			col = cix % viewCols;
+		}
+		
+		if(delta < 0)
+		{
+			// going up
+			int ct = -delta;
+			for(;;)
 			{
-				if(phantomx < 0)
+				if(ix < 0)
 				{
-					phantomx = cix;
+					return TextPos.ZERO;
 				}
-				else
-				{
-					cix = phantomx;
-				}
-			}
-
-			ix += delta;
-			if(ix < 0)
-			{
-				return TextPos.ZERO;
-			}
-			else
-			{
-				int sz = editor.getParagraphCount();
-				if(ix < sz)
+				
+				if(wi == null)
 				{
 					wi = getWrapInfo(ix);
-					if(cix > wi.getCellCount())
+				}
+				
+				if(row >= 0)
+				{
+					if(ct <= row)
 					{
-						cix = wi.getCellCount();
+						cix = wi.getCellIndexAtRow(row - ct) + col;
+						TextPos p = wi.clamp(cix);
+						if(from.isLeading())
+						{
+							return p;
+						}
+						else if(col == 0)
+						{
+							if(p.cellIndex() > 0)
+							{
+								return TextPos.trailing(p.index(), p.cellIndex());
+							}
+							ct++; // FIX wrong!
+						}
+						else
+						{
+							// one more step FIX wrong!
+							ct++;
+						}
 					}
-					return TextPos.of(ix, cix);
+					ct -= (row + 1);
+					row = -1;
 				}
 				else
+				{
+					int h = wi.getRowCount();
+					if(ct < h)
+					{
+						cix = wi.getCellIndexAtRow(h - 1 - ct) + col;
+						return wi.clamp(cix);
+					}
+					ct -= h;
+				}
+				
+				ix--;
+				wi = null;
+			}
+		}
+		else
+		{
+			// going down
+			int max = editor.getParagraphCount();
+			int ct = delta;
+			for(;;)
+			{
+				if(ix >= max)
 				{
 					return editor.getDocumentEnd();
 				}
+				
+				if(wi == null)
+				{
+					wi = getWrapInfo(ix);
+				}
+
+				int h = wi.getRowCount();
+
+				if(row >= 0)
+				{
+					// TODO !leading case
+//						if((col == 0) && !from.isLeading())
+//						{
+//							return TextPos.of(from.index(), from.cellIndex());
+//						}
+					
+					if(ct + row <= h)
+					{
+//							if((col == 0) && !from.isLeading())
+//							{
+//								return TextPos.of(from.index(), from.cellIndex());
+//							}
+						cix = wi.getCellIndexAtRow(row + ct) + col;
+						if(!from.isLeading())
+						{
+							// FIX unless it's on the same line
+							// this needs a different logic!
+							return TextPos.trailing(ix, cix);
+						}
+						return wi.clamp(cix);
+					}
+					
+					ct -= (h - row);
+					row = -1;
+				}
+				else
+				{
+					if(ct < h)
+					{
+						cix = wi.getCellIndexAtRow(ct) + col;
+						return wi.clamp(cix);
+					}
+					ct -= h;
+				}
+
+				wi = null;
+				ix++;
 			}
 		}
 	}
-	
+
 	
 	public TextPos moveHorizontally(TextPos from, int delta)
 	{
@@ -1390,7 +1401,7 @@ public class CellGrid
 						int col = cix % wrapLimit;
 						if(col == (wrapLimit - 1))
 						{
-							return new TextPos(ix, cix + 1, false);
+							return TextPos.trailing(ix, cix + 1);
 						}
 					}
 				}
@@ -1425,8 +1436,7 @@ public class CellGrid
 						int col = cix % wrapLimit;
 						if(col == 0)
 						{
-							// create a tailing pos
-							return new TextPos(ix, cix, false);
+							return TextPos.trailing(ix, cix);
 						}
 					}
 					else
@@ -1596,7 +1606,7 @@ public class CellGrid
 			int cix = indexes[1];
 			if((wrapLimit > 0) && (col == viewCols))
 			{
-				return new TextPos(ix, cix, false);
+				return TextPos.trailing(ix, cix);
 			}
 			return TextPos.of(ix, cix);
 		}

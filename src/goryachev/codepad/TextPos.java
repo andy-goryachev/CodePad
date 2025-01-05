@@ -21,7 +21,7 @@ public final class TextPos
 	private final boolean leading;
 
 
-	public TextPos(int index, int cellIndex, boolean leading)
+	private TextPos(int index, int cellIndex, boolean leading)
 	{
 		this.index = index;
 		this.cix = cellIndex;
@@ -29,9 +29,21 @@ public final class TextPos
 	}
 	
 	
+	/**
+	 * Creates the TextPos at the specified index and cell index and a leading bias.
+	 */
 	public static TextPos of(int index, int cellIndex)
 	{
 		return new TextPos(index, cellIndex, true);
+	}
+	
+	
+	/**
+	 * Creates the TextPos at the specified index and cell index and a trailing bias.
+	 */
+	public static TextPos trailing(int index, int cellIndex)
+	{
+		return new TextPos(index, cellIndex, false);
 	}
 
 

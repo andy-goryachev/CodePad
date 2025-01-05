@@ -288,7 +288,7 @@ public class CodePadBehavior
 			else
 			{
 				CodeParagraph par = control().getParagraph(ca.index());
-				return new TextPos(ca.index(), par.getCellCount(), false);
+				return TextPos.trailing(ca.index(), par.getCellCount());
 			}
 		}
 		return null;		

@@ -56,7 +56,7 @@ public class Options
 			Button b2 = new Button("Select Lines");
 			b2.setOnAction((ev) ->
 			{
-				ed.select(TextPos.ZERO, new TextPos(2, 1, false));
+				ed.select(TextPos.ZERO, TextPos.trailing(2, 1));
 			});
 			op.option(new HBox(2, b1, b2));
 		}
