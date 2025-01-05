@@ -973,19 +973,19 @@ public class CellGrid
 			return null;
 		}
 
-		TextPos s0 = sel.getMin();
-		if(s0 == null)
+		TextPos min = sel.getMin();
+		if(min == null)
 		{
 			return null;
 		}
 		
-		TextPos s1 = sel.getMax();
-		if(s1 == null)
+		TextPos max = sel.getMax();
+		if(max == null)
 		{
 			return null;
 		}
 		
-		if(s0.equals(s1))
+		if(min.equals(max))
 		{
 			return null;
 		}
@@ -995,20 +995,20 @@ public class CellGrid
 		TextPos p0 = TextPos.of(ix, cellIndex);
 		TextPos p1 = TextPos.of(ix, cellIndex + viewCols);
 		
-		if(s1.compareTo(p0) <= 0)
+		if(max.compareTo(p0) <= 0)
 		{
 			return null;
 		}
-		else if(s0.compareTo(p1) >= 0)
+		else if(min.compareTo(p1) >= 0)
 		{
 			return null;
 		}
 		
-		boolean leftEdge = (s0.compareTo(p0) < 0);
-		double x0 = leftEdge ? 0.0 : x + (s0.cellIndex() - cellIndex) * cellWidth;
+		boolean leftEdge = (min.compareTo(p0) < 0);
+		double x0 = leftEdge ? 0.0 : x + (min.cellIndex() - cellIndex) * cellWidth;
 		
-		boolean rightEdge = (s1.compareTo(p1) >= 0);
-		double x1 = rightEdge ? canvas.getWidth() : x + (s1.cellIndex() - cellIndex) * cellWidth;
+		boolean rightEdge = (max.compareTo(p1) >= 0) && (!(min.paintCellIndex() == max.paintCellIndex()));
+		double x1 = rightEdge ? canvas.getWidth() : x + (max.cellIndex() - cellIndex) * cellWidth;
 		
 		return new Rectangle2D(x0, y, x1 - x0, height);
 	}
