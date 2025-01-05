@@ -14,7 +14,7 @@ import javafx.scene.layout.Priority;
 public class FxToolBar
 	extends ToolBar
 {
-	public static final CssStyle STYLE = new CssStyle("FxToolBar_STYLE");
+	public static final CssStyle STYLE = new CssStyle();
 	
 	
 	public FxToolBar()

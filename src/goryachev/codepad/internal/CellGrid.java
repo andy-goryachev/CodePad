@@ -1347,19 +1347,24 @@ public class CellGrid
 //							return TextPos.of(from.index(), from.cellIndex());
 //						}
 					
-					if(ct + row <= h)
+					if((ct + row) < h)
 					{
 //							if((col == 0) && !from.isLeading())
 //							{
 //								return TextPos.of(from.index(), from.cellIndex());
 //							}
 						cix = wi.getCellIndexAtRow(row + ct) + col;
-						if(!from.isLeading())
+						if(from.isTrailing())
 						{
 							// FIX unless it's on the same line
 							// this needs a different logic!
 							return TextPos.trailing(ix, cix);
 						}
+						return wi.clamp(cix);
+					}
+					else if((col == 0) && from.isTrailing() && (ct + row == h)) // FIX unless at the end already!
+					{
+						cix = wi.getCellIndexAtRow(row + ct) + col;
 						return wi.clamp(cix);
 					}
 					

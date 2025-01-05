@@ -13,7 +13,7 @@ import javafx.scene.control.ToggleButton;
 public class FlatToggleButton
 	extends ToggleButton
 {
-	public static final CssStyle STYLE = new CssStyle("FlatToggleButton_STYLE");
+	public static final CssStyle STYLE = new CssStyle();
 	private static final Object ICONS = new Object();
 	
 	

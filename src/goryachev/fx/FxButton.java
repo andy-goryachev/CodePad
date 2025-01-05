@@ -11,9 +11,9 @@ public class FxButton
 	extends Button
 {
 	/** style for a button that performs some kind of affirmative action, such as OK, Continue, Yes and so on */
-	public static final CssStyle AFFIRM = new CssStyle("FxButton_AFFIRM");
+	public static final CssStyle AFFIRM = new CssStyle();
 	/** style for a button that performs some kind of destructive action, such as No, Reject, Abort, and so on */
-	public static final CssStyle DESTRUCT = new CssStyle("FxButton_DESTRUCT");
+	public static final CssStyle DESTRUCT = new CssStyle();
 	
 	
 	public FxButton(String text, CssStyle style, FxAction a)

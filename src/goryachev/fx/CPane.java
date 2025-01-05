@@ -29,7 +29,7 @@ public class CPane
 	extends Pane
 {
 	private static final Log log = Log.get("CPane");
-	public static final CssStyle STYLE = new CssStyle("CPane_PANE");
+	public static final CssStyle STYLE = new CssStyle();
 	public static final double FILL = -1.0;
 	public static final double PREF = -2.0;
 	

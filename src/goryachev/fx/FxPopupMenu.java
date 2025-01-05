@@ -12,7 +12,7 @@ import javafx.scene.control.SeparatorMenuItem;
 public class FxPopupMenu
 	extends ContextMenu
 {
-	public static final CssStyle MENU = new CssStyle("FxPopupMenu");
+	public static final CssStyle MENU = new CssStyle();
 	
 	
 	public FxPopupMenu()

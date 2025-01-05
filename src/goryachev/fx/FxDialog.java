@@ -20,7 +20,7 @@ import javafx.stage.Window;
 public class FxDialog<T>
 	extends FxWindow
 {
-	public static final CssStyle PANE = new CssStyle("FxDialog_PANE");
+	public static final CssStyle PANE = new CssStyle();
 	private final BorderPane pane;
 	private T result;
 	

@@ -1,5 +1,6 @@
 // Copyright © 2016-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.fx;
+import goryachev.common.util.CKit;
 import goryachev.common.util.FH;
 import goryachev.fx.internal.CssLoader;
 import javafx.scene.Node;
@@ -20,77 +21,29 @@ import javafx.scene.Node;
  */
 public class CssStyle
 {
-	private String name;
-	private static long seq;
-
-
-	/** TODO remove */
-	@Deprecated
-	public CssStyle(String name)
-	{
-		this.name = generateName(name);
-	}
+	private Object name;
 	
 	
 	public CssStyle()
 	{
-		this.name = generateName(null);
-	}
-	
-	
-	private static synchronized String generateName(String name)
-	{
-		if(CssLoader.DUMP)
-		{
-			// TODO Or better yet, match to the static field name
-			StackTraceElement s = new Throwable().getStackTrace()[2];
-			String c = s.getClassName().replace('.', '_');
-			return c + "-L" + s.getLineNumber() + (name == null ? "" : "-" + name);
-		}
-		else
-		{
-			return "S" + (seq++); 
-		}
-	}
-	
-	
-	@Override
-	public boolean equals(Object x)
-	{
-		if(x == this)
-		{
-			return true;
-		}
-		else if(x instanceof CssStyle s)
-		{
-			return getName().equals(s.getName());
-		}
-		else
-		{
-			return false;
-		}
-	}
-	
-	
-	@Override
-	public int hashCode()
-	{
-		int h = FH.hash(CssStyle.class);
-		h = FH.hash(h, getName());
-		return h;
+		name = new Throwable().getStackTrace()[1];
 	}
 	
 	
 	public String getName()
 	{
-		return name;
+		if(name instanceof StackTraceElement s)
+		{
+			name = CKit.resolveStaticFinalFieldName(this, s, "_");
+		}
+		return name.toString();
 	}
 	
 	
 	@Override
 	public String toString()
 	{
-		return name;
+		return getName();
 	}
 	
 	

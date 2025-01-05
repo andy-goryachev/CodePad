@@ -18,7 +18,7 @@ import javafx.scene.layout.BorderPane;
 public class TesterWindow
 	extends FxWindow
 {
-	public static final CssStyle PANE = new CssStyle("TesterWindow_PANE");
+	public static final CssStyle PANE = new CssStyle();
 
 	public final StatusBar statusBar;
 	private final BorderPane pane;

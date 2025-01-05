@@ -19,9 +19,9 @@ import javafx.scene.control.Label;
 public class StatusBar
 	extends HPane
 {
-	public static final CssStyle PANE = new CssStyle("StatusBar_PANE");
-	public static final CssStyle LABEL_LEADING = new CssStyle("StatusBar_LABEL");
-	public static final CssStyle LABEL_TRAILING = new CssStyle("StatusBar_LABEL");
+	public static final CssStyle PANE = new CssStyle();
+	public static final CssStyle LABEL_LEADING = new CssStyle();
+	public static final CssStyle LABEL_TRAILING = new CssStyle();
 
 	private final Label leading;
 	private final Label trailing;

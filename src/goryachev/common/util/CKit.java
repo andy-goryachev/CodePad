@@ -2572,4 +2572,55 @@ public final class CKit
 		long t = System.nanoTime() - startNanoseconds;
 		return (t / NANOSECONDS_IN_A_SECOND);
 	}
+	
+
+	/**
+	 * Resolves the name of a static final field declared in the {@code owner} object
+	 * using the supplied stack trace, returning
+	 * {@code className + delimiter + fieldName} String.
+	 * Returns {@code className + delimiter + st.getLineNumber()} when the use of reflection fails.
+	 * <p>
+	 * Usage Example:
+	 * <pre>
+	 *  // constructor
+	 *  public MyClass()
+	 *  {
+	 *     name = new Throwable().getStackTrace()[1];
+	 *  }
+	 *
+	 *  public String getName()
+	 *  {
+	 *      if(name instanceof StackTraceElement s)
+	 *      {
+	 *          name = CKit.resolveStaticFinalFieldName(this, s, "_");
+	 *      }
+	 *      return name.toString();
+	 *  }
+	 *  </pre>
+	 */
+	public static String resolveStaticFinalFieldName(Object field, StackTraceElement st, String delimiter)
+	{
+		String className = st.getClassName();
+		try
+		{
+			Class c = Class.forName(className);
+			Field[] fs = c.getDeclaredFields();
+			for(Field f: fs)
+			{
+				int m = f.getModifiers();
+				if(Modifier.isStatic(m) && Modifier.isFinal(m))
+				{
+					Object v = f.get(null);
+					if(v == field)
+					{
+						return className + delimiter + f.getName();
+					}
+				}
+			}
+		}
+		catch(Exception e)
+		{ }
+		
+		return className + delimiter + st.getLineNumber(); 
+	}
 }

@@ -13,7 +13,7 @@ package goryachev.fx;
 public class FxButtonPane
 	extends HPane
 {
-	public static final CssStyle PANE = new CssStyle("FxButtonPane_PANE");
+	public static final CssStyle PANE = new CssStyle();
 	private static final int MIN_WIDTH = 70;
 
 	

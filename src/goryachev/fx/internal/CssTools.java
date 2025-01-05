@@ -20,7 +20,7 @@ import javafx.scene.text.FontSmoothingType;
 public class CssTools
 {
 	/** bold type face */
-	public static final CssStyle BOLD = new CssStyle("CommonStyles_BOLD");
+	public static final CssStyle BOLD = new CssStyle();
 
 	private static DecimalFormat decimalFormat;
 	

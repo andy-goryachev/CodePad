@@ -9,7 +9,7 @@ import javafx.scene.Node;
 public class FlatButton
 	extends FxButton
 {
-	public static final CssStyle STYLE = new CssStyle("FlatButton_STYLE");
+	public static final CssStyle STYLE = new CssStyle();
 	
 	
 	public FlatButton(String text, FxAction a)

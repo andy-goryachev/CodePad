@@ -71,6 +71,12 @@ public final class TextPos
 	}
 	
 	
+	public boolean isTrailing()
+	{
+		return !leading;
+	}
+	
+	
 	/**
 	 * The index of the cell where caret is painted.
 	 * In the insert mode, the caret is drawn as a line at the left edge of the cell (leading=true)
