@@ -117,7 +117,7 @@ public final class TextPos
 		}
 		else if(x instanceof TextPos p)
 		{
-			return (index == p.index) && (cix == p.cix);
+			return (index == p.index) && (cix == p.cix) && (leading == p.leading);
 		}
 		return false;
 	}
