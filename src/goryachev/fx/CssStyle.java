@@ -59,7 +59,7 @@ public class CssStyle
 		{
 			Class c = Class.forName(className);
 			className = className.replace('.', '_');
-			
+
 			Field[] fs = c.getDeclaredFields();
 			for(Field f: fs)
 			{
@@ -76,7 +76,7 @@ public class CssStyle
 		}
 		catch(Exception e)
 		{ }
-		
-		return className + '_' + st.getLineNumber(); 
+
+		return className + "_L" + st.getLineNumber();
 	}
 }
