@@ -1394,7 +1394,7 @@ public class CellGrid
 			if(cix >= 0)
 			{
 				// check if needs to apply special logic around the soft wrapping break
-				if(wrapLimit > 0)
+				if(wrap)
 				{
 					if(from.isLeading())
 					{
@@ -1417,7 +1417,7 @@ public class CellGrid
 				{
 					--ix;
 					WrapInfo wi = getWrapInfo(ix);
-					return TextPos.of(ix, wi.getCellCount());
+					return wi.clamp(wi.getCellCount());
 				}
 			}
 		}
