@@ -82,7 +82,7 @@ public abstract class WrapInfo
 		else
 		{
 			int len = getCellCount();
-			if(cix >= len)
+			if((len != 0) && (cix >= len))
 			{
 				return TextPos.trailing(getIndex(), len);
 			}
