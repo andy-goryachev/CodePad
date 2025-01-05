@@ -1604,7 +1604,7 @@ public class CellGrid
 		{
 			int ix = indexes[0];
 			int cix = indexes[1];
-			if((wrapLimit > 0) && (col == viewCols))
+			if((wrapLimit > 0) && (col == viewCols) && (cix != 0))
 			{
 				return TextPos.trailing(ix, cix);
 			}

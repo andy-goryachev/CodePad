@@ -105,6 +105,10 @@ public abstract class CodeModel
 	public TextPos getEndOfParagraph(int ix)
 	{
 		int cix = getParagraphLength(ix);
+		if(cix == 0)
+		{
+			return TextPos.of(ix, cix);
+		}
 		return TextPos.trailing(ix, cix);
 	}
 }
