@@ -29,6 +29,7 @@ public abstract class WrapInfo
 	
 	public abstract int getCellIndexAtRow(int row);
 
+	/** assumes leading bias */
 	public abstract int getRowAtCellIndex(int cix);
 	
 	//

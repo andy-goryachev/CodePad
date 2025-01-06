@@ -673,7 +673,7 @@ public class CodePadBehavior
 		TextPos caret = control().getCaretPosition();
 		if(caret != null)
 		{
-			TextPos p = grid.moveHorizontally(caret, delta);
+			TextPos p = grid.goHorizontally(caret, delta);
 			control().moveCaret(p, select, true);
 		}
 	}
@@ -684,7 +684,7 @@ public class CodePadBehavior
 		TextPos caret = control().getCaretPosition();
 		if(caret != null)
 		{
-			TextPos p = grid.moveVertically(caret, delta, true);
+			TextPos p = grid.goVertically(caret, delta, true);
 			control().moveCaret(p, select, false);
 		}
 	}

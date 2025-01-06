@@ -1185,20 +1185,20 @@ public class CellGrid
 	}
 	
 	
-	public TextPos moveVertically(TextPos from, int delta, boolean usePhantomX)
+	public TextPos goVertically(TextPos from, int delta, boolean usePhantomX)
 	{
 		if(wrap)
 		{
-			return moveVerticallyWrapped(from, delta, usePhantomX);
+			return goVerticallyWrapped(from, delta, usePhantomX);
 		}
 		else
 		{
-			return moveVerticallyNonWrapped(from, delta, usePhantomX);
+			return goVerticallyNonWrapped(from, delta, usePhantomX);
 		}
 	}
 		
 	
-	private TextPos moveVerticallyNonWrapped(TextPos from, int delta, boolean usePhantomX)
+	private TextPos goVerticallyNonWrapped(TextPos from, int delta, boolean usePhantomX)
 	{
 		int ix = from.index();
 		int cix = from.cellIndex();
@@ -1235,21 +1235,20 @@ public class CellGrid
 			}
 		}
 	}
-
 	
-	private TextPos moveVerticallyWrapped(TextPos from, int delta, boolean usePhantomX)
+	
+	private TextPos goVerticallyWrapped(TextPos from, int delta, boolean usePhantomX)
 	{
 		int ix = from.index();
 		int cix = from.cellIndex();
 		WrapInfo wi = getWrapInfo(ix);
-		int row = wi.getRowAtCellIndex(cix);
 
 		int col;
 		if(usePhantomX)
 		{
 			if(phantomx < 0)
 			{
-				col = cix % viewCols;
+				col = cix - lineStartCellIndex(from);
 				phantomx = col;
 			}
 			else
@@ -1259,8 +1258,10 @@ public class CellGrid
 		}
 		else
 		{
-			col = cix % viewCols;
+			col = cix - lineStartCellIndex(from);
 		}
+		
+		int lineStart = lineStartCellIndex(from);
 		
 		if(delta < 0)
 		{
@@ -1278,46 +1279,34 @@ public class CellGrid
 					wi = getWrapInfo(ix);
 				}
 				
-				if(row >= 0)
+				if(lineStart < 0)
 				{
-					if(ct <= row)
+					lineStart = lineStartCellIndex(wi.clamp(wi.getCellCount()));
+				}
+				
+				int n = lineStart / wrapLimit;
+				if(ct <= n)
+				{
+					cix = lineStart - (ct * wrapLimit);
+					if(cix < 0)
 					{
-						cix = wi.getCellIndexAtRow(row - ct) + col;
-						TextPos p = wi.clamp(cix);
-						if(from.isLeading())
-						{
-							return p;
-						}
-						else if(col == 0)
-						{
-							if(p.cellIndex() > 0)
-							{
-								return TextPos.trailing(p.index(), p.cellIndex());
-							}
-							ct++; // FIX wrong!
-						}
-						else
-						{
-							// one more step FIX wrong!
-							ct++;
-						}
+						throw new Error("cix=" + cix); // safeguard, should not happen
 					}
-					ct -= (row + 1);
-					row = -1;
+
+					if(col >= wrapLimit)
+					{
+						return TextPos.trailing(ix, cix + wrapLimit);
+					}
+					cix += col;
+					return TextPos.of(ix, cix);
 				}
 				else
 				{
-					int h = wi.getRowCount();
-					if(ct < h)
-					{
-						cix = wi.getCellIndexAtRow(h - 1 - ct) + col;
-						return wi.clamp(cix);
-					}
-					ct -= h;
-				}
-				
-				ix--;
-				wi = null;
+					ct -= (n + 1);
+					ix--;
+					wi = null;
+					lineStart = -1;
+				}				
 			}
 		}
 		else
@@ -1338,57 +1327,31 @@ public class CellGrid
 				}
 
 				int h = wi.getRowCount();
-
-				if(row >= 0)
+				
+				int n = lineStart / wrapLimit;
+				if(ct + n < h)
 				{
-					// TODO !leading case
-//						if((col == 0) && !from.isLeading())
-//						{
-//							return TextPos.of(from.index(), from.cellIndex());
-//						}
-					
-					if((ct + row) < h)
+					if(col >= wrapLimit)
 					{
-//							if((col == 0) && !from.isLeading())
-//							{
-//								return TextPos.of(from.index(), from.cellIndex());
-//							}
-						cix = wi.getCellIndexAtRow(row + ct) + col;
-						if(from.isTrailing())
-						{
-							// FIX unless it's on the same line
-							// this needs a different logic!
-							return TextPos.trailing(ix, cix);
-						}
-						return wi.clamp(cix);
+						cix = lineStart + (ct * wrapLimit) + wrapLimit;
+						return TextPos.trailing(ix, cix);
 					}
-					else if((col == 0) && from.isTrailing() && (ct + row == h)) // FIX unless at the end already!
-					{
-						cix = wi.getCellIndexAtRow(row + ct) + col;
-						return wi.clamp(cix);
-					}
-					
-					ct -= (h - row);
-					row = -1;
+					cix = lineStart + (ct * wrapLimit) + col;
+					return wi.clamp(cix);
 				}
 				else
 				{
-					if(ct < h)
-					{
-						cix = wi.getCellIndexAtRow(ct) + col;
-						return wi.clamp(cix);
-					}
-					ct -= h;
+					ct -= (h - n);
+					ix++;
+					wi = null;
+					lineStart = 0;
 				}
-
-				wi = null;
-				ix++;
 			}
 		}
 	}
-
 	
-	public TextPos moveHorizontally(TextPos from, int delta)
+	
+	public TextPos goHorizontally(TextPos from, int delta)
 	{
 		int ix = from.index();
 		int cix = from.cellIndex() + delta;
@@ -1526,7 +1489,7 @@ public class CellGrid
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = moveVertically(pos, 1 - viewRows, false);
+				TextPos p = goVertically(pos, 1 - viewRows, false);
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
@@ -1616,5 +1579,21 @@ public class CellGrid
 			return TextPos.of(ix, cix);
 		}
 		return null;
+	}
+	
+	
+	private int lineStartCellIndex(TextPos p)
+	{
+		int cix = p.cellIndex();
+		int row;
+		if(p.isTrailing() && (cix > 0) && ((cix % wrapLimit) == 0))
+		{
+			row = (cix - 1) / wrapLimit;
+		}
+		else
+		{
+			row = cix / wrapLimit;
+		}
+		return row * wrapLimit;
 	}
 }
