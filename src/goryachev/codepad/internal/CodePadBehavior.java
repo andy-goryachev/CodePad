@@ -4,15 +4,19 @@ import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CodeParagraph;
+import goryachev.common.log.Log;
+import goryachev.common.util.CKit;
 import goryachev.common.util.D;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.EventType;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 
 /**
@@ -21,10 +25,12 @@ import javafx.scene.input.MouseEvent;
 public class CodePadBehavior
 	extends BehaviorBase<CodePad>
 {
+	private static final Log log = Log.get("CodePadBehavior");
 	private final CellGrid grid;
 	private boolean autoScrollUp;
 	private boolean fastAutoScroll;
 	private Timeline autoScrollTimer;
+	private boolean inTrackpadScroll;
 	
 	
 	public CodePadBehavior(CodePad c, CellGrid g)
@@ -179,6 +185,7 @@ public class CodePadBehavior
 		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
 		grid.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
 		grid.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+		grid.addEventFilter(ScrollEvent.ANY, this::handleScrollWheel);
 	}
 	
 	
@@ -266,8 +273,68 @@ public class CodePadBehavior
 		grid.suppressBlinking(false);
 		grid.clearPhantomX();
 	}
+
+
+	private void handleScrollWheel(ScrollEvent ev)
+	{
+		EventType<ScrollEvent> t = ev.getEventType();
+		log.debug(ev);
+		if(t == ScrollEvent.SCROLL_STARTED)
+		{
+			inTrackpadScroll = true;
+		}
+		else if(t == ScrollEvent.SCROLL_FINISHED)
+		{
+			inTrackpadScroll = false;
+		}
+		else
+		{
+			int step;
+			if(inTrackpadScroll)
+			{
+				step = Defaults.TRACK_PAD_STEP_AMOUNT;
+			}
+			else
+			{
+				// TODO shift-mouse-wheel swaps x,y, investigate
+				if(ev.isShiftDown())
+				{
+					if(ev.getDeltaY() == 0)
+					{
+						// TODO horizontal scroll
+						return;
+					}
+				}
+
+				if(ev.isShortcutDown())
+				{
+					// full page
+					step = Integer.MAX_VALUE;
+				}
+				else
+				{
+					step = getScrollStepSize();
+				}
+			}
+	
+			boolean up = (ev.getDeltaY() >= 0);
+			grid.verticalScroll(step, up);
+		}
+		ev.consume();
+	}
 	
 	
+	private int getScrollStepSize()
+	{
+		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.getViewPortRowCount());
+		if(step < 1)
+		{
+			return 1;
+		}
+		return step;
+	}
+
+
 	public TextPos getTextPositionFor(MouseEvent ev)
 	{
 		double x = ev.getScreenX();

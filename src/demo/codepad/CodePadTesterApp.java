@@ -24,6 +24,7 @@ public class CodePadTesterApp
 	public static void main(String[] args)
 	{
 		Log.initConsole(LogLevel.INFO);
+		Log.setLevel(LogLevel.DEBUG, "CodePadBehavior");
 		Log.setLevel(LogLevel.DEBUG, "CellGrid");
 		
 		launch(args);

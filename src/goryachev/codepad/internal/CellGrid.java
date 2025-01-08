@@ -8,7 +8,6 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
-import goryachev.common.util.D;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
 import goryachev.fx.TextCellMetrics;
@@ -154,11 +153,20 @@ public class CellGrid
 	private boolean setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
 		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
+		
+		// FIX
+		if(cellIndex < 0)
+		{
+			log.warn();
+			return false;
+		}
+		
 		Origin or = new Origin(index, cellIndex, xoffset, yoffset);
 		if(!origin.equals(or))
 		{
 			origin = or;
 			arrangement = null;
+			phantomx = -1;
 			return true;
 		}
 		return false;
@@ -357,6 +365,18 @@ public class CellGrid
 	{
 		// TODO +1 if unwrapped?
 		return viewRows;
+	}
+	
+	
+	public int getViewPortRowCount()
+	{
+		return viewRows;
+	}
+	
+	
+	public int getViewPortColumnCount()
+	{
+		return viewCols;
 	}
 	
 	
@@ -1010,7 +1030,13 @@ public class CellGrid
 		boolean rightEdge = (max.compareTo(p1) >= 0) && (!(min.paintCellIndex() == max.paintCellIndex()));
 		double x1 = rightEdge ? canvas.getWidth() : x + (max.cellIndex() - cellIndex) * cellWidth;
 		
-		return new Rectangle2D(x0, y, x1 - x0, height);
+		double w = x1 - x0;
+		if(w < 0.0)
+		{
+			// TODO find out why
+			return null;
+		}
+		return new Rectangle2D(x0, y, w, height);
 	}
 	
 	
@@ -1531,9 +1557,53 @@ public class CellGrid
 	}
 	
 	
-	public void blockScroll(double delta)
+	public void blockScroll(double deltaPixels)
 	{
-		// TODO
+		log.debug(deltaPixels);
+		TextCellMetrics tm = textCellMetrics();
+		int delta;
+		if(deltaPixels < 0.0)
+		{
+			delta = (int)Math.floor(deltaPixels / (tm.cellHeight + lineSpacing())) - 1;
+		}
+		else
+		{
+			delta = (int)Math.ceil(deltaPixels / (tm.cellHeight + lineSpacing())) + 1;
+		}
+		
+		shiftOrigin(delta);
+	}
+	
+	
+	public void verticalScroll(int deltaLines, boolean up)
+	{
+		log.trace("deltaLines=%d %s", deltaLines, up);
+
+		if(deltaLines < 1)
+		{
+			deltaLines = 1;
+		}
+		else if(deltaLines > viewRows)
+		{
+			deltaLines = viewCols;
+		}
+		
+		shiftOrigin(up ? -deltaLines : deltaLines);
+	}
+	
+	
+	public void shiftOrigin(int deltaLines)
+	{
+		log.debug("deltaLines=%s", deltaLines);
+		
+		int cix = origin.cellIndex();
+		TextPos from = TextPos.of(origin.index(), cix);
+		TextPos p = goVertically(from, deltaLines, false);
+		int ix = p.index();
+		cix = p.cellIndex();
+		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
+		setOrigin(ix, cix, origin.xoffset(), yoff);
+		requestLayout();
 	}
 	
 

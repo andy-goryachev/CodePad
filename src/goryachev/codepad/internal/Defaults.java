@@ -44,6 +44,8 @@ public class Defaults
 	
 	public static final double PREF_WIDTH = 100;
 	
+	public static final double SCROLL_WHEEL_STEP_AMOUNT = 0.25;
+	
 	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.7);
 	
 	/**
@@ -57,6 +59,8 @@ public class Defaults
 	public static final int TAB_SIZE_MAX = 32;
 	
 	public static final Color TEXT_COLOR = Color.BLACK;
+	
+	public static final int TRACK_PAD_STEP_AMOUNT = 3;
 	
 	public static final int VIEWPORT_ROW_COUNT_ESTIMATE = 128;
 	
