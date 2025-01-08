@@ -355,7 +355,7 @@ public class CodePadBehavior
 			else
 			{
 				CodeParagraph par = control().getParagraph(ca.index());
-				return TextPos.trailing(ca.index(), par.getCellCount());
+				return TextPos.of(ca.index(), par.getCellCount());
 			}
 		}
 		return null;		

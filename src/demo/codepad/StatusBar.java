@@ -58,9 +58,8 @@ public class StatusBar
 				TextPos p = sel.getCaret();
 				String line = fmt.format(p.getLineNumber());
 				String ix = fmt.format(p.getColumn());
-				String bias = p.isLeading() ? "(leading)" : "(trailing)";
 				
-				return String.format("line: %s  char: %s %s", line, ix, bias);  
+				return String.format("line: %s  char: %s", line, ix);  
 			},
 			ed.selectionProperty()
 		));

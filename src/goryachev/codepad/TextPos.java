@@ -4,46 +4,34 @@ import goryachev.common.util.FH;
 
 
 /**
- * Position within the text, characterized by the three values:
+ * Position within the text, characterized by the two values:
  * <pre>
  * - paragraph index
  * - cell index which corresponds to the insertion point
- * - leading or trailing bias
  * </pre>
  */
 public final class TextPos
 	implements Comparable<TextPos>
 {
-	public static final TextPos ZERO = new TextPos(0, 0, true);
+	public static final TextPos ZERO = new TextPos(0, 0);
 	
 	private final int index;
 	private final int cix;
-	private final boolean leading;
 
 
-	private TextPos(int index, int cellIndex, boolean leading)
+	private TextPos(int index, int cellIndex)
 	{
 		this.index = index;
 		this.cix = cellIndex;
-		this.leading = leading;
 	}
 	
 	
 	/**
-	 * Creates the TextPos at the specified index and cell index and a leading bias.
+	 * Creates the TextPos at the specified index and cell index.
 	 */
 	public static TextPos of(int index, int cellIndex)
 	{
-		return new TextPos(index, cellIndex, true);
-	}
-	
-	
-	/**
-	 * Creates the TextPos at the specified index and cell index and a trailing bias.
-	 */
-	public static TextPos trailing(int index, int cellIndex)
-	{
-		return new TextPos(index, cellIndex, false);
+		return new TextPos(index, cellIndex);
 	}
 
 
@@ -61,37 +49,6 @@ public final class TextPos
 	 */
 	public int cellIndex()
 	{
-		return cix;
-	}
-	
-	
-	public boolean isLeading()
-	{
-		return leading;
-	}
-	
-	
-	public boolean isTrailing()
-	{
-		return !leading;
-	}
-	
-	
-	/**
-	 * The index of the cell where caret is painted.
-	 * In the insert mode, the caret is drawn as a line at the left edge of the cell (leading=true)
-	 * or the right edge (leading=false).
-	 * In the overwrite mode, TBD.
-	 */
-	public int paintCellIndex()
-	{
-		if(!leading)
-		{
-			if(cix > 0)
-			{
-				return cix - 1;
-			}
-		}
 		return cix;
 	}
 	
@@ -123,7 +80,7 @@ public final class TextPos
 		}
 		else if(x instanceof TextPos p)
 		{
-			return (index == p.index) && (cix == p.cix) && (leading == p.leading);
+			return (index == p.index) && (cix == p.cix);
 		}
 		return false;
 	}
@@ -153,7 +110,7 @@ public final class TextPos
 	@Override
 	public String toString()
 	{
-		return "TextPos{index=" + index + ", offset=" + cix + ", leading=" + leading + "}";
+		return "TextPos{index=" + index + ", offset=" + cix + "}";
 	}
 	
 	
@@ -170,7 +127,7 @@ public final class TextPos
 		}
 		else if(index == ix)
 		{
-			return paintCellIndex() - cellIndex;
+			return cix - cellIndex;
 		}
 		return 1;
 	}

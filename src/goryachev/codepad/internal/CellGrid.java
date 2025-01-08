@@ -166,7 +166,6 @@ public class CellGrid
 		{
 			origin = or;
 			arrangement = null;
-			phantomx = -1;
 			return true;
 		}
 		return false;
@@ -214,6 +213,7 @@ public class CellGrid
 			}
 			else
 			{
+				// FIX incorrect in case when the partial row below the arrangement is requested
 				return editor.getDocumentEnd();
 			}
 		}
@@ -222,19 +222,7 @@ public class CellGrid
 		int cix = a.cellIndexAtViewRow(row) + (wrap ? Math.min(viewCols, col) : col);
 		
 		WrapInfo wi = a.wrapInfoAtViewRow(row);
-		if(cix >= wi.getCellCount())
-		{
-			return wi.clamp(wi.getCellCount());
-		}
-		else
-		{
-			if((wrapLimit > 0) && (col >= wrapLimit))
-			{
-				// trailing at the end of a wrapped row
-				return TextPos.trailing(ix, cix);
-			}
-		}
-		return TextPos.of(ix, cix);
+		return wi.clamp(cix);
 	}
 
 	
@@ -1027,7 +1015,7 @@ public class CellGrid
 		boolean leftEdge = (min.compareTo(p0) < 0);
 		double x0 = leftEdge ? 0.0 : x + (min.cellIndex() - cellIndex) * cellWidth;
 		
-		boolean rightEdge = (max.compareTo(p1) >= 0) && (!(min.paintCellIndex() == max.paintCellIndex()));
+		boolean rightEdge = (max.compareTo(p1) >= 0) && (!(min.cellIndex() == max.cellIndex()));
 		double x1 = rightEdge ? canvas.getWidth() : x + (max.cellIndex() - cellIndex) * cellWidth;
 		
 		double w = x1 - x0;
@@ -1143,19 +1131,12 @@ public class CellGrid
 			{
 				@SuppressWarnings("null")
 				TextPos ca = sel.getCaret();
-				if(ca.paintCellIndex() == cix)
+				if(ca.cellIndex() == cix)
 				{
 					gx.setFill(editor.getCaretColor());
 					// TODO insert mode
 					double caretWidth = snapSizeX(Defaults.CARET_WIDTH);
-					if(ca.isLeading())
-					{
-						gx.fillRect(x, y, caretWidth, tm.cellHeight);
-					}
-					else
-					{
-						gx.fillRect(x + tm.cellWidth - caretWidth, y, caretWidth, tm.cellHeight);
-					}
+					gx.fillRect(x, y, caretWidth, tm.cellHeight);
 				}
 			}
 			
@@ -1319,10 +1300,6 @@ public class CellGrid
 						throw new Error("cix=" + cix); // safeguard, should not happen
 					}
 
-					if(col >= wrapLimit)
-					{
-						return TextPos.trailing(ix, cix + wrapLimit);
-					}
 					cix += col;
 					return TextPos.of(ix, cix);
 				}
@@ -1357,11 +1334,6 @@ public class CellGrid
 				int n = lineStart / wrapLimit;
 				if(ct + n < h)
 				{
-					if(col >= wrapLimit)
-					{
-						cix = lineStart + (ct * wrapLimit) + wrapLimit;
-						return TextPos.trailing(ix, cix);
-					}
 					cix = lineStart + (ct * wrapLimit) + col;
 					return wi.clamp(cix);
 				}
@@ -1387,18 +1359,6 @@ public class CellGrid
 			// move left
 			if(cix >= 0)
 			{
-				// check if needs to apply special logic around the soft wrapping break
-				if(wrap)
-				{
-					if(from.isLeading())
-					{
-						int col = cix % wrapLimit;
-						if(col == (wrapLimit - 1))
-						{
-							return TextPos.trailing(ix, cix + 1);
-						}
-					}
-				}
 				return TextPos.of(ix, cix);
 			}
 			else
@@ -1422,22 +1382,6 @@ public class CellGrid
 			int len = wi.getCellCount();
 			if(cix <= len)
 			{
-				// check if needs to apply special logic around the soft wrapping break
-				if((wrapLimit > 0) && (cix != 0))
-				{
-					if(from.isLeading())
-					{
-						int col = cix % wrapLimit;
-						if(col == 0)
-						{
-							return TextPos.trailing(ix, cix);
-						}
-					}
-					else
-					{
-						return TextPos.of(ix, from.cellIndex());
-					}
-				}
 				return wi.clamp(cix);
 			}
 			else
@@ -1487,7 +1431,7 @@ public class CellGrid
 				
 				// set origin to the caret row
 				ix = pos.index();
-				cix = (pos.paintCellIndex() / viewCols) * viewCols;
+				cix = (pos.cellIndex() / viewCols) * viewCols;
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
 				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
@@ -1515,7 +1459,7 @@ public class CellGrid
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = goVertically(pos, 1 - viewRows, false);
+				TextPos p = goVertically(pos, -viewRows, false);
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
@@ -1524,14 +1468,14 @@ public class CellGrid
 			else
 			{
 				ix = pos.index();
-				ix = Math.max(0, ix - viewRows + 1);
+				ix = Math.max(0, ix - viewRows);
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
 			ix = pos.index();
 			ix = Math.max(0, ix - viewRows);
-			cix = pos.paintCellIndex();
+			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(ix, cix, xoff, 0.0);
@@ -1642,10 +1586,6 @@ public class CellGrid
 		{
 			int ix = indexes[0];
 			int cix = indexes[1];
-			if((wrapLimit > 0) && (col == viewCols) && (cix != 0))
-			{
-				return TextPos.trailing(ix, cix);
-			}
 			return TextPos.of(ix, cix);
 		}
 		return null;
@@ -1655,15 +1595,7 @@ public class CellGrid
 	private int lineStartCellIndex(TextPos p)
 	{
 		int cix = p.cellIndex();
-		int row;
-		if(p.isTrailing() && (cix > 0) && ((cix % wrapLimit) == 0))
-		{
-			row = (cix - 1) / wrapLimit;
-		}
-		else
-		{
-			row = cix / wrapLimit;
-		}
+		int row = cix / wrapLimit;
 		return row * wrapLimit;
 	}
 }

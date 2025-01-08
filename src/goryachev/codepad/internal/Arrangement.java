@@ -68,6 +68,11 @@ public class Arrangement
 		int cix = startCellIndex;
 		int ix = startIndex;
 		
+		if(isWrap())
+		{
+			numRows++;
+		}
+		
 		while((numRows >= 0) && (ix < modelSize))
 		{
 			if(wi == null)
@@ -369,7 +374,7 @@ public class Arrangement
 				{
 					return RelativePosition.ABOVE;
 				}
-				else if(y >= viewRows)
+				else if(y > viewRows)
 				{
 					return RelativePosition.BELOW;
 				}
@@ -382,7 +387,7 @@ public class Arrangement
 	public GridPos getCoordinates(TextPos p)
 	{
 		int ix = p.index();
-		int cix = p.paintCellIndex();
+		int cix = p.cellIndex();
 		
 		for(int i=rows.size()-1; i>=0; --i)
 		{
