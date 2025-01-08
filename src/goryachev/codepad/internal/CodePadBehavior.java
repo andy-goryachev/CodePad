@@ -270,8 +270,13 @@ public class CodePadBehavior
 	private void handleMouseReleased(MouseEvent ev)
 	{		
 		stopAutoScroll();
-		grid.suppressBlinking(false);
+
+		// FIX is this needed?
 		grid.clearPhantomX();
+		
+		grid.suppressBlinking(false);
+		grid.updateVerticalScrollBar();
+		grid.updateHorizontalScrollBar();
 	}
 
 

@@ -374,7 +374,7 @@ public class Arrangement
 				{
 					return RelativePosition.ABOVE;
 				}
-				else if(y > viewRows)
+				else if(y >= viewRows)
 				{
 					return RelativePosition.BELOW;
 				}

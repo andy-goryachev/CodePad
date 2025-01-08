@@ -514,7 +514,8 @@ public class CellGrid
 	}
 
 
-	protected void updateVerticalScrollBar()
+	// TODO disable when handling scrolling events?
+	public void updateVerticalScrollBar()
 	{
 		double vis;
 		double val;
@@ -527,6 +528,8 @@ public class CellGrid
 		}
 		else
 		{
+			// FIX this is incorrect
+			
 			// unless the arrangement encompasses the whole model, we need to approximate,
 			// using the average row count per paragraph obtained from the sliding window. 
 			Arrangement ar = arrangement();
@@ -542,10 +545,17 @@ public class CellGrid
 
 		handleScrollEvents = false;
 
+		log.debug("val=%s vis=%s", val, vis); // FIX
 		vscroll.setValue(val);
 		vscroll.setVisibleAmount(vis);
 
 		handleScrollEvents = true;
+	}
+	
+	
+	public void updateHorizontalScrollBar()
+	{
+		// TODO
 	}
 
 
@@ -934,6 +944,12 @@ public class CellGrid
 		}
 		
 		layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+		
+		if(handleScrollEvents)
+		{
+			updateHorizontalScrollBar();
+			updateVerticalScrollBar();
+		}
 	}
 	
 	
@@ -1459,7 +1475,7 @@ public class CellGrid
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = goVertically(pos, -viewRows, false);
+				TextPos p = goVertically(pos, 1 - viewRows, false);
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
@@ -1468,7 +1484,7 @@ public class CellGrid
 			else
 			{
 				ix = pos.index();
-				ix = Math.max(0, ix - viewRows);
+				ix = Math.max(0, ix - viewRows + 1);
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
@@ -1569,7 +1585,7 @@ public class CellGrid
 		{
 			return null;
 		}
-		return getPosition(p.row(), viewCols);
+		return getPosition(p.row(), viewCols - 1);
 	}
 	
 	
