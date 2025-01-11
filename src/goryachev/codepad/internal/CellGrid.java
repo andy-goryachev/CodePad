@@ -444,7 +444,7 @@ public class CellGrid
 			
 			TextCellMetrics tm = textCellMetrics();
 			Arrangement a = arrangement();
-			int maxCells = a.maxCellCount() + 1;
+			int maxCells = a.maxCellCount() + Defaults.HORIZONTAL_CARET_GUARD;
 			double w = contentPaddingLeft + contentPaddingRight + maxCells * tm.cellWidth;
 			double cw = canvas.getWidth();
 			
@@ -528,7 +528,6 @@ public class CellGrid
 	}
 
 
-	// TODO disable when handling scrolling events?
 	public void updateVerticalScrollBar()
 	{
 		double vis;
@@ -542,27 +541,30 @@ public class CellGrid
 		}
 		else
 		{
-			// FIX this is incorrect!
-			
-			// unless the arrangement encompasses the whole model, we need to approximate,
-			// using the average row count per paragraph obtained from the sliding window. 
+			// unless the arrangement encompasses the whole model, we need to approximate
+			// by using the row count within the sliding window and paragraph counts above and below
+			// the sliding window. 
+
+			TextCellMetrics tm = textCellMetrics();
 			Arrangement ar = arrangement();
 			
-			// TODO move to arrangement?
 			double top = ar.getTopIndex();
 			double btm = (size - ar.getBottomIndex());
 			double totalRows = top + btm + ar.getSlidingWindowRowCount();
 			
-			val = CodePadUtils.toScrollBarValue(top + ar.getTopRowCount(), viewRows, totalRows);
-			vis = viewRows / totalRows;
+			double pos = contentPaddingTop + (top + ar.getTopRowCount()) * tm.cellHeight;
+			double max = contentPaddingTop + contentPaddingBottom + (totalRows * tm.cellHeight);
+			double visible = canvas.getHeight();
+			
+			val = CodePadUtils.toScrollBarValue(pos, visible, max);
+			vis = visible / max;
 		}
 
 		handleScrollEvents = false;
-
-		log.debug("val=%s vis=%s", val, vis); // FIX
-		vscroll.setValue(val);
-		vscroll.setVisibleAmount(vis);
-
+		{
+			vscroll.setValue(val);
+			vscroll.setVisibleAmount(vis);
+		}
 		handleScrollEvents = true;
 	}
 	
@@ -582,8 +584,8 @@ public class CellGrid
 		else
 		{
 			TextCellMetrics tm = textCellMetrics();
-			double pos = origin.cellIndex() * tm.cellWidth + contentPaddingLeft - origin.xoffset();
-			double max = (w + 1) * tm.cellWidth + contentPaddingLeft + contentPaddingRight;
+			double pos = contentPaddingLeft - origin.xoffset() + origin.cellIndex() * tm.cellWidth;
+			double max = contentPaddingLeft + contentPaddingRight + (w + Defaults.HORIZONTAL_CARET_GUARD) * tm.cellWidth;
 			double visible = canvas.getWidth();
 			
 			val = CodePadUtils.toScrollBarValue(pos, visible, max);
@@ -591,11 +593,10 @@ public class CellGrid
 		}
 		
 		handleScrollEvents = false;
-
-		log.debug("val=%s vis=%s", val, vis); // FIX
-		hscroll.setValue(val);
-		hscroll.setVisibleAmount(vis);
-
+		{
+			hscroll.setValue(val);
+			hscroll.setVisibleAmount(vis);
+		}
 		handleScrollEvents = true;
 	}
 
@@ -1136,7 +1137,7 @@ public class CellGrid
 		{
 			if((wrap && (count < viewCols)) || !wrap)
 			{
-				count++;
+				count += Defaults.HORIZONTAL_CARET_GUARD;
 			}
 		}
 		

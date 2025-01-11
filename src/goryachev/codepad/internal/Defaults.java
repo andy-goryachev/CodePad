@@ -34,6 +34,9 @@ public class Defaults
 	
 	public static final Font FONT = Font.font("Monospaced", -1);
 	
+	/** extra empty cell adds space to paint the trailing caret */
+	public static final int HORIZONTAL_CARET_GUARD = 1;
+	
 	public static final double LINE_SPACING = 0.0;
 	
 	public static final double MIN_HEIGHT = 20;
