@@ -12,6 +12,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 
@@ -66,6 +67,11 @@ public class CodePadSkin
 		disconnector.addChangeListener(ed.selectionProperty(), false, grid::handleSelectionChange);
 		disconnector.addEventFilter(ed, KeyEvent.KEY_PRESSED, (ev) -> grid.suppressBlinking(true));
 		disconnector.addEventFilter(ed, KeyEvent.KEY_RELEASED, (ev) -> grid.suppressBlinking(false));
+		disconnector.addEventFilter(vscroll, MouseEvent.MOUSE_PRESSED, grid::handleScrollBarMousePressed);
+		disconnector.addEventFilter(vscroll, MouseEvent.MOUSE_RELEASED, grid::handleScrollBarMouseReleased);
+		disconnector.addEventFilter(hscroll, MouseEvent.MOUSE_PRESSED, grid::handleScrollBarMousePressed);
+		disconnector.addEventFilter(hscroll, MouseEvent.MOUSE_RELEASED, grid::handleScrollBarMouseReleased);
+
 	}
 
 

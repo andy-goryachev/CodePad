@@ -24,6 +24,7 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
@@ -67,6 +68,7 @@ public class CellGrid
 	private double contentPaddingLeft;
 	private double contentPaddingRight;
 	private boolean handleScrollEvents = true;
+	private boolean updateScrollBars = true;
 	// number of rows that result in no vsb
 	private int viewRows;
 	// number of columns that result in no hsb
@@ -154,7 +156,7 @@ public class CellGrid
 	{
 		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
 		
-		// FIX
+		// FIX remove
 		if(cellIndex < 0)
 		{
 			log.warn();
@@ -417,6 +419,18 @@ public class CellGrid
 		// TODO repaint damaged area: union of old and new selection ranges
 		paintAll();
 	}
+	
+	
+	public void handleScrollBarMousePressed(MouseEvent ev)
+	{
+		updateScrollBars = false;
+	}
+	
+	
+	public void handleScrollBarMouseReleased(MouseEvent ev)
+	{
+		updateScrollBars = true;
+	}
 
 
 	public void handleHorizontalScroll()
@@ -430,7 +444,7 @@ public class CellGrid
 			
 			TextCellMetrics tm = textCellMetrics();
 			Arrangement a = arrangement();
-			int maxCells = a.maxCellCount();
+			int maxCells = a.maxCellCount() + 1;
 			double w = contentPaddingLeft + contentPaddingRight + maxCells * tm.cellWidth;
 			double cw = canvas.getWidth();
 			
@@ -528,7 +542,7 @@ public class CellGrid
 		}
 		else
 		{
-			// FIX this is incorrect
+			// FIX this is incorrect!
 			
 			// unless the arrangement encompasses the whole model, we need to approximate,
 			// using the average row count per paragraph obtained from the sliding window. 
@@ -555,7 +569,34 @@ public class CellGrid
 	
 	public void updateHorizontalScrollBar()
 	{
-		// TODO
+		double vis;
+		double val;
+
+		Arrangement ar = arrangement();
+		int w = ar.maxCellCount();
+		if(w == 0)
+		{
+			vis = 1.0;
+			val = 0.0;
+		}
+		else
+		{
+			TextCellMetrics tm = textCellMetrics();
+			double pos = origin.cellIndex() * tm.cellWidth + contentPaddingLeft - origin.xoffset();
+			double max = (w + 1) * tm.cellWidth + contentPaddingLeft + contentPaddingRight;
+			double visible = canvas.getWidth();
+			
+			val = CodePadUtils.toScrollBarValue(pos, visible, max);
+			vis = visible / max;
+		}
+		
+		handleScrollEvents = false;
+
+		log.debug("val=%s vis=%s", val, vis); // FIX
+		hscroll.setValue(val);
+		hscroll.setVisibleAmount(vis);
+
+		handleScrollEvents = true;
 	}
 
 
@@ -850,7 +891,7 @@ public class CellGrid
 				int ix = origin.index();
 				int cix = origin.cellIndex();
 				
-				while((ix > 0) && (ct > 0))
+				while((ix > 0) && (ct > 0) && (ix < size))
 				{
 					wi = cache.getWrapInfo(ix, wrapLimit);
 					
@@ -945,7 +986,7 @@ public class CellGrid
 		
 		layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		
-		if(handleScrollEvents)
+		if(updateScrollBars)
 		{
 			updateHorizontalScrollBar();
 			updateVerticalScrollBar();
@@ -1438,6 +1479,7 @@ public class CellGrid
 		int cix;
 		double xoff;
 		double yoff;
+		boolean update = false;
 		switch(rel)
 		{
 		case ABOVE:
@@ -1449,13 +1491,13 @@ public class CellGrid
 				ix = pos.index();
 				cix = (pos.cellIndex() / viewCols) * viewCols;
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
-				setOrigin(ix, cix, contentPaddingLeft, yoff);
+				update = setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
 			else
 			{
 				ix = pos.index();
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
-				setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
+				update = setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
 			}
 			break;
 		case ABOVE_LEFT:
@@ -1464,13 +1506,13 @@ public class CellGrid
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
-			setOrigin(ix, cix, xoff, yoff);
+			update = setOrigin(ix, cix, xoff, yoff);
 			break;
 		case ABOVE_RIGHT:
 			ix = pos.index();
 			cix = Math.max(0, pos.cellIndex() - viewCols);
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
-			setOrigin(ix, cix, 0.0, yoff);
+			update = setOrigin(ix, cix, 0.0, yoff);
 			break;
 		case BELOW:
 			if(wrap)
@@ -1479,13 +1521,13 @@ public class CellGrid
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
-				setOrigin(ix, cix, contentPaddingLeft, 0.0); 
+				update = setOrigin(ix, cix, contentPaddingLeft, 0.0); 
 			}
 			else
 			{
 				ix = pos.index();
 				ix = Math.max(0, ix - viewRows + 1);
-				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
+				update = setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
@@ -1494,7 +1536,7 @@ public class CellGrid
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
-			setOrigin(ix, cix, xoff, 0.0);
+			update = setOrigin(ix, cix, xoff, 0.0);
 			break;			
 		case BELOW_RIGHT:
 			ix = pos.index();
@@ -1507,12 +1549,18 @@ public class CellGrid
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
-			setOrigin(origin.index(), cix, xoff, origin.yoffset());
+			update = setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
 		case RIGHT:
 			cix = Math.max(0, pos.cellIndex() - viewCols);
-			setOrigin(origin.index(), cix, 0.0, origin.yoffset());
+			update = setOrigin(origin.index(), cix, 0.0, origin.yoffset());
 			break;
+		}
+		
+		if(update)
+		{
+			updateHorizontalScrollBar();
+			updateVerticalScrollBar();
 		}
 	}
 	
