@@ -1,6 +1,7 @@
 // Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.TextPos;
+import goryachev.common.log.Log;
 import goryachev.common.util.CList;
 
 
@@ -11,6 +12,7 @@ import goryachev.common.util.CList;
  */
 public class Arrangement
 {
+	private static final Log log = Log.get("Arrangement");
 	private final WrapCache cache;
 	private final int modelSize;
 	private final int viewRows;
@@ -250,7 +252,7 @@ public class Arrangement
 	}
 	
 	
-	public int getBottomRowcount()
+	public int getBottomRowCount()
 	{
 		return bottomRows;
 	}

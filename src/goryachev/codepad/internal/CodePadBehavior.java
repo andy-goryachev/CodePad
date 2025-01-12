@@ -355,7 +355,7 @@ public class CodePadBehavior
 		{
 			if(control().isWrapText())
 			{
-				return grid.lineEnd(ca);
+				return grid.goLineEnd(ca);
 			}
 			else
 			{
@@ -374,7 +374,7 @@ public class CodePadBehavior
 		{
 			if(control().isWrapText())
 			{
-				return grid.lineStart(ca);
+				return grid.goLineStart(ca);
 			}
 			else
 			{

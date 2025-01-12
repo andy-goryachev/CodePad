@@ -152,7 +152,7 @@ public class CellGrid
 	}
 
 
-	private boolean setOrigin(int index, int cellIndex, double xoffset, double yoffset)
+	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
 		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
 		
@@ -160,17 +160,19 @@ public class CellGrid
 		if(cellIndex < 0)
 		{
 			log.warn();
-			return false;
 		}
+		
+		// TODO perhaps adjust origin to avoid
+		// - going before the document start
+		// - going past the (document end - viewRows) 
 		
 		Origin or = new Origin(index, cellIndex, xoffset, yoffset);
 		if(!origin.equals(or))
 		{
 			origin = or;
 			arrangement = null;
-			return true;
+			requestLayout();
 		}
-		return false;
 	}
 	
 	
@@ -416,7 +418,7 @@ public class CellGrid
 			}
 		}
 		
-		// TODO repaint damaged area: union of old and new selection ranges
+		// TODO repaint only the damaged area: union of old and new selection ranges
 		paintAll();
 	}
 	
@@ -472,10 +474,7 @@ public class CellGrid
 			
 			int ix = origin.index();
 			double yoff = origin.yoffset();
-			if(setOrigin(ix, cix, xoff, yoff))
-			{
-				requestLayout();
-			}
+			setOrigin(ix, cix, xoff, yoff);
 		}
 	}
 
@@ -501,6 +500,7 @@ public class CellGrid
 			
 			// 1. rough estimate
 			int ix = Math.max(0, (int)Math.round(size * pos));
+			ix = Math.min(ix, size - 1);
 			int cix = 0;
 			setOrigin(ix, cix, origin.xoffset(), 0);
 			arrangement = null;
@@ -519,11 +519,27 @@ public class CellGrid
 				cix = rv[1];
 			}
 
-			double yoff = ix == 0 ? contentPaddingTop : 0.0;
-			if(setOrigin(ix, cix, origin.xoffset(), yoff))
+			// FIX there is something wrong here
+			// avoid showing empty space at the end
+			/*
+			if(ar.getBottomRowCount() == 0)
 			{
-				requestLayout();
+				TextPos end = editor.getDocumentEnd();
+				TextPos p = goVertically(end, 1 - viewRows, false);
+				p = goLineStart(p);
+				if(p != null)
+				{
+					if(p.compareTo(ix, cix) < 0)
+					{
+						ix = p.index();
+						cix = p.cellIndex();
+					}
+				}
 			}
+			*/
+			
+			double yoff = ix == 0 ? contentPaddingTop : 0.0;
+			setOrigin(ix, cix, origin.xoffset(), yoff);
 		}
 	}
 
@@ -736,6 +752,7 @@ public class CellGrid
 		// 2. paints the text onto the canvas.
 
 		double width = getWidth();
+		log.debug(width);
 		if(width == 0.0)
 		{
 			return;
@@ -887,6 +904,9 @@ public class CellGrid
 				
 			if(reachedEnd)
 			{
+				log.debug("reached end");
+				// FIX this code is wrong
+				
 				// move the origin to fill in the viewport
 				int ct = viewRows - nrows;
 				int ix = origin.index();
@@ -1480,25 +1500,21 @@ public class CellGrid
 		int cix;
 		double xoff;
 		double yoff;
-		boolean update = false;
 		switch(rel)
 		{
 		case ABOVE:
 			if(wrap)
 			{
-				// TODO handle trailing bias differently
-				
-				// set origin to the caret row
 				ix = pos.index();
 				cix = (pos.cellIndex() / viewCols) * viewCols;
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
-				update = setOrigin(ix, cix, contentPaddingLeft, yoff);
+				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
 			else
 			{
 				ix = pos.index();
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
-				update = setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
+				setOrigin(ix, origin.cellIndex(), origin.xoffset(), yoff);
 			}
 			break;
 		case ABOVE_LEFT:
@@ -1507,13 +1523,13 @@ public class CellGrid
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
-			update = setOrigin(ix, cix, xoff, yoff);
+			setOrigin(ix, cix, xoff, yoff);
 			break;
 		case ABOVE_RIGHT:
 			ix = pos.index();
 			cix = Math.max(0, pos.cellIndex() - viewCols);
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
-			update = setOrigin(ix, cix, 0.0, yoff);
+			setOrigin(ix, cix, 0.0, yoff);
 			break;
 		case BELOW:
 			if(wrap)
@@ -1522,13 +1538,13 @@ public class CellGrid
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
-				update = setOrigin(ix, cix, contentPaddingLeft, 0.0); 
+				setOrigin(ix, cix, contentPaddingLeft, 0.0); 
 			}
 			else
 			{
 				ix = pos.index();
 				ix = Math.max(0, ix - viewRows + 1);
-				update = setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
+				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
@@ -1537,7 +1553,7 @@ public class CellGrid
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
-			update = setOrigin(ix, cix, xoff, 0.0);
+			setOrigin(ix, cix, xoff, 0.0);
 			break;			
 		case BELOW_RIGHT:
 			ix = pos.index();
@@ -1550,18 +1566,12 @@ public class CellGrid
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
-			update = setOrigin(origin.index(), cix, xoff, origin.yoffset());
+			setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
 		case RIGHT:
 			cix = Math.max(0, pos.cellIndex() - viewCols);
-			update = setOrigin(origin.index(), cix, 0.0, origin.yoffset());
+			setOrigin(origin.index(), cix, 0.0, origin.yoffset());
 			break;
-		}
-		
-		if(update)
-		{
-			updateHorizontalScrollBar();
-			updateVerticalScrollBar();
 		}
 	}
 	
@@ -1615,26 +1625,40 @@ public class CellGrid
 		requestLayout();
 	}
 	
-
-	public TextPos lineStart(TextPos from)
+	
+	public TextPos goLineStart(TextPos from)
 	{
-		GridPos p = getCoordinates(from);
-		if(p == null)
+		int ix = from.index();
+		if(wrap)
 		{
-			return null;
+			int cix = from.cellIndex();
+			WrapInfo wi = getWrapInfo(ix);
+			int row = wi.getRowAtCellIndex(cix);
+			cix = wi.getCellIndexAtRow(row);
+			return TextPos.of(ix, cix);
 		}
-		return getPosition(p.row(), 0);
+		else
+		{
+			return TextPos.of(ix, 0);
+		}
 	}
-	
-	
-	public TextPos lineEnd(TextPos from)
+
+
+	public TextPos goLineEnd(TextPos from)
 	{
-		GridPos p = getCoordinates(from);
-		if(p == null)
+		int ix = from.index();
+		WrapInfo wi = getWrapInfo(ix);
+		if(wrap)
 		{
-			return null;
+			int cix = from.cellIndex();
+			int row = wi.getRowAtCellIndex(cix);
+			cix = wi.getCellIndexAtRow(row + 1) - 1;
+			return wi.clamp(cix);
 		}
-		return getPosition(p.row(), viewCols - 1);
+		else
+		{
+			return TextPos.of(ix, wi.getCellCount());
+		}
 	}
 	
 	
