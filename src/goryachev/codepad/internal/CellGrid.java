@@ -519,25 +519,6 @@ public class CellGrid
 				cix = rv[1];
 			}
 
-			// FIX there is something wrong here
-			// avoid showing empty space at the end
-			/*
-			if(ar.getBottomRowCount() == 0)
-			{
-				TextPos end = editor.getDocumentEnd();
-				TextPos p = goVertically(end, 1 - viewRows, false);
-				p = goLineStart(p);
-				if(p != null)
-				{
-					if(p.compareTo(ix, cix) < 0)
-					{
-						ix = p.index();
-						cix = p.cellIndex();
-					}
-				}
-			}
-			*/
-			
 			double yoff = ix == 0 ? contentPaddingTop : 0.0;
 			setOrigin(ix, cix, origin.xoffset(), yoff);
 		}
@@ -905,12 +886,37 @@ public class CellGrid
 			if(reachedEnd)
 			{
 				log.debug("reached end");
+				
+				
+				// FIX there is something wrong here
+				// avoid showing empty space at the end
+				/*
+				if(ar.getBottomRowCount() == 0)
+				{
+					TextPos end = editor.getDocumentEnd();
+					TextPos p = goVertically(end, 1 - viewRows, false);
+					p = goLineStart(p);
+					if(p != null)
+					{
+						if(p.compareTo(ix, cix) < 0)
+						{
+							ix = p.index();
+							cix = p.cellIndex();
+						}
+					}
+				}
+				*/
+				
+				
+				
 				// FIX this code is wrong
 				
 				// move the origin to fill in the viewport
 				int ct = viewRows - nrows;
 				int ix = origin.index();
 				int cix = origin.cellIndex();
+				
+				log.debug("  END  ct=%d ix=%d cix=%d viewRows=%d nrows=%d", ct, ix, cix, viewRows, nrows);
 				
 				while((ix > 0) && (ct > 0) && (ix < size))
 				{
@@ -968,7 +974,7 @@ public class CellGrid
 			{
 				if(size - origin.index() < viewRows)
 				{
-					// move the origin to fill in the bottom
+					// avoid empty space at the bottom
 					int ix = Math.max(0, size - viewRows);
 					double pad = (ix == 0) ? contentPaddingTop : 0.0;
 					setOrigin(ix, origin.cellIndex(), origin.xoffset(), pad);
@@ -976,10 +982,26 @@ public class CellGrid
 			}
 		}
 		
-		// origin, vsb are set correctly now, ready for layout
-		Arrangement arr = arrangement();
+		Arrangement ar = arrangement();
 		
-		boolean hsb = arr.isHsbNeeded();
+		if(!wrap)
+		{
+			// avoid empty space on the right
+			int d = origin.cellIndex() + viewCols - ar.maxCellCount();
+			if(d > 0)
+			{
+				int cix = Math.max(0, origin.cellIndex() - d);
+				if(cix != origin.cellIndex())
+				{
+					double xoff = (cix == 0) ? contentPaddingLeft : 0.0;
+					setOrigin(origin.index(), cix, xoff, origin.yoffset());
+					ar = arrangement();
+				}
+			}
+		}
+
+		// using the final arrangement
+		boolean hsb = ar.isHsbNeeded();
 		if(hsb)
 		{
 			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
