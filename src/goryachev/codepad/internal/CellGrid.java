@@ -154,7 +154,7 @@ public class CellGrid
 
 	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
-		log.debug("index=%d, cellIndex=%d, xoffset=%f, yoffset=%f", index, cellIndex, xoffset, yoffset);
+		log.debug("ix=%d, cix=%d, xoff=%f, yoff=%f", index, cellIndex, xoffset, yoffset);
 		
 		// FIX remove
 		if(cellIndex < 0)
@@ -910,7 +910,7 @@ public class CellGrid
 				
 				
 				// FIX this code is wrong
-				
+/*				
 				// move the origin to fill in the viewport
 				int ct = viewRows - nrows;
 				int ix = origin.index();
@@ -954,6 +954,7 @@ public class CellGrid
 						break;
 					}
 				}
+			*/
 			}
 		}
 		else
