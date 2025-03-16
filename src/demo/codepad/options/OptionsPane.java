@@ -1,4 +1,4 @@
-// Copyright © 2024-2024 Andy Goryachev <andy@goryachev.com>
+// Copyright © 2024-2025 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.options;
 import java.util.List;
 import javafx.geometry.Insets;

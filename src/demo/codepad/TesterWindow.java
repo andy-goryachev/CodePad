@@ -1,4 +1,4 @@
-// Copyright © 2017-2024 Andy Goryachev <andy@goryachev.com>
+// Copyright © 2017-2025 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.CodePad;
 import goryachev.fx.CssStyle;

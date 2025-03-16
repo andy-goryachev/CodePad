@@ -1,4 +1,4 @@
-// Copyright © 2016-2024 Andy Goryachev <andy@goryachev.com>
+// Copyright © 2016-2025 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.common.log.Log;
 import goryachev.common.log.LogLevel;
@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 public class CodePadTesterApp
 	extends Application
 {
-	public static final String COPYRIGHT = "copyright © 2024 andy goryachev";
+	public static final String COPYRIGHT = "copyright © 2025 andy goryachev";
 	
 	
 	public static void main(String[] args)

@@ -1,4 +1,4 @@
-// Copyright © 2019-2024 Andy Goryachev <andy@goryachev.com>
+// Copyright © 2019-2025 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.models;
 import goryachev.codepad.model.CodeModel;
 import java.util.function.Supplier;
