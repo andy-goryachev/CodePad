@@ -2,7 +2,7 @@
 
 High Performance, Monospaced Editor for JavaFX.
 
-[ screenshot ]
+![screenshot](doc/screenshot.png)
 
 
 
