@@ -1,6 +1,6 @@
 # CodePad
 
-High Performance, Monospaced Code Editor for JavaFX.
+High Performance, Monospaced Editor for JavaFX.
 
 [ screenshot ]
 
@@ -32,7 +32,7 @@ This project is currently in the early development stage.
 
 ## Software Requirements
 
-Requires JDK 23+ with JavaFX 23+.
+Requires JDK 24+ with JavaFX 23+.
 
 
 ## License
