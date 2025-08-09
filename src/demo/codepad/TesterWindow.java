@@ -7,7 +7,10 @@ import goryachev.fx.FxFramework;
 import goryachev.fx.FxMenuBar;
 import goryachev.fx.FxPopupMenu;
 import goryachev.fx.FxWindow;
+import goryachev.fx.settings.FxSettingsSchema;
+import goryachev.fx.settings.LocalSettings;
 import demo.codepad.options.OptionsPane;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
@@ -21,8 +24,10 @@ public class TesterWindow
 	public static final CssStyle PANE = new CssStyle();
 
 	public final StatusBar statusBar;
-	private final BorderPane pane;
 	public final CodePad editor;
+	private final OptionsPane options;
+	private BorderPane pane;
+	private final SimpleBooleanProperty viewProperties = new SimpleBooleanProperty(true);
 
 	
 	public TesterWindow()
@@ -32,11 +37,11 @@ public class TesterWindow
 		editor = new CodePad(null);
 		editor.setContentPadding(FX.insets(2, 4));
 		
-		OptionsPane options = Options.create(editor);
+		options = Options.create(editor);
 		
 		pane = new BorderPane();
 		pane.setCenter(editor);
-		pane.setLeft(options);
+		//pane.setLeft(options);
 		PANE.set(pane);
 		
 		statusBar = new StatusBar();
@@ -50,6 +55,24 @@ public class TesterWindow
 		statusBar.attach(editor);
 		
 		FX.setPopupMenu(editor, this::createPopupMenu);
+		FX.addChangeListener(viewProperties, true, this::handleViewProperties);
+		
+		LocalSettings.get(this).add("viewProperties", viewProperties);
+	}
+	
+	
+	private void handleViewProperties(boolean on)
+	{
+		if(on)
+		{
+			pane.setLeft(options);
+			FxFramework.restore(this);
+		}
+		else
+		{
+			FxFramework.store(this);
+			pane.setLeft(null);
+		}
 	}
 	
 	
@@ -85,6 +108,10 @@ public class TesterWindow
 //		m.item("Delete Line");
 //		m.item("Move Line Up");
 //		m.item("Move Line Down");
+		
+		// view
+		m.menu("View");
+		m.checkItem("Properties Pane", viewProperties);		
 
 		// help
 		m.menu("Help");
