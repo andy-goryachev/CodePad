@@ -49,7 +49,7 @@ public class CellGrid
 	private static final Log log = Log.get("CellGrid");
 	private final WrapCache cache = new WrapCache();
 	private final CodePadSkin skin;
-	private final CodePad editor;
+	final CodePad editor;
 	private final ScrollBar vscroll;
 	private final ScrollBar hscroll;
 	private Origin origin = Origin.ZERO;
@@ -75,8 +75,8 @@ public class CellGrid
 	private int viewCols;
 	// negative if no wrap
 	private int wrapLimit;
-	private final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
-	private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
+	final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
+	final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
 	private final BooleanExpression paintCaret;
 	private Timeline cursorAnimation;
 	private boolean cursorOn = true;

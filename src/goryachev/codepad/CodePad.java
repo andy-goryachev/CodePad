@@ -112,20 +112,20 @@ public class CodePad
 	
 	private final InputMap inputMap;
 	private SimpleObjectProperty<CodeModel> model;
-	private final SelectionModel selectionModel = new SelectionModel();
-	private DoubleProperty aspectRatio;
-	private StyleableObjectProperty<Color> backgroundColor;
-	private StyleableObjectProperty<Color> caretColor;
-	private StyleableObjectProperty<Color> caretLineColor;
-	private StyleableObjectProperty<Insets> contentPadding;
-	private StyleableBooleanProperty displayCaretProperty;
-	private StyleableBooleanProperty editable;
-	private StyleableObjectProperty<Font> font;
-	private DoubleProperty lineSpacing;
-	private StyleableObjectProperty<Color> selectionColor;
-	private IntegerProperty tabSize;
-	private StyleableObjectProperty<Color> textColor;
-	private StyleableBooleanProperty wrapText;
+	final SelectionModel selectionModel = new SelectionModel();
+	DoubleProperty aspectRatio;
+	StyleableObjectProperty<Color> backgroundColor;
+	StyleableObjectProperty<Color> caretColor;
+	StyleableObjectProperty<Color> caretLineColor;
+	StyleableObjectProperty<Insets> contentPadding;
+	StyleableBooleanProperty displayCaretProperty;
+	StyleableBooleanProperty editable;
+	StyleableObjectProperty<Font> font;
+	DoubleProperty lineSpacing;
+	StyleableObjectProperty<Color> selectionColor;
+	IntegerProperty tabSize;
+	StyleableObjectProperty<Color> textColor;
+	StyleableBooleanProperty wrapText;
 
 
 	public CodePad(CodeModel model)
@@ -1023,10 +1023,10 @@ public class CodePad
 
 
 	/** styleable properties monstrocity */
-	private static final class StyleableProperties
+	static final class StyleableProperties
 	{
 		// aspect ratio
-		private static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-fx-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
+		static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-fx-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1043,7 +1043,7 @@ public class CodePad
 		};
 		
 		// background color
-		private static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-color-background", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
+		static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-color-background", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1060,7 +1060,7 @@ public class CodePad
 		};
 		
 		// caret color
-		private static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-fx-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
+		static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-fx-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1077,7 +1077,7 @@ public class CodePad
 		};
 		
 		// caret line color
-		private static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-fx-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
+		static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-fx-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1094,7 +1094,7 @@ public class CodePad
 		};
 		
 		// content padding
-		private static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
+		static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1111,7 +1111,7 @@ public class CodePad
 		};
 		
 		// display caret
-		private static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-fx-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
+		static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-fx-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1128,7 +1128,7 @@ public class CodePad
 		};
 		
 		// editable
-		private static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-fx-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
+		static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-fx-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1145,7 +1145,7 @@ public class CodePad
 		};
 
 		// font
-		private static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-fx-font", Defaults.FONT)
+		static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-fx-font", Defaults.FONT)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1162,7 +1162,7 @@ public class CodePad
 		};
 
 		// line spacing
-		private static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-fx-line-spacing", SizeConverter.getInstance(), 0)
+		static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-fx-line-spacing", SizeConverter.getInstance(), 0)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1179,7 +1179,7 @@ public class CodePad
 		};
 		
 		// selection background
-		private static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-fx-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
+		static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-fx-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1196,7 +1196,7 @@ public class CodePad
 		};
 
 		// tab size
-		private static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-fx-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
+		static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-fx-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1213,7 +1213,7 @@ public class CodePad
 		};
 		
 		// text color
-		private static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-fx-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
+		static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-fx-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1230,7 +1230,7 @@ public class CodePad
 		};
 
 		// wrap text
-		private static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
+		static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
 		{
 			@Override
 			public boolean isSettable(CodePad n)
@@ -1246,7 +1246,7 @@ public class CodePad
 			}
 		};
 
-		private static final List<CssMetaData<? extends Styleable,?>> STYLEABLES = FX.initCssMetadata
+		static final List<CssMetaData<? extends Styleable,?>> STYLEABLES = FX.initCssMetadata
 		(
 			Control.getClassCssMetaData(),
 			ASPECT_RATIO,

@@ -110,7 +110,7 @@ public class DoubleChoice
 	}
 	
 	
-	private Number toNumber(Object x)
+	Number toNumber(Object x)
 	{
 		if(x == null)
 		{
@@ -128,7 +128,7 @@ public class DoubleChoice
 	}
 	
 	
-	private Number parseValue(String s)
+	Number parseValue(String s)
 	{
 		if(CKit.isBlank(s))
 		{
