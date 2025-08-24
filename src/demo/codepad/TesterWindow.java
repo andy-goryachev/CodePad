@@ -41,7 +41,6 @@ public class TesterWindow
 		
 		pane = new BorderPane();
 		pane.setCenter(editor);
-		//pane.setLeft(options);
 		PANE.set(pane);
 		
 		statusBar = new StatusBar();
@@ -65,13 +64,13 @@ public class TesterWindow
 	{
 		if(on)
 		{
-			pane.setLeft(options);
-			FxFramework.restore(this);
+			pane.setRight(options);
+			FxFramework.restore(pane);
 		}
 		else
 		{
-			FxFramework.store(this);
-			pane.setLeft(null);
+			FxFramework.store(pane);
+			pane.setRight(null);
 		}
 	}
 	
