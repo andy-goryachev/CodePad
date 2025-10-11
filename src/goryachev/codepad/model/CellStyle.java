@@ -34,12 +34,12 @@ public interface CellStyle
 	
 	public static class Builder
 	{
-		private Color backgroundColor;
-		private Color textColor;
-		private boolean bold;
-		private boolean italic;
-		private boolean strikeThrough;
-		private boolean underline;
+		Color backgroundColor;
+		Color textColor;
+		boolean bold;
+		boolean italic;
+		boolean strikeThrough;
+		boolean underline;
 		
 		
 		public Builder()

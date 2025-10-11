@@ -14,7 +14,7 @@ import goryachev.common.util.CMap;
  */
 public class WrapCache
 {
-	private record Key(int index, int wrapLimit) { }
+	record Key(int index, int wrapLimit) { }
 	
 	private CodeModel model;
 	private int tabSize;

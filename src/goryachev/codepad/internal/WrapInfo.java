@@ -37,7 +37,7 @@ public abstract class WrapInfo
 	protected final CodeParagraph paragraph;
 	
 	
-	private WrapInfo(CodeParagraph p)
+	WrapInfo(CodeParagraph p)
 	{
 		this.paragraph = p;
 	}
