@@ -37,12 +37,10 @@ import javafx.stage.Window;
 import javafx.util.Duration;
 
 
-/**
- * Cell Grid.
- * 
- * Renders text in a rectangular grid.
- * Contains and manages the canvas and the both scroll bars.
- */
+/// Cell Grid.
+///
+/// Renders text in a rectangular grid.
+/// Contains and manages the canvas and both scroll bars.
 public class CellGrid
 	extends Pane
 {

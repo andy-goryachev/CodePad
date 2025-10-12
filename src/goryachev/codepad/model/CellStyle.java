@@ -3,9 +3,7 @@ package goryachev.codepad.model;
 import javafx.scene.paint.Color;
 
 
-/**
- * Collects individual cell attributes.
- */
+/// Contains text cell attributes.
 public interface CellStyle
 {
 	public Color getTextColor();

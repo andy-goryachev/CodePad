@@ -35,26 +35,25 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 
-/**
- * CodePad is a high performance monospaced text editor for JavaFX,
- * suitable for code editors and file/log/xml/json viewers.
- * 
- * Supported:
- * - large virtualized models up to ~2 billion paragraphs
- * - long paragraphs (millions of symbols)
- * - fixed-cell grid rendering
- * - limited set of text attributes
- * - limited decorations
- * 
- * Not supported:
- * - bidirectional text
- * - text shaping
- * - proportional fonts
- */
+/// `CodePad` is a high performance monospaced text editor for JavaFX,
+/// suitable for code editors and file/log/xml/json viewers.
+///
+/// ### Supported Features
+/// - large virtualized models up to ~2 billion paragraphs
+/// - long paragraphs (millions of symbols)
+/// - fixed-cell grid rendering
+/// - limited set of text attributes
+/// - limited decorations
+///
+/// ### Planned Features:
+/// - bidirectional text
+/// - text shaping
+/// - proportional fonts
+///
 public class CodePad
 	extends Control
 {
-	/** CodePad function identifiers. */
+	/// CodePad function identifiers.
 	public static class FN
 	{
 		public static final Func BACKSPACE = new Func();
@@ -142,16 +141,15 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Moves the caret to the specified position.
-	 * When the {@code extendSelection} flag is {@code true}, the selection is extended to the new position.
-	 * When the {@code clearPhantomPosition} is {@code true}, the "phantom x position", or the column from which the vertical navigation
-	 * has started, is cleared.
-	 * 
-	 * @param p the position to move the caret to
-	 * @param extendSelection whether to extend selection or not
-	 * @param clearPhantomPosition whether to clear (remove) phantom x position
-	 */
+	/// Moves the caret to the specified position.
+	/// When the `extendSelection` flag is `true`, the selection is extended to the new position.
+	/// When the `clearPhantomPosition` is `true`, the "phantom x position", or the column from which the vertical navigation
+	/// has started, is cleared.
+	///
+	/// @param p the position to move the caret to
+	/// @param extendSelection whether to extend selection or not
+	/// @param clearPhantomPosition whether to clear (remove) phantom x position
+	///
 	public final void moveCaret(TextPos p, boolean extendSelection, boolean clearPhantomPosition)
 	{
 		if(p != null)
@@ -228,21 +226,21 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Returns the {@link CodeParagraph} for the given {@code index},
-	 * or null if the model is {@code null} or the specified {@code index} is outside of the
-	 * model boundaries.
-	 * 
-	 * @return CodeParagraph or null
-	 */
-	public final CodeParagraph getParagraph(int ix)
+	/// Returns the [CodeParagraph] for the given `index`,
+	/// or `null` if the model is `null` or the specified `index` is outside of
+	/// the model boundaries.
+	///
+	/// @param index the paragraph index
+	/// @return CodeParagraph or null
+	///
+	public final CodeParagraph getParagraph(int index)
 	{
 		CodeModel m = getModel();
 		if(m != null)
 		{
-			if((ix >= 0) && (ix < m.size()))
+			if((index >= 0) && (index < m.size()))
 			{
-				return m.getParagraph(ix);
+				return m.getParagraph(index);
 			}
 		}
 		return null;
@@ -262,14 +260,13 @@ public class CodePad
 	}
 
 
-	/**
-	 * Defines the text cell aspect ratio, the cell width divided by the cell height.
-	 * The actual value used will be clipped to the range [0.05 ... 1.0] (inclusive).
-	 * <p>
-	 * A value of 1.0 results in a square cell.
-	 *
-	 * @defaultValue 0.4
-	 */
+	/// Defines the text cell aspect ratio, the cell width divided by the cell height.
+	/// The actual value used will be clipped to the range [0.05 ... 1.0] (inclusive).
+	///
+	/// A value of 1.0 results in a square cell.
+	///
+	/// @defaultValue 0.4
+	///
 	public final DoubleProperty aspectRatioProperty()
 	{
 		if(aspectRatio == null)
@@ -320,11 +317,10 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Defines the CodePad content background color.
-	 *
-	 * @defaultValue Color.WHITE
-	 */
+	/// Defines the CodePad content background color.
+	///
+	/// @defaultValue Color.WHITE
+	///
 	public final ObjectProperty<Color> backgroundColorProperty()
 	{
 		if(backgroundColor == null)
@@ -381,11 +377,10 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Defines the color of the caret.
-	 *
-	 * @defaultValue Color.BLACK
-	 */
+	/// Defines the color of the caret.
+	///
+	/// @defaultValue Color.BLACK
+	///
 	public final ObjectProperty<Color> caretColorProperty()
 	{
 		if(caretColor == null)
@@ -436,11 +431,10 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Defines the background color of the current caret paragraph.
-	 *
-	 * @defaultValue Color.TBD
-	 */
+	/// Defines the background color of the current caret paragraph.
+	///
+	/// @defaultValue Color.TBD
+	///
 	public final ObjectProperty<Color> caretLineColorProperty()
 	{
 		if(caretLineColor == null)
@@ -503,11 +497,10 @@ public class CodePad
 	}
 	
 
-	/**
-	 * Determines the padding between the text content and the edges of the document.
-	 * 
-	 * @defaultValue {@code null}
-	 */
+	/// Determines the padding between the text content and the edges of the document.
+	///
+	/// @defaultValue `null`
+	///
 	public final ObjectProperty<Insets> contentPaddingProperty()
 	{
 		if(contentPadding == null)
@@ -558,11 +551,10 @@ public class CodePad
 	}
 	
 	
-    /**
-     * Determines whether to show the caret.
-     * 
-     * @defaultValue {@code true}
-     */
+    /// Determines whether to show the caret.
+    ///
+    /// @defaultValue `true`
+    ///
 	public final BooleanProperty displayCaretProperty()
 	{
 		if(displayCaretProperty == null)
@@ -606,11 +598,10 @@ public class CodePad
 	}
 	
 	
-    /**
-     * Indicates whether this CodeArea can be edited by the user.
-     * 
-     * @defaultValue {@code true}
-     */
+    /// Indicates whether this CodeArea can be edited by the user.
+    ///
+    /// @defaultValue `true`
+    ///
 	public final BooleanProperty editableProperty()
 	{
 		if(editable == null)
@@ -654,11 +645,10 @@ public class CodePad
 	}
 
 
-	/**
-	 * The font to be used by the editor.
-	 * 
-	 * @defaultValue Monospaced font ot the default size
-	 */
+	/// The font to be used by the editor.
+	///
+	/// @defaultValue system Monospaced font
+	///
 	public final ObjectProperty<Font> fontProperty()
 	{
 		if(font == null)
@@ -709,11 +699,10 @@ public class CodePad
 	}
 	
 	
-    /**
-     * Defines the vertical space between lines, in pixels.
-     *
-     * @defaultValue 0
-     */
+    /// Defines the vertical space between lines, in pixels.
+    ///
+    /// @defaultValue 0
+    ///
 	public final DoubleProperty lineSpacingProperty()
 	{
 		if(lineSpacing == null)
@@ -805,11 +794,10 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Defines the selection background color.
-	 *
-	 * @defaultValue Color.TBD
-	 */
+	/// Defines the selection background color.
+	///
+	/// @defaultValue Color.TBD
+	///
 	public final ObjectProperty<Color> selectionColorProperty()
 	{
 		if(selectionColor == null)
@@ -860,12 +848,11 @@ public class CodePad
 	}
 	
 	
-    /**
-     * The size of a tab stop.
-     * The values are converted to an {@code int}.
-     * Values less than 1 are treated as 1.  Values greater than 32 are treated as 32.
-     * @defaultValue 8
-     */
+    /// The size of a tab stop.
+    /// The values are converted to an `int`.
+    /// Values less than 1 are treated as 1.  Values greater than 32 are treated as 32.
+    /// @defaultValue 8
+    ///
 	public final IntegerProperty tabSizeProperty()
 	{
 		if(tabSize == null)
@@ -916,11 +903,10 @@ public class CodePad
 	}
 	
 	
-	/**
-	 * Defines the CodePad text color.
-	 *
-	 * @defaultValue Color.BLACK
-	 */
+	/// Defines the CodePad text color.
+	///
+	/// @defaultValue Color.BLACK
+	///
 	public final ObjectProperty<Color> textColorProperty()
 	{
 		if(textColor == null)
@@ -971,14 +957,13 @@ public class CodePad
 	}
 	
 
-    /**
-     * Determines whether the text should be wrapped to fin the viewable area width.
-     * <p>
-     * The horizontal scrolling will be disabled when this property is set to {@code true},
-     * and the horizontal scroll bar will be hidden.
-     * 
-     * @defaultValue {@code false}
-     */
+    /// Determines whether the text should be wrapped to fin the viewable area width.
+    ///
+    /// The horizontal scrolling will be disabled when this property is set to `true`,
+    /// and the horizontal scroll bar will be hidden.
+    ///
+    /// @defaultValue false
+    ///
 	public final BooleanProperty wrapTextProperty()
 	{
 		if(wrapText == null)
@@ -1022,10 +1007,10 @@ public class CodePad
 	}
 
 
-	/** styleable properties monstrocity */
+	/// styleable properties monstrocity
 	static final class StyleableProperties
 	{
-		// aspect ratio
+		/// aspect ratio
 		static final CssMetaData<CodePad,Number> ASPECT_RATIO = new CssMetaData<>("-fx-aspect-ratio", SizeConverter.getInstance(), Defaults.ASPECT_RATIO)
 		{
 			@Override
@@ -1042,7 +1027,7 @@ public class CodePad
 			}
 		};
 		
-		// background color
+		/// background color
 		static final CssMetaData<CodePad,Color> BACKGROUND_COLOR = new CssMetaData<>("-fx-color-background", ColorConverter.getInstance(), Defaults.BACKGROUND_COLOR)
 		{
 			@Override
@@ -1059,7 +1044,7 @@ public class CodePad
 			}
 		};
 		
-		// caret color
+		/// caret color
 		static final CssMetaData<CodePad,Color> CARET_COLOR = new CssMetaData<>("-fx-caret-color", ColorConverter.getInstance(), Defaults.CARET_COLOR)
 		{
 			@Override
@@ -1076,7 +1061,7 @@ public class CodePad
 			}
 		};
 		
-		// caret line color
+		/// caret line color
 		static final CssMetaData<CodePad,Color> CARET_LINE_COLOR = new CssMetaData<>("-fx-caret-line-color", ColorConverter.getInstance(), Defaults.CARET_LINE_COLOR)
 		{
 			@Override
@@ -1093,7 +1078,7 @@ public class CodePad
 			}
 		};
 		
-		// content padding
+		/// content padding
 		static final CssMetaData<CodePad,Insets> CONTENT_PADDING = new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Defaults.CONTENT_PADDING)
 		{
 			@Override
@@ -1110,7 +1095,7 @@ public class CodePad
 			}
 		};
 		
-		// display caret
+		/// display caret
 		static final CssMetaData<CodePad,Boolean> DISPLAY_CARET = new CssMetaData<>("-fx-display-caret", StyleConverter.getBooleanConverter(), Defaults.DISPLAY_CARET)
 		{
 			@Override
@@ -1127,7 +1112,7 @@ public class CodePad
 			}
 		};
 		
-		// editable
+		/// editable
 		static final CssMetaData<CodePad,Boolean> EDITABLE = new CssMetaData<>("-fx-editable", StyleConverter.getBooleanConverter(), Defaults.EDITABLE)
 		{
 			@Override
@@ -1144,7 +1129,7 @@ public class CodePad
 			}
 		};
 
-		// font
+		/// font
 		static final FontCssMetaData<CodePad> FONT = new FontCssMetaData<>("-fx-font", Defaults.FONT)
 		{
 			@Override
@@ -1161,7 +1146,7 @@ public class CodePad
 			}
 		};
 
-		// line spacing
+		/// line spacing
 		static final CssMetaData<CodePad,Number> LINE_SPACING = new CssMetaData<>("-fx-line-spacing", SizeConverter.getInstance(), 0)
 		{
 			@Override
@@ -1178,7 +1163,7 @@ public class CodePad
 			}
 		};
 		
-		// selection background
+		/// selection background
 		static final CssMetaData<CodePad,Color> SELECTION_COLOR = new CssMetaData<>("-fx-selection-background-color", ColorConverter.getInstance(), Defaults.SELECTION_BACKGROUND_COLOR)
 		{
 			@Override
@@ -1195,7 +1180,7 @@ public class CodePad
 			}
 		};
 
-		// tab size
+		/// tab size
 		static final CssMetaData<CodePad,Number> TAB_SIZE = new CssMetaData<>("-fx-tab-size", SizeConverter.getInstance(), Defaults.TAB_SIZE)
 		{
 			@Override
@@ -1212,7 +1197,7 @@ public class CodePad
 			}
 		};
 		
-		// text color
+		/// text color
 		static final CssMetaData<CodePad,Color> TEXT_COLOR = new CssMetaData<>("-fx-text-color", ColorConverter.getInstance(), Defaults.TEXT_COLOR)
 		{
 			@Override
@@ -1229,7 +1214,7 @@ public class CodePad
 			}
 		};
 
-		// wrap text
+		/// wrap text
 		static final CssMetaData<CodePad,Boolean> WRAP_TEXT = new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), Defaults.WRAP_TEXT)
 		{
 			@Override

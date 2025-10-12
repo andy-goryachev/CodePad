@@ -16,9 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 
-/**
- * CodePad Skin.
- */
+/// [CodePad] [Skin].
 public class CodePadSkin
 	extends SkinBase<CodePad>
 {
@@ -75,22 +73,18 @@ public class CodePadSkin
 	}
 
 
-	/**
-	 * Subclasses can override this method to provide a custom vertical scroll bar.
-	 */
+	/// Subclasses can override this method to provide a custom vertical scroll bar.
 	protected ScrollBar createVScrollBar()
 	{
-		// TODO support uncinditionally hiding the scrollbar
+		// TODO support unconditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 
 
-	/**
-	 * Subclasses can override this method to provide a custom horizontal scroll bar.
-	 */
+	/// Subclasses can override this method to provide a custom horizontal scroll bar.
 	protected ScrollBar createHScrollBar()
 	{
-		// TODO support uncinditionally hiding the scrollbar
+		// TODO support unconditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 

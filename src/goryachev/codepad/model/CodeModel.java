@@ -4,32 +4,24 @@ import goryachev.codepad.TextPos;
 import java.util.Objects;
 
 
-/**
- * CodePad Text Model.
- */
+/// [CodePad] Text Model.
 public abstract class CodeModel
 {
-	/**
-	 * Returns the number of paragraphs. 
-	 */
+	/// Returns the number of paragraphs.
 	public abstract int size();
 	
 	
-	/**
-	 * Returns the {@link CodeParagraph} at the specified {@code index}.
-	 * <p>
-	 * This index should never go beyond the number of paragraphs as determined by {@link #size()}.
-	 * Doing so might result in an undetermined behavior (most likely an exception).
-	 */
+	/// Returns the [CodeParagraph] at the specified `index`.
+	///
+	/// This index should never go beyond the number of paragraphs as determined by [#size()].
+	/// Doing so might result in an undetermined behavior (most likely an exception).
 	public abstract CodeParagraph getParagraph(int index);
 	
 	
-	/**
-	 * Returns the length of the paragraph text at the specified {@code index}.
-	 * <p>
-	 * The base class simply invokes {@code getParagraph(index).getTextLength();},
-	 * but subclasses may override this method if a more optimal implementation can be provided. 
-	 */
+	/// Returns the length of the paragraph text at the specified `index`.
+	///
+	/// The base class simply invokes 'getParagraph(index).getTextLength();',
+	/// but subclasses may override this method if a more optimal implementation can be provided.
 	public int getParagraphLength(int index)
 	{
 		return getParagraph(index).getTextLength();
@@ -41,15 +33,13 @@ public abstract class CodeModel
 	}
 	
 	
-	/**
-	 * Returns the plain text (always non-null) of the paragraph at the specified {@code index}.
-	 * <p>
-	 * This index should never go beyond the number of paragraphs as determined by {@link #size()}.
-	 * Doing so might result in an undetermined behavior (most likely an exception).
-	 * @implNote
-	 * The default implementation retrieves the {@link CodeParagraph} and obtains the plain text from it.
-	 * The subclasses may override this method if a more efficient way of obtaining the plain text exist. 
-	 */
+	/// Returns the plain text (always non-null) of the paragraph at the specified `index`.
+	///
+	/// This index should never go beyond the number of paragraphs as determined by [#size()].
+	/// Doing so might result in an undetermined behavior (most likely an exception).
+	/// @implNote
+	/// The default implementation retrieves the [CodeParagraph] and obtains the plain text from it.
+	/// The subclasses may override this method if a more efficient way of obtaining the plain text exist.
 	public String getPlainText(int index)
 	{
 		CodeParagraph p = getParagraph(index);
@@ -57,9 +47,7 @@ public abstract class CodeModel
 	}
 	
 
-	/**
-	 * Clamps the text position to the document limits.
-	 */
+	/// Clamps the text position to the document limits.
 	public final TextPos clamp(TextPos p)
 	{
 		Objects.nonNull(p);

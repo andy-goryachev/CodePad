@@ -2,9 +2,8 @@
 package goryachev.codepad;
 
 
-/**
- * Selection Range.
- */
+/// Selection Range.
+///
 public final class SelectionRange
 {
     private final TextPos min;

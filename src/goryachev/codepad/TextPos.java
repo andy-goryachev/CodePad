@@ -3,13 +3,11 @@ package goryachev.codepad;
 import goryachev.common.util.FH;
 
 
-/**
- * Position within the text, characterized by the two values:
- * <pre>
- * - paragraph index
- * - cell index which corresponds to the insertion point
- * </pre>
- */
+/// Position within the text, characterized by the two values:
+///
+/// - paragraph index
+/// - cell index which corresponds to the insertion point
+///
 public final class TextPos
 	implements Comparable<TextPos>
 {
@@ -26,45 +24,40 @@ public final class TextPos
 	}
 	
 	
-	/**
-	 * Creates the TextPos at the specified index and cell index.
-	 */
+	/// Creates the TextPos at the specified index and cell index.
+	///
 	public static TextPos of(int index, int cellIndex)
 	{
 		return new TextPos(index, cellIndex);
 	}
 
 
-	/**
-	 * Returns 0-based paragraph index in the model.
-	 */
+	/// Returns 0-based paragraph index in the model.
+	///
 	public int index()
 	{
 		return index;
 	}
 
 
-	/**
-	 * Returns 0-based cell index.
-	 */
+	/// Returns 0-based cell index.
+	///
 	public int cellIndex()
 	{
 		return cix;
 	}
 	
 	
-	/**
-	 * Returns 1-based line number, equaling to {@link #index} + 1.
-	 */
+	/// Returns 1-based line number, equaling to {@link #index} + 1.
+	///
 	public int getLineNumber()
 	{
 		return index + 1;
 	}
 	
 	
-	/**
-	 * Returns 1-based visual column number, equaling to {@link #offset} + 1.
-	 */
+	/// Returns 1-based visual column number, equaling to {@link #offset} + 1.
+	///
 	public int getColumn()
 	{
 		return cix + 1;
@@ -114,11 +107,10 @@ public final class TextPos
 	}
 	
 	
-	/**
-	 * Returns a value > 0 if the position at (ix, cix) is before this TextPos,
-	 * == 0 if the position is the same,
-	 * < 0 if the position at (ix, cix) is after this TextPos.
-	 */
+	/// Returns a value > 0 if the position at (ix, cix) is before this TextPos,
+	/// == 0 if the position is the same,
+	/// < 0 if the position at (ix, cix) is after this TextPos.
+	///
 	public int compareTo(int ix, int cellIndex)
 	{
 		if(index < ix)

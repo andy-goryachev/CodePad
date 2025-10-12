@@ -5,13 +5,12 @@ import goryachev.codepad.model.CodeParagraph;
 import goryachev.common.util.CMap;
 
 
-/**
- * Caches WrapInfo objects for the given model and tab size.
- * The cache can accomodate objects corresponding to different wrap width
- * for the purposes of layout, since the layout code may need to try
- * without and with the vertical scroll bar which affects the wrapping width,
- * but we want to keep the cache content as much as possible.
- */
+/// Caches WrapInfo objects for the given model and tab size.
+/// The cache can accomodate objects corresponding to different wrap width
+/// for the purposes of layout, since the layout code may need to try
+/// without and with the vertical scroll bar which affects the wrapping width,
+/// but we want to keep the cached content as much as possible.
+///
 public class WrapCache
 {
 	record Key(int index, int wrapLimit) { }
