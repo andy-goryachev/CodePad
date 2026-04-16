@@ -32,7 +32,7 @@ This project is currently in the early development stage.
 
 ## Software Requirements
 
-Requires JDK 24+ with JavaFX 23+.
+Requires JavaFX 26+ with a matching JDK.
 
 
 ## License
