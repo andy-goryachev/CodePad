@@ -2366,7 +2366,7 @@ public final class FX
 				@Override
 				public Object fromString(String s)
 				{
-					throw new Error("not supported");
+					return null;
 				}
 			};
 		}
