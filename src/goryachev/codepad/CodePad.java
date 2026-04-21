@@ -5,7 +5,6 @@ import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.model.CodeParagraph;
-import goryachev.codepad.skin.CodePadSkin;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
 import goryachev.fx.input.Func;

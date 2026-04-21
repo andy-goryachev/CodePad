@@ -1,7 +1,5 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
-package goryachev.codepad.skin;
-import goryachev.codepad.CodePad;
-import goryachev.codepad.TextPos;
+package goryachev.codepad;
 import goryachev.codepad.internal.CellGrid;
 import goryachev.codepad.internal.CodePadBehavior;
 import goryachev.codepad.internal.Defaults;

@@ -1,11 +1,11 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.CodePadSkin;
 import goryachev.codepad.SelectionRange;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
-import goryachev.codepad.skin.CodePadSkin;
 import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
 import goryachev.fx.FX;
