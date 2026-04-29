@@ -1,7 +1,6 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
 import goryachev.codepad.CodePad;
-import goryachev.codepad.CodePadSkin;
 import goryachev.codepad.SelectionRange;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CellStyle;
@@ -46,7 +45,6 @@ public class CellGrid
 {
 	private static final Log log = Log.get("CellGrid");
 	private final WrapCache cache = new WrapCache();
-	private final CodePadSkin skin;
 	final CodePad editor;
 	private final ScrollBar vscroll;
 	private final ScrollBar hscroll;
@@ -82,10 +80,9 @@ public class CellGrid
 	private int phantomx = -1;
 
 
-	public CellGrid(CodePadSkin skin, ScrollBar vscroll, ScrollBar hscroll)
+	public CellGrid(CodePad ed, ScrollBar vscroll, ScrollBar hscroll)
 	{
-		this.skin = skin;
-		this.editor = skin.getSkinnable();
+		this.editor = ed;
 		this.vscroll = configureScrollBar(vscroll);
 		this.hscroll = configureScrollBar(hscroll);
 		
@@ -756,7 +753,7 @@ public class CellGrid
 		
 		int size = editor.getParagraphCount();
 		int tabSize = tabSize();
-		double lineSpacing = lineSpacing();
+		double lineSpacing = lineSpacing(); // TODO snap?
 		TextCellMetrics tm = textCellMetrics();
 
 		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
@@ -884,7 +881,6 @@ public class CellGrid
 			if(reachedEnd)
 			{
 				log.debug("reached end");
-				
 				
 				// FIX there is something wrong here
 				// avoid showing empty space at the end

@@ -37,7 +37,7 @@ public class CodePadSkin
 		hscroll.setOrientation(Orientation.HORIZONTAL);
 		FX.consumeAllEvents(ScrollEvent.ANY, hscroll);
 
-		grid = new CellGrid(this, vscroll, hscroll);
+		grid = new CellGrid(ed, vscroll, hscroll);
 		getChildren().add(grid);
 
 		behavior = new CodePadBehavior(ed, grid);
@@ -67,14 +67,12 @@ public class CodePadSkin
 		disconnector.addEventFilter(vscroll, MouseEvent.MOUSE_RELEASED, grid::handleScrollBarMouseReleased);
 		disconnector.addEventFilter(hscroll, MouseEvent.MOUSE_PRESSED, grid::handleScrollBarMousePressed);
 		disconnector.addEventFilter(hscroll, MouseEvent.MOUSE_RELEASED, grid::handleScrollBarMouseReleased);
-
 	}
 
 
 	/// Subclasses can override this method to provide a custom vertical scroll bar.
 	protected ScrollBar createVScrollBar()
 	{
-		// TODO support unconditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 
@@ -82,7 +80,6 @@ public class CodePadSkin
 	/// Subclasses can override this method to provide a custom horizontal scroll bar.
 	protected ScrollBar createHScrollBar()
 	{
-		// TODO support unconditionally hiding the scrollbar
 		return new ScrollBar();
 	}
 

@@ -11,6 +11,7 @@ import goryachev.common.util.CMap;
 /// without and with the vertical scroll bar which affects the wrapping width,
 /// but we want to keep the cached content as much as possible.
 ///
+@Deprecated // FIX remove
 public class WrapCache
 {
 	record Key(int index, int wrapLimit) { }

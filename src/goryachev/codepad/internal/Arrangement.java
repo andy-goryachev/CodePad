@@ -8,7 +8,8 @@ import goryachev.common.util.CList;
 /**
  * Paragraph Arrangement provides wrapping of paragraphs inside the viewport
  * as well as inside the "sliding window" outside of the viewport.
- * This class facilitates conversion between the screen and model coordinates. 
+ * This class facilitates conversion between the screen and model coordinates,
+ * as well as helps compute the vertical scroll bar parameters. 
  */
 public class Arrangement
 {
