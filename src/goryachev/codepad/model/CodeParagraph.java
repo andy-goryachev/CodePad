@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 
 
 /// Code Paragraph is an immutable object that encapsulates a single paragraph of
-/// text and associated text attributes.
+/// text and its breakdown into cells.
 public abstract class CodeParagraph
 {
 	/// Returns the model index of this paragraph.
@@ -30,12 +30,12 @@ public abstract class CodeParagraph
 	public abstract int getCellCount();
 	
 	
-	/// Returns text for the given cell index.
-	public abstract String getCellText(int cix);
+	/// Returns the string to be rendered in the given cell.
+	public abstract String getCellText(int cellIndex);
 	
 	
 	/// Returns the cell style for the given cell index.
-	public abstract CellStyle getCellStyle(int cix);
+	public abstract CellStyle getCellStyle(int cellIndex);
 	
 	
 	/// Returns true when the text contains tab characters.

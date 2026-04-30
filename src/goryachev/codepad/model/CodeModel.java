@@ -7,6 +7,13 @@ import java.util.Objects;
 /// [CodePad] Text Model.
 public abstract class CodeModel
 {
+	// TODO
+	// - editable
+	// - add/remove listener
+	// - replace
+	// - apply style?
+	
+	
 	/// Returns the number of paragraphs.
 	public abstract int size();
 	
@@ -18,7 +25,7 @@ public abstract class CodeModel
 	public abstract CodeParagraph getParagraph(int index);
 	
 	
-	/// Returns the length of the paragraph text at the specified `index`.
+	/// Returns the length of the paragraph text (the character count) at the specified `index`.
 	///
 	/// The base class simply invokes 'getParagraph(index).getTextLength();',
 	/// but subclasses may override this method if a more optimal implementation can be provided.
