@@ -1,8 +1,12 @@
 # CodePad
 
+> [!WARNING]
+> This project is currently in the early development stage.
+
 High Performance, Monospaced Editor for JavaFX.
 
 ![screenshot](doc/screenshot.png)
+
 
 
 
@@ -15,18 +19,16 @@ targeting applications such as code editors or log viewers, which supports:
 - very long (millions of characters) paragraphs
 - syntax highlighting
 
-It is currently not a goal to support proportional fonts, right-to-left orientation, or bidirectional text.
+
+## Non-goals
+
+It is currently not a goal to support proportional fonts, right-to-left orientation, bidirectional text, or embedded `Node`s.
 
 For these features,
 [demand](https://bugs.openjdk.org/browse/JDK-8301121) integration of the
 [RichTextArea (Incubator)](https://github.com/andy-goryachev-oracle/Test/blob/main/doc/RichTextArea/RichTextArea.md)
-project into the JavaFX core.
+project into JavaFX.
 
-
-
-## ⚠️ Warning
-
-This project is currently in the early development stage.
 
 
 
