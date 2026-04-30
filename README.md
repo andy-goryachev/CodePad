@@ -1,7 +1,8 @@
-# CodePad
-
 > [!WARNING]
 > This project is currently in the early development stage.
+
+
+# CodePad
 
 High Performance, Monospaced Editor for JavaFX.
 
