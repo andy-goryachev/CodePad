@@ -149,7 +149,7 @@ public class CellGrid
 
 	private void setOrigin(int index, int cellIndex, double xoffset, double yoffset)
 	{
-		log.debug("ix=%d, cix=%d, xoff=%f, yoff=%f", index, cellIndex, xoffset, yoffset);
+		log.debug("ix={0}, cix={1}, xoff={2}, yoff={3}", index, cellIndex, xoffset, yoffset);
 		
 		// FIX remove
 		if(cellIndex < 0)
@@ -1613,7 +1613,7 @@ public class CellGrid
 	
 	public void verticalScroll(int deltaLines, boolean up)
 	{
-		log.trace("deltaLines=%d %s", deltaLines, up);
+		log.trace("deltaLines={0} {1}", deltaLines, up);
 
 		if(deltaLines < 1)
 		{
@@ -1630,7 +1630,7 @@ public class CellGrid
 	
 	public void shiftOrigin(int deltaLines)
 	{
-		log.debug("deltaLines=%s", deltaLines);
+		log.debug("deltaLines={0}", deltaLines);
 		
 		int cix = origin.cellIndex();
 		TextPos from = TextPos.of(origin.index(), cix);
