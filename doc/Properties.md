@@ -2,37 +2,41 @@
 
 ## Properties
 
-| Property                   | Type       |Description
-|----------------------------|------------|-------------------
-| `aspectRatio`              | double     |
-| `backgroundColor`          | Color      |
-| `caretColor`               | Color      |
-| `caretLineColor`           | Color      |
-| `contentPadding`           | Insets     |
-| `displayCaret`             | boolean    |
-| `editable`                 | boolean    |
-| `font`                     | Font       |
-| `lineSpacing`              | double     |
-| `model`                    | CodeModel  |
-| `selectionColor`           | Color      |
-| `tabSize`                  | int        | _deprecated_
-| `tabStopPolicy`            | TabPolicy  | TODO
-| `textColor`                | Color      |
-| `wrapText`                 | boolean    |
+| Property                    | Type       |Description
+|-----------------------------|------------|-------------------
+| `aspectRatio`               | double     |
+| `backgroundColor`           | Color      |
+| `caretColor`                | Color      |
+| `caretLineColor`            | Color      |
+| `contentPadding`            | Insets     |
+| `displayCaret`              | boolean    |
+| `editable`                  | boolean    |
+| `font`                      | Font       |
+| `lineSpacing`               | double     |
+| `model`                     | CodeModel  |
+| `selectionColor`            | Color      |
+| `tabSize`                   | int        | to be replaced with `tabStopPolicy`
+| `textColor`                 | Color      |
+| `wrapText`                  | boolean    |
 
 
-caretBlinkPeriod Duration
-highlightCurrentParagraph boolean ?
-lineEnding LineEnding
-undoRedoEnabled boolean
-useContentHeight
-useContentWidth
+### TO DO
+
+| Property                    | Type       |Description
+|-----------------------------|------------|-------------------
+| `caretBlinkPeriod`          | Duration   |
+| `highlightCurrentParagraph` | boolean    |
+| `lineEnding`                | LineEnding |
+| `tabStopPolicy`             | TabPolicy  |
+| `undoRedoEnabled`           | boolean    |
+| `useContentHeight`          | boolean    |
+| `useContentWidth`           | boolean    |
 
 
-## Decorators
+## Side Decorators
 
-leftSideColumns
-rightSideColumns
+- leftSideColumns
+- rightSideColumns
 
 
 
