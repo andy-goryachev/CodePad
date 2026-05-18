@@ -5,9 +5,9 @@ package goryachev.codepad.internal;
 /// Represents the configuration of visible cells, parameters of paragraphs
 /// immediately preceing and following the visible area, and the visibility of
 /// the scroll bars.
-public class ArrangementNew
+public class Arrangement
 {
-	public ArrangementNew()
+	public Arrangement()
 	{
 
 	}

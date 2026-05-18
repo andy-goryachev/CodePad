@@ -753,7 +753,7 @@ public class CellGrid
 		else
 		{
 			// prepare content
-			ArrangementNew a = computeArrangement(null, null);
+			Arrangement a = computeArrangement(null, null);
 			paintCanvas(a);
 			
 			boolean vsb = a.isVSBVisible();
@@ -782,7 +782,7 @@ public class CellGrid
 	// checks the empty space at the bottom, shifts the content down if necessary
 	// if vertical scrollbar appears, reflow with the vsb enabled
 	// if horizontal scrollbar appears, reflow with hsb enabled
-	private ArrangementNew computeArrangement(Boolean initVsb, Boolean initHsb)
+	private Arrangement computeArrangement(Boolean initVsb, Boolean initHsb)
 	{
 		int size = editor.getParagraphCount();
 		int tabSize = tabSize();
@@ -872,7 +872,7 @@ public class CellGrid
 		int lastCol = 0;
 
 		// TODO: roll arrangement to get a second copy? if needed
-		ArrangementNew a = new ArrangementNew();
+		Arrangement a = new Arrangement();
 		// TODO populate
 		return a;
 	}
@@ -885,7 +885,7 @@ public class CellGrid
 	}
 	
 	
-	private void paintCanvas(ArrangementNew a)
+	private void paintCanvas(Arrangement a)
 	{
 		// TODO
 		// can cache because this method will be called on change
