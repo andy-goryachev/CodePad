@@ -11,7 +11,7 @@ import goryachev.common.util.CList;
  * This class facilitates conversion between the screen and model coordinates,
  * as well as helps compute the vertical scroll bar parameters. 
  */
-public class Arrangement
+public class Arrangement_DELETE
 {
 	private static final Log log = Log.get("Arrangement");
 	private final WrapCache cache;
@@ -32,7 +32,7 @@ public class Arrangement
 	private int topIndex;
 	
 	
-	public Arrangement(WrapCache cache, int modelSize, int viewRows, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
+	public Arrangement_DELETE(WrapCache cache, int modelSize, int viewRows, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
 	{
 		this.cache = cache;
 		this.modelSize = modelSize;

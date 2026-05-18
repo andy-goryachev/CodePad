@@ -47,7 +47,7 @@ public class CellGrid
 	private static final Log log = Log.get("CellGrid");
 	final CodePad editor;
 	private final WrapCache cache = new WrapCache();
-	private Arrangement arrangement;
+	private Arrangement_DELETE arrangement;
 	private final ScrollBar vscroll;
 	private final ScrollBar hscroll;
 	private Origin origin = Origin.ZERO;
@@ -205,7 +205,7 @@ public class CellGrid
 		TextCellMetrics tm = textCellMetrics();
 		int row = (int)(y / (tm.cellHeight + lineSpacing()));
 		int col = (int)Math.round(x / tm.cellWidth);
-		Arrangement a = arrangement();
+		Arrangement_DELETE a = arrangement();
 		int ix = a.indexAtViewRow(row);
 		if(ix < 0)
 		{
@@ -443,7 +443,7 @@ public class CellGrid
 			double pos = (val - min) / max;
 			
 			TextCellMetrics tm = textCellMetrics();
-			Arrangement a = arrangement();
+			Arrangement_DELETE a = arrangement();
 			int maxCells = a.maxCellCount() + Defaults.HORIZONTAL_CARET_GUARD;
 			double w = contentPaddingLeft + contentPaddingRight + maxCells * tm.cellWidth;
 			double cw = canvas.getWidth();
@@ -504,7 +504,7 @@ public class CellGrid
 			arrangement = null;
 			
 			// 2. compute arrangement
-			Arrangement ar = arrangement();
+			Arrangement_DELETE ar = arrangement();
 			log.debug(ar);
 			
 			// 3. adjust
@@ -541,7 +541,7 @@ public class CellGrid
 			// the sliding window. 
 
 			TextCellMetrics tm = textCellMetrics();
-			Arrangement ar = arrangement();
+			Arrangement_DELETE ar = arrangement();
 			
 			double top = ar.getTopIndex();
 			double btm = (size - ar.getBottomIndex());
@@ -569,7 +569,7 @@ public class CellGrid
 		double vis;
 		double val;
 
-		Arrangement ar = arrangement();
+		Arrangement_DELETE ar = arrangement();
 		int w = ar.maxCellCount();
 		if(w == 0)
 		{
@@ -681,7 +681,7 @@ public class CellGrid
 	}
 	
 	
-	public Arrangement arrangement()
+	public Arrangement_DELETE arrangement()
 	{
 		if(arrangement == null)
 		{
@@ -691,12 +691,12 @@ public class CellGrid
 	}
 	
 	
-	private Arrangement createArrangement()
+	private Arrangement_DELETE createArrangement()
 	{
 		int modelSize = editor.getParagraphCount();
 		int ix = origin.index();
 		int cix = origin.cellIndex();
-		Arrangement a = new Arrangement(cache, modelSize, viewRows, viewCols, wrapLimit, ix, cix);
+		Arrangement_DELETE a = new Arrangement_DELETE(cache, modelSize, viewRows, viewCols, wrapLimit, ix, cix);
 		a.layoutViewPort(viewRows);
 		
 		// lay out bottom half of the sliding window
@@ -1170,7 +1170,7 @@ public class CellGrid
 			}
 		}
 		
-		Arrangement ar = arrangement();
+		Arrangement_DELETE ar = arrangement();
 		
 		if(!wrap)
 		{
@@ -1328,7 +1328,7 @@ public class CellGrid
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
 		
-		Arrangement a = arrangement();
+		Arrangement_DELETE a = arrangement();
 		int maxy = a.getVisibleRowCount();
 		int wrapLimit = a.getWrapLimit();
 		TextCellMetrics tm = textCellMetrics();
