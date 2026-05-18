@@ -42,6 +42,7 @@ public class CodePadSkin
 
 		behavior = new CodePadBehavior(ed, grid);
 		
+		// TODO use the skin input map!
 		disconnector = new FxDisconnector();
 		disconnector.addChangeListener(ed.aspectRatioProperty(), true, grid::setAspectRatio);
 		disconnector.addInvalidationListener

@@ -43,28 +43,26 @@ public abstract class WrapInfo
 	}
 	
 	
-	public int getIndex()
+	public final int getIndex()
 	{
 		return paragraph.getIndex();
 	}
 	
 	
-	public int getCellCount()
+	public final int getCellCount()
 	{
 		return paragraph.getCellCount();
 	}
 	
 	
-	public Color getBackgroundColor()
+	public final Color getBackgroundColor()
 	{
 		return paragraph.getBackgroundColor();
 	}
 	
 	
-	/**
-	 * Returns the cell style for the given cell index.
-	 */
-	public CellStyle getCellStyle(int cix)
+	/// Returns the cell style for the given cell index.
+	public final CellStyle getCellStyle(int cix)
 	{
 		if(cix < paragraph.getTextLength())
 		{
@@ -74,7 +72,7 @@ public abstract class WrapInfo
 	}
 	
 	
-	public TextPos clamp(int cix)
+	public final TextPos clamp(int cix)
 	{
 		if(cix < 0)
 		{

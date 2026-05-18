@@ -40,12 +40,14 @@ import javafx.util.Duration;
 ///
 /// Renders text in a rectangular grid.
 /// Contains and manages the canvas and both scroll bars.
+/// 
 public class CellGrid
 	extends Pane
 {
 	private static final Log log = Log.get("CellGrid");
-	private final WrapCache cache = new WrapCache();
 	final CodePad editor;
+	private final WrapCache cache = new WrapCache();
+	private Arrangement arrangement;
 	private final ScrollBar vscroll;
 	private final ScrollBar hscroll;
 	private Origin origin = Origin.ZERO;
@@ -57,7 +59,6 @@ public class CellGrid
 	private Font boldItalicFont;
 	private Font italicFont;
 	private boolean wrap;
-	private Arrangement arrangement;
 	private double aspectRatio;
 	private double contentPaddingTop;
 	private double contentPaddingBottom;
@@ -89,6 +90,8 @@ public class CellGrid
 		setBorder(Border.stroke(Color.TRANSPARENT));
 
 		getChildren().addAll(vscroll, hscroll);
+		
+		// TODO possibly move all these listeners to the skin
 		
 		paintCaret = new FxBooleanBinding(caretEnabledProperty, editor.displayCaretProperty(), editor.focusedProperty(), editor.disabledProperty(), suppressBlink)
 		{
@@ -719,6 +722,196 @@ public class CellGrid
 	}
 	
 	
+	/// - computes Arrangement
+	/// - paints the canvas
+	/// - lays out the canvas, and the scrollbars
+	protected void layoutChildrenNew()
+	{
+		double width = getWidth();
+		log.debug(width);
+		if(width == 0.0)
+		{
+			return;
+		}
+		
+		double x0 = snappedLeftInset();
+		double y0 = snappedTopInset();
+		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
+
+		CodeModel model = editor.getModel();
+		if(model == null)
+		{
+			// TODO possibly use the normal path?
+			// blank screen
+			vscroll.setVisible(false);
+			hscroll.setVisible(false);
+			ensureCanvas(canvasWidth, canvasHeight);
+			clearCanvas();
+			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+		}
+		else
+		{
+			// prepare content
+			ArrangementNew a = computeArrangement(null, null);
+			paintCanvas(a);
+			
+			boolean vsb = a.isVSBVisible();
+			vscroll.setVisible(vsb);
+			if(vsb)
+			{
+				double vsbWidth = a.getVSBWidth();
+				layoutInArea(vscroll, x0 + canvasWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			}
+			
+			boolean hsb = a.isHSBVisible();
+			hscroll.setVisible(hsb);
+			if(hsb)
+			{
+				double hsbHeight = a.getHSBHeight();
+				layoutInArea(hscroll, x0, y0 + canvasHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			}
+			
+			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+		}
+	}
+	
+	
+	// starts with no scrollbars, unless it can be determined that the scrollbars are visible
+	// populates the visible area
+	// checks the empty space at the bottom, shifts the content down if necessary
+	// if vertical scrollbar appears, reflow with the vsb enabled
+	// if horizontal scrollbar appears, reflow with hsb enabled
+	private ArrangementNew computeArrangement(Boolean initVsb, Boolean initHsb)
+	{
+		int size = editor.getParagraphCount();
+		int tabSize = tabSize();
+		double lineSpacing = lineSpacing();
+		TextCellMetrics tm = textCellMetrics();
+
+		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
+		// TODO may need to round up
+		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+		viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+		wrapLimit = wrap ? viewCols : -1;
+		
+		boolean vsb = (initVsb == null) ? false : initVsb;
+		boolean hsb = (initHsb == null) ? false : initHsb;
+		double vsbWidth = 0.0;
+		double hsbHeight = 0.0;
+		
+		if(size > viewRows)
+		{
+			vsb = true;
+		}
+			
+		if(vsb)
+		{
+			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+			canvasWidth = snapSizeX(canvasWidth - vsbWidth);
+			// TODO +1 ?
+			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+			wrapLimit = wrap ? viewCols : -1;
+		}
+			
+		// here we assume the origin cell index is correct for the give width
+		int ix = origin.index();
+		int cix = origin.cellIndex();
+		int rows = 0;
+		boolean reachedEnd = false;
+		
+		for(;;)
+		{
+			if(ix >= size)
+			{
+				reachedEnd = true;
+				break;
+			}
+			
+			WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
+			if(cix == 0)
+			{
+				rows += wi.getRowCount();
+			}
+			else
+			{
+				rows += (wi.getRowCount() - wi.getRowAtCellIndex(cix));
+				cix = 0;
+			}
+			
+//			if(!wrap)
+//			{
+//				int w = wi.getColCount();
+//				if(w > lastCol)
+//				{
+//					lastCol = w;
+//				}
+//			}
+			
+			ix++;
+			if(rows >= viewRows)
+			{
+				if(ix == size)
+				{
+					break;
+				}
+
+				// vsb appears, recompute
+				return computeArrangement(Boolean.TRUE, null); // TODO hsb?
+			}
+		}
+		
+		if(reachedEnd)
+		{
+			// move origin back to avoid empty space at the end
+			origin = recomputeOrigin(rows - viewRows);
+		}
+		
+		// TODO compute colCount, update hsb here
+		int lastCol = 0;
+
+		// TODO: roll arrangement to get a second copy? if needed
+		ArrangementNew a = new ArrangementNew();
+		// TODO populate
+		return a;
+	}
+	
+	
+	private Origin recomputeOrigin(int deltaRows)
+	{
+		// TODO
+		return origin;
+	}
+	
+	
+	private void paintCanvas(ArrangementNew a)
+	{
+		// TODO
+		// can cache because this method will be called on change
+		highlightCaretLine = (editor.getCaretColor() != null);
+		
+		int maxy = a.visibleRowCount();
+		int wrapLimit = a.wrapLimit();
+		TextCellMetrics tm = textCellMetrics();
+		double lineSpacing = lineSpacing();
+		
+		clearCanvas();
+		
+		double x = origin.xoffset();
+		double y = origin.yoffset();
+		
+		for(int ix=0; ix<maxy; ix++)
+		{
+			WrapInfo wi = a.wrapInfoAtRow(ix);
+			int cellIndex = a.cellIndexAtRow(ix);
+			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cellIndex) : wi.getCellCount();
+			paintCells(tm, wi, cellIndex, ct, x, y);
+			y = snapPositionY(y + tm.cellHeight + lineSpacing);
+		}
+	}
+
+
 	@Override
 	protected void layoutChildren()
 	{
