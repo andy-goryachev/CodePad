@@ -28,7 +28,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -56,7 +55,6 @@ public class CellGrid
 	private final ScrollBar hscroll;
 	private Origin origin = Origin.ZERO;
 	private Canvas canvas;
-	private final Rectangle clip;
 	private GraphicsContext gx;
 	private TextCellMetrics metrics;
 	private Font baseFont;
@@ -92,9 +90,6 @@ public class CellGrid
 		this.vscroll = configureScrollBar(vscroll);
 		this.hscroll = configureScrollBar(hscroll);
 		getChildren().addAll(vscroll, hscroll);
-		
-		clip = new Rectangle();
-        clip.setSmooth(false);
 		
 		setBorder(Border.stroke(Color.TRANSPARENT));
 		
@@ -781,7 +776,6 @@ public class CellGrid
 			{
 				layoutInArea(vscroll, x0 + w, y0, vsbWidth, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
-			clip.setWidth(w); // FIX
 			
 			double hsbHeight = ar.getHSBHeight();
 			boolean hsb = (hsbHeight > 0.0);
@@ -790,7 +784,6 @@ public class CellGrid
 			{
 				layoutInArea(hscroll, x0, y0 + h, w, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
-			clip.setHeight(h);
 			
 			layoutInArea(canvas, x0, y0, w, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		}
@@ -817,8 +810,8 @@ public class CellGrid
 		double vsbWidth = 0.0;
 		double hsbHeight = 0.0;
 
-		viewRows = (int)((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing)); // TODO ceil
-		viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); // TODO floor if wrap, ceil if !wrap
+		viewRows = (int)Math.ceil((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+		viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 		wrapLimit = wrap ? viewCols : -1;
 		
 		if(size > viewRows)
@@ -838,7 +831,7 @@ public class CellGrid
 		{
 			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
 			height = snapSizeY(height - hsbHeight);
-			viewRows = (int)((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+			viewRows = (int)Math.ceil((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
 		}
 		
 		// here we assume the origin cell index is correct for the given width
@@ -934,8 +927,6 @@ public class CellGrid
 				{
 					// hsb appears
 					log.debug("hsb needed, recomputing");
-					//hsbHeight = snapSizeY(hscroll.prefHeight(-1));
-					//canvasHeight = snapSizeY(canvasHeight - hsbHeight);
 					return computeArrangement(vsb, Boolean.TRUE);
 				}
 			}
@@ -1313,7 +1304,6 @@ public class CellGrid
 				canvas.setClip(null);
 			}
 			canvas = new Canvas(w, h);
-			canvas.setClip(clip);
 			gx = canvas.getGraphicsContext2D();
 			
 			getChildren().add(canvas);

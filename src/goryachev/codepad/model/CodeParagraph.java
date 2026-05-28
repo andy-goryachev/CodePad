@@ -47,6 +47,7 @@ public abstract class CodeParagraph
 	/// This method returns true when the paragraph contains:
 	/// - combining characters
 	/// - characters beyond the basic plane
+	@Deprecated // this is probably unneeded, since we get cells already
 	public abstract boolean hasComplexCells();
 
 

@@ -215,7 +215,6 @@ public abstract class WrapInfo
 		@Override
 		protected int nextRow(int cellIndex)
 		{
-			// TODO
 			return -1;
 		}
 	}
@@ -265,7 +264,11 @@ public abstract class WrapInfo
 		@Override
 		protected int nextRow(int cellIndex)
 		{
-			// TODO
+			int r = (cellIndex / cols) + 1;
+			if(r < getRowCount())
+			{
+				return r;
+			}
 			return -1;
 		}
 	}
