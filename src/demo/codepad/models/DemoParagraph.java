@@ -118,11 +118,4 @@ public class DemoParagraph
 	{
 		return false;
 	}
-
-
-	@Override
-	public boolean hasComplexCells()
-	{
-		return false;
-	}
 }

@@ -96,33 +96,28 @@ public abstract class WrapInfo
 	 */
 	public static WrapInfo create(CodeParagraph p, int tabSize, int wrapLimit)
 	{
-		boolean complex = p.hasTabs() || p.hasComplexCells();
-		
+		boolean tabs = p.hasTabs();
 		if(wrapLimit > 0)
 		{
 			// needs wrapping
-			if(complex)
+			if(tabs)
 			{
-				// complex wrapped case
-				return new ComplexWrapped(p, tabSize, wrapLimit);
+				return new WrappedTabs(p, tabSize, wrapLimit);
 			}
 			else
 			{
-				// simple wrapped case
-				return new SimpleWrapped(p, wrapLimit);
+				return new WrappedSimple(p, wrapLimit);
 			}
 		}
 		else
 		{
 			// no wrapping
-			if(complex)
+			if(tabs)
 			{
-				// complex single line
-				return new ComplexSingleLine(p, tabSize);
+				return new SingleLineTabs(p, tabSize);
 			}
 			else
 			{
-				// single line
 				return new SingleLine(p);
 			}
 		}
@@ -175,9 +170,9 @@ public abstract class WrapInfo
 	
 	
 	/** tabs or complex symbols, one line */
-	private static class ComplexSingleLine extends WrapInfo
+	private static class SingleLineTabs extends WrapInfo
 	{
-		ComplexSingleLine(CodeParagraph p, int tabSize)
+		SingleLineTabs(CodeParagraph p, int tabSize)
 		{
 			super(p);
 		}
@@ -221,12 +216,12 @@ public abstract class WrapInfo
 	
 	
 	/** no tabs or complex symbols, wrapped */
-	private static class SimpleWrapped extends WrapInfo
+	private static class WrappedSimple extends WrapInfo
 	{
 		private final int cols;
 		
 		
-		SimpleWrapped(CodeParagraph p, int cols)
+		WrappedSimple(CodeParagraph p, int cols)
 		{
 			super(p);
 			this.cols = cols;
@@ -275,9 +270,9 @@ public abstract class WrapInfo
 	
 	
 	/** tabs or complex symbols, wrapped */
-	private static class ComplexWrapped extends WrapInfo
+	private static class WrappedTabs extends WrapInfo
 	{
-		ComplexWrapped(CodeParagraph p, int tabSize, int wrapLimit)
+		WrappedTabs(CodeParagraph p, int tabSize, int wrapLimit)
 		{
 			super(p);
 		}
