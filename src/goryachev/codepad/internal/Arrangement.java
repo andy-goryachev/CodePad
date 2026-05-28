@@ -1,5 +1,6 @@
 // Copyright © 2026-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
+import goryachev.common.util.CList;
 
 
 /// Represents the configuration of visible cells, parameters of paragraphs
@@ -7,64 +8,90 @@ package goryachev.codepad.internal;
 /// the scroll bars.
 public class Arrangement
 {
-	public Arrangement()
+	record Row(int index, int cellIndex) { }
+	
+	private final int wrapLimit;
+	private final boolean hsb;
+	private final boolean vsb;
+	private final double hsbHeight;
+	private final double vsbWidth;
+	private int lastColumn;
+	// TODO replace with elastic int array [index, cellIndex]
+	private final CList<Row> rows = new CList<>();
+	
+	
+	public Arrangement(int wrapLimit, boolean hsb, boolean vsb, double hsbHeight, double vsbWidth)
 	{
-
+		this.wrapLimit = wrapLimit;
+		this.hsb = hsb;
+		this.vsb = vsb;
+		this.hsbHeight = hsbHeight;
+		this.vsbWidth = vsbWidth;
 	}
 
 
 	public boolean isHSBVisible()
 	{
-		// TODO
-		return false;
+		return hsb;
 	}
 
 
 	public double getHSBHeight()
 	{
-		// TODO
-		return 0;
+		return hsbHeight;
 	}
 
 
 	public boolean isVSBVisible()
 	{
-		// TODO
-		return false;
+		return vsb;
 	}
 
 
 	public double getVSBWidth()
 	{
-		// TODO
-		return 0;
+		return vsbWidth;
 	}
 
 
 	public int visibleRowCount()
 	{
-		// TODO
-		return 0;
+		return rows.size();
 	}
 
 
 	public int wrapLimit()
 	{
-		// TODO
-		return 0;
+		return wrapLimit;
 	}
 
 
-	public WrapInfo wrapInfoAtRow(int ix)
+	public int indexAtRow(int ix)
 	{
-		// TODO
-		return null;
+		return rows.get(ix).index();
 	}
 
 
 	public int cellIndexAtRow(int ix)
 	{
-		// TODO
-		return 0;
+		return rows.get(ix).cellIndex();
+	}
+
+
+	public void setLastColumn(int v)
+	{
+		lastColumn = v;
+	}
+	
+	
+	public int lastColumn()
+	{
+		return lastColumn;
+	}
+
+
+	public void addRow(int index, int cellIndex)
+	{
+		rows.add(new Row(index, cellIndex));
 	}
 }

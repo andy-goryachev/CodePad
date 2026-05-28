@@ -11,6 +11,7 @@ import goryachev.common.util.CList;
  * This class facilitates conversion between the screen and model coordinates,
  * as well as helps compute the vertical scroll bar parameters. 
  */
+@Deprecated // FIX rm
 public class Arrangement_DELETE
 {
 	private static final Log log = Log.get("Arrangement");

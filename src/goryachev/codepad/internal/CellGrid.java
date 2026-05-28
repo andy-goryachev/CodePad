@@ -46,7 +46,10 @@ public class CellGrid
 {
 	private static final Log log = Log.get("CellGrid");
 	final CodePad editor;
-	private final WrapCache cache = new WrapCache();
+	private final CellCache cache = new CellCache(64);
+	@Deprecated // TODO
+	private final WrapCache cache_DELETE = new WrapCache();
+	// TODO
 	private Arrangement_DELETE arrangement;
 	private final ScrollBar vscroll;
 	private final ScrollBar hscroll;
@@ -132,6 +135,7 @@ public class CellGrid
 		aspectRatio = v;
 		metrics = null;
 		cache.clear();
+		cache_DELETE.clear();
 		arrangement = null;
 		requestLayout();
 	}
@@ -145,6 +149,7 @@ public class CellGrid
 		italicFont = null;
 		metrics = null;
 		cache.clear();
+		cache_DELETE.clear();
 		arrangement = null;
 		requestLayout();
 	}
@@ -300,6 +305,7 @@ public class CellGrid
 	{
 		setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		cache.clear();
+		cache_DELETE.clear();
 		arrangement = null;
 		requestLayout();
 	}
@@ -308,6 +314,7 @@ public class CellGrid
 	public void handleLineSpacingChange()
 	{
 		cache.clear();
+		cache_DELETE.clear();
 		arrangement = null;
 		requestLayout();
 	}
@@ -333,6 +340,7 @@ public class CellGrid
 		}
 
 		cache.clear();
+		cache_DELETE.clear();
 		arrangement = null;
 		requestLayout();
 	}
@@ -345,6 +353,7 @@ public class CellGrid
 		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
 		setOrigin(ix, 0, contentPaddingLeft, yoff);
 		cache.clear();
+		cache_DELETE.clear();
 		clearPhantomX();
 		arrangement = null;
 		requestLayout();
@@ -696,7 +705,7 @@ public class CellGrid
 		int modelSize = editor.getParagraphCount();
 		int ix = origin.index();
 		int cix = origin.cellIndex();
-		Arrangement_DELETE a = new Arrangement_DELETE(cache, modelSize, viewRows, viewCols, wrapLimit, ix, cix);
+		Arrangement_DELETE a = new Arrangement_DELETE(cache_DELETE, modelSize, viewRows, viewCols, wrapLimit, ix, cix);
 		a.layoutViewPort(viewRows);
 		
 		// lay out bottom half of the sliding window
@@ -738,6 +747,8 @@ public class CellGrid
 		double y0 = snappedTopInset();
 		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
 		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
+		// TODO canvas size is re-computed again in computeArrangement()
+		ensureCanvas(canvasWidth, canvasHeight);
 
 		CodeModel model = editor.getModel();
 		if(model == null)
@@ -746,13 +757,12 @@ public class CellGrid
 			// blank screen
 			vscroll.setVisible(false);
 			hscroll.setVisible(false);
-			ensureCanvas(canvasWidth, canvasHeight);
 			clearCanvas();
 			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		}
 		else
 		{
-			// prepare content
+			// arrange/wrap text
 			Arrangement a = computeArrangement(null, null);
 			paintCanvas(a);
 			
@@ -789,6 +799,7 @@ public class CellGrid
 		double lineSpacing = lineSpacing();
 		TextCellMetrics tm = textCellMetrics();
 
+		// TODO already computed earlier
 		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
 		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
 		// TODO may need to round up
@@ -829,7 +840,7 @@ public class CellGrid
 				break;
 			}
 			
-			WrapInfo wi = cache.getWrapInfo(ix, wrapLimit);
+			WrapInfo wi = cache.getWrapInfo(ix);
 			if(cix == 0)
 			{
 				rows += wi.getRowCount();
@@ -839,15 +850,6 @@ public class CellGrid
 				rows += (wi.getRowCount() - wi.getRowAtCellIndex(cix));
 				cix = 0;
 			}
-			
-//			if(!wrap)
-//			{
-//				int w = wi.getColCount();
-//				if(w > lastCol)
-//				{
-//					lastCol = w;
-//				}
-//			}
 			
 			ix++;
 			if(rows >= viewRows)
@@ -868,13 +870,45 @@ public class CellGrid
 			origin = recomputeOrigin(rows - viewRows);
 		}
 		
-		// TODO compute colCount, update hsb here
-		int lastCol = 0;
-
 		// TODO: roll arrangement to get a second copy? if needed
-		Arrangement a = new Arrangement();
-		// TODO populate
-		return a;
+		Arrangement ar = new Arrangement(wrapLimit, hsb, vsb, hsbHeight, vsbWidth);
+		ix = origin.index();
+		cix = origin.cellIndex();
+		WrapInfo wi = null;
+		int lastCol = 0;
+		for(int i=0; i<viewRows; i++)
+		{
+			if(ix >= size)
+			{
+				break;
+			}
+			
+			if(wi == null)
+			{
+				wi = cache.getWrapInfo(ix);
+				if(!wrap)
+				{
+					int w = wi.getCellCount();
+					if(w > lastCol)
+					{
+						lastCol = w;
+					}
+				}
+			}
+			ar.addRow(ix, cix);
+			cix = wi.nextRow(cix);
+			if(cix < 0)
+			{
+				wi = null;
+				ix++;
+				cix = 0;
+			}
+		}
+		if(!wrap)
+		{
+			ar.setLastColumn(lastCol);
+		}
+		return ar;
 	}
 	
 	
@@ -887,6 +921,7 @@ public class CellGrid
 	
 	private void paintCanvas(Arrangement a)
 	{
+		// TODO check if canvas needs to be (re-)created
 		// TODO
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
@@ -901,10 +936,11 @@ public class CellGrid
 		double x = origin.xoffset();
 		double y = origin.yoffset();
 		
-		for(int ix=0; ix<maxy; ix++)
+		for(int i=0; i<maxy; i++)
 		{
-			WrapInfo wi = a.wrapInfoAtRow(ix);
-			int cellIndex = a.cellIndexAtRow(ix);
+			int ix = a.indexAtRow(i);
+			WrapInfo wi = cache.getWrapInfo(ix);
+			int cellIndex = a.cellIndexAtRow(i);
 			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cellIndex) : wi.getCellCount();
 			paintCells(tm, wi, cellIndex, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
@@ -956,7 +992,7 @@ public class CellGrid
 		double vsbWidth = 0.0;
 		double hsbHeight = 0.0;
 		
-		cache.setParameters(model, tabSize);
+		cache_DELETE.setParameters(model, tabSize);
 		
 		boolean vsb;
 		if(wrap)
@@ -987,7 +1023,7 @@ public class CellGrid
 						break;
 					}
 					
-					wi = cache.getWrapInfo(ix, wrapLimit);
+					wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
 					
 					if(cix == 0)
 					{
@@ -1034,7 +1070,7 @@ public class CellGrid
 							break;
 						}
 						
-						wi = cache.getWrapInfo(ix, wrapLimit);
+						wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
 						
 						if(cix == 0)
 						{
@@ -1470,7 +1506,7 @@ public class CellGrid
 	
 	private WrapInfo getWrapInfo(int modelIndex)
 	{
-		return cache.getWrapInfo(modelIndex, wrapLimit);
+		return cache_DELETE.getWrapInfo(modelIndex, wrapLimit);
 	}
 	
 	

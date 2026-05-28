@@ -17,20 +17,20 @@ import javafx.scene.paint.Color;
  */
 public abstract class WrapInfo
 {
-	/**
-	 * Returns the number of visual rows in this paragraph.
-	 */
+	/// Returns the number of visual rows in this paragraph.
 	public abstract int getRowCount();
 
-	/**
-	 * Returns the cell text for the given cell index.
-	 */
-	public abstract String getCellText(int cix);
-	
+	/// Returns the cell text for the given cell index.
+	public abstract String getCellText(int cellIndex);
+
+	/// Returns cell index at the beginning of the specified row.
 	public abstract int getCellIndexAtRow(int row);
 
 	/** assumes leading bias */
-	public abstract int getRowAtCellIndex(int cix);
+	public abstract int getRowAtCellIndex(int cellIndex);
+	
+	/// returns cell index at the next row, or -1 if the last row in this paragraph
+	protected abstract int nextRow(int cellIndex);
 	
 	//
 	
@@ -164,6 +164,13 @@ public abstract class WrapInfo
 		{
 			return 0;
 		}
+
+
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			return -1;
+		}
 	}
 	
 	
@@ -202,6 +209,14 @@ public abstract class WrapInfo
 		public int getRowAtCellIndex(int cix)
 		{
 			return 0;
+		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			// TODO
+			return -1;
 		}
 	}
 	
@@ -245,6 +260,14 @@ public abstract class WrapInfo
 		{
 			return cix / cols;
 		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			// TODO
+			return -1;
+		}
 	}
 	
 	
@@ -285,6 +308,14 @@ public abstract class WrapInfo
 		{
 			// TODO
 			return 0;
+		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			// TODO
+			return -1;
 		}
 	}
 }
