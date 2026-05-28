@@ -11,11 +11,11 @@ import javafx.scene.paint.Color;
 public class DemoParagraph
 	extends CodeParagraph
 {
-	private static final Color GREEN_BG = Color.rgb(0, 255, 0, 0.2);
+	private static final Color COLOR_BG = Color.rgb(255, 0, 255, 0.08);
 	private static final CellStyle BOLD = CellStyle.builder().bold().build();
 	private static final CellStyle BOLD_ITALIC = CellStyle.builder().bold().italic().build();
 	private static final CellStyle GRAY = CellStyle.builder().textColor(Color.GRAY).build();
-	private static final CellStyle GREEN = CellStyle.builder().background(Color.rgb(0, 255, 0, 0.7)).build();
+	private static final CellStyle GREEN = CellStyle.builder().background(Color.rgb(0, 255, 0, 0.3)).build();
 	private static final CellStyle ITALIC = CellStyle.builder().italic().build();
 	private static final CellStyle RED = CellStyle.builder().textColor(Color.RED).build();
 	private static final CellStyle STRIKETHROUGH = CellStyle.builder().strikeThrough().build();
@@ -42,7 +42,7 @@ public class DemoParagraph
 	@Override
 	public Color getBackgroundColor()
 	{
-		return index % 10 == 0 ? GREEN_BG : null;
+		return index % 10 == 0 ? COLOR_BG : null;
 	}
 
 

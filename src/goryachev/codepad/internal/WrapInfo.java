@@ -15,6 +15,8 @@ import javafx.scene.paint.Color;
  * - simple, wrapped
  * - complex, where tabs and/or combined characters are present.
  */
+// TODO rename: CellUnit?
+// TODO cell index <--> string offset
 public abstract class WrapInfo
 {
 	/// Returns the number of visual rows in this paragraph.
@@ -114,20 +116,20 @@ public abstract class WrapInfo
 			// no wrapping
 			if(tabs)
 			{
-				return new SingleLineTabs(p, tabSize);
+				return new SingleRowTabs(p, tabSize);
 			}
 			else
 			{
-				return new SingleLine(p);
+				return new SingleRow(p);
 			}
 		}
 	}
 
 
-	/** no tabs, no complex symbols, one line */
-	private static class SingleLine extends WrapInfo
+	/// Single row, no tabs.
+	private static class SingleRow extends WrapInfo
 	{
-		SingleLine(CodeParagraph p)
+		SingleRow(CodeParagraph p)
 		{
 			super(p);
 		}
@@ -169,12 +171,13 @@ public abstract class WrapInfo
 	}
 	
 	
-	/** tabs or complex symbols, one line */
-	private static class SingleLineTabs extends WrapInfo
+	/// Single row, with tabs.
+	private static class SingleRowTabs extends WrapInfo
 	{
-		SingleLineTabs(CodeParagraph p, int tabSize)
+		SingleRowTabs(CodeParagraph p, int tabSize)
 		{
 			super(p);
+			// TODO process tabs
 		}
 
 		
@@ -215,7 +218,7 @@ public abstract class WrapInfo
 	}
 	
 	
-	/** no tabs or complex symbols, wrapped */
+	/// Wrapped, no tabs.
 	private static class WrappedSimple extends WrapInfo
 	{
 		private final int cols;
@@ -262,19 +265,20 @@ public abstract class WrapInfo
 			int r = (cellIndex / cols) + 1;
 			if(r < getRowCount())
 			{
-				return r;
+				return r * cols;
 			}
 			return -1;
 		}
 	}
 	
 	
-	/** tabs or complex symbols, wrapped */
+	/// Wrapped with tabs.
 	private static class WrappedTabs extends WrapInfo
 	{
 		WrappedTabs(CodeParagraph p, int tabSize, int wrapLimit)
 		{
 			super(p);
+			// TODO process tabs
 		}
 
 		
