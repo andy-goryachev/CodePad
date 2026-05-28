@@ -28,6 +28,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -55,6 +56,7 @@ public class CellGrid
 	private final ScrollBar hscroll;
 	private Origin origin = Origin.ZERO;
 	private Canvas canvas;
+	private final Rectangle clip;
 	private GraphicsContext gx;
 	private TextCellMetrics metrics;
 	private Font baseFont;
@@ -89,10 +91,12 @@ public class CellGrid
 		this.editor = ed;
 		this.vscroll = configureScrollBar(vscroll);
 		this.hscroll = configureScrollBar(hscroll);
+		getChildren().addAll(vscroll, hscroll);
+		
+		clip = new Rectangle();
+        clip.setSmooth(false);
 		
 		setBorder(Border.stroke(Color.TRANSPARENT));
-
-		getChildren().addAll(vscroll, hscroll);
 		
 		// TODO possibly move all these listeners to the skin
 		
@@ -387,6 +391,7 @@ public class CellGrid
 		b.setUnitIncrement(0.01);
 		b.setBlockIncrement(0.05);
 		b.setVisible(false);
+		b.setViewOrder(-10); // above canvas
 		FX.consumeAllEvents(ScrollEvent.ANY, b);
 		return b;
 	}
@@ -426,7 +431,7 @@ public class CellGrid
 		}
 		
 		// TODO repaint only the damaged area: union of old and new selection ranges
-		paintAll();
+		repaintAll();
 	}
 	
 	
@@ -734,7 +739,8 @@ public class CellGrid
 	/// - computes Arrangement
 	/// - paints the canvas
 	/// - lays out the canvas, and the scrollbars
-	protected void layoutChildrenNew()
+	@Override
+	protected void layoutChildren()
 	{
 		double width = getWidth();
 		log.debug(width);
@@ -745,6 +751,7 @@ public class CellGrid
 		
 		double x0 = snappedLeftInset();
 		double y0 = snappedTopInset();
+		// FIX incorrect: should come from the arrangement
 		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
 		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
 		// TODO canvas size is re-computed again in computeArrangement()
@@ -765,22 +772,24 @@ public class CellGrid
 			// arrange/wrap text
 			Arrangement a = computeArrangement(null, null);
 			paintCanvas(a);
-			
-			boolean vsb = a.isVSBVisible();
+
+			double vsbWidth = a.getVSBWidth();
+			boolean vsb = (vsbWidth > 0.0);
 			vscroll.setVisible(vsb);
 			if(vsb)
 			{
-				double vsbWidth = a.getVSBWidth();
-				layoutInArea(vscroll, x0 + canvasWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+				layoutInArea(vscroll, x0 + canvasWidth - vsbWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
+			clip.setWidth(canvasWidth); // FIX
 			
-			boolean hsb = a.isHSBVisible();
+			double hsbHeight = a.getHSBHeight();
+			boolean hsb = (hsbHeight > 0.0);
 			hscroll.setVisible(hsb);
 			if(hsb)
 			{
-				double hsbHeight = a.getHSBHeight();
-				layoutInArea(hscroll, x0, y0 + canvasHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+				layoutInArea(hscroll, x0, y0 + canvasHeight - hsbHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
+			clip.setHeight(canvasHeight);
 			
 			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		}
@@ -840,7 +849,7 @@ public class CellGrid
 				break;
 			}
 			
-			WrapInfo wi = cache.getWrapInfo(ix);
+			WrapInfo wi = getWrapInfo(ix);
 			if(cix == 0)
 			{
 				rows += wi.getRowCount();
@@ -859,8 +868,11 @@ public class CellGrid
 					break;
 				}
 
-				// vsb appears, recompute
-				return computeArrangement(Boolean.TRUE, null); // TODO hsb?
+				if(!vsb)
+				{
+					// vsb appears, recompute
+					return computeArrangement(Boolean.TRUE, null); // TODO hsb?
+				}
 			}
 		}
 		
@@ -871,7 +883,7 @@ public class CellGrid
 		}
 		
 		// TODO: roll arrangement to get a second copy? if needed
-		Arrangement ar = new Arrangement(wrapLimit, hsb, vsb, hsbHeight, vsbWidth);
+		Arrangement ar = new Arrangement(wrapLimit, hsbHeight, vsbWidth);
 		ix = origin.index();
 		cix = origin.cellIndex();
 		WrapInfo wi = null;
@@ -885,7 +897,7 @@ public class CellGrid
 			
 			if(wi == null)
 			{
-				wi = cache.getWrapInfo(ix);
+				wi = getWrapInfo(ix);
 				if(!wrap)
 				{
 					int w = wi.getCellCount();
@@ -939,7 +951,7 @@ public class CellGrid
 		for(int i=0; i<maxy; i++)
 		{
 			int ix = a.indexAtRow(i);
-			WrapInfo wi = cache.getWrapInfo(ix);
+			WrapInfo wi = getWrapInfo(ix);
 			int cellIndex = a.cellIndexAtRow(i);
 			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cellIndex) : wi.getCellCount();
 			paintCells(tm, wi, cellIndex, ct, x, y);
@@ -948,317 +960,318 @@ public class CellGrid
 	}
 
 
-	@Override
-	protected void layoutChildren()
-	{
-		// 1. determines whether the vertical scroll bar is visible, and whether the origin needs to be changed
-		//    because there is too much of empty space at the bottom of the viewport.
-		// 2. generates the cell arrangement which includes the viewport and a sliding window above and below the viewport.
-		// 2. paints the text onto the canvas.
-
-		double width = getWidth();
-		log.debug(width);
-		if(width == 0.0)
-		{
-			return;
-		}
-		
-		double x0 = snappedLeftInset();
-		double y0 = snappedTopInset();
-		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
-		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
-
-		CodeModel model = editor.getModel();
-		if(model == null)
-		{
-			// blank screen
-			vscroll.setVisible(false);
-			hscroll.setVisible(false);
-			ensureCanvas(canvasWidth, canvasHeight);
-			clearCanvas();
-			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
-			return;
-		}
-		
-		int size = editor.getParagraphCount();
-		int tabSize = tabSize();
-		double lineSpacing = lineSpacing(); // TODO snap?
-		TextCellMetrics tm = textCellMetrics();
-
-		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
-		viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-		wrapLimit = wrap ? viewCols : -1;
-		
-		double vsbWidth = 0.0;
-		double hsbHeight = 0.0;
-		
-		cache_DELETE.setParameters(model, tabSize);
-		
-		boolean vsb;
-		if(wrap)
-		{
-			int nrows = 0;
-			int firstRow = -1;
-			WrapInfo wi;
-			boolean reachedEnd = false;
-
-			// make an easy check if vsb is needed
-			if(size > viewRows)
-			{
-				vsb = true;
-				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
-				canvasWidth -= vsbWidth;
-				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-				wrapLimit = viewCols;
-				
-				// check to see if the origin needs to be moved to fill the view port
-				int ix = origin.index();
-				int cix = origin.cellIndex();
-				
-				for(;;)
-				{
-					if(ix >= size)
-					{
-						reachedEnd = true;
-						break;
-					}
-					
-					wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
-					
-					if(cix == 0)
-					{
-						nrows += wi.getRowCount();
-					}
-					else
-					{
-						firstRow = wi.getRowAtCellIndex(cix);
-						nrows += (wi.getRowCount() - firstRow);
-						cix = 0;
-					}
-					
-					if(nrows > viewRows)
-					{
-						break;
-					}
-					
-					ix++;						
-				}
-			}
-			else
-			{
-				// make another check for vsb visibility, this time by actually wrapping the text rows
-				// start with assumption that vsb is not needed
-				vsb = false;
-				boolean run = false;
-				
-				do
-				{
-					nrows = 0;
-					reachedEnd = false;
-					firstRow = -1;
-
-					int ix = origin.index();
-					int cix = origin.cellIndex();
-					wi = null;
-					
-					for(;;)
-					{
-						if(ix >= size)
-						{
-							reachedEnd = true;
-							run = false;
-							break;
-						}
-						
-						wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
-						
-						if(cix == 0)
-						{
-							nrows += wi.getRowCount();
-						}
-						else
-						{
-							firstRow = wi.getRowAtCellIndex(cix);
-							nrows += (wi.getRowCount() - firstRow);
-							cix = 0;
-						}
-						
-						if(nrows > viewRows)
-						{
-							if(vsb)
-							{
-								run = false;
-							}
-							else
-							{
-								vsb = true;
-								vsbWidth = snapSizeX(vscroll.prefWidth(-1));
-								canvasWidth -= vsbWidth;
-								viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-								wrapLimit = viewCols;
-								// reflow again
-								run = true;
-							}
-							break;
-						}
-						
-						ix++;						
-					}
-				} while(run);
-			}
-				
-			if(reachedEnd)
-			{
-				log.debug("reached end");
-				
-				// FIX there is something wrong here
-				// avoid showing empty space at the end
-				/*
-				if(ar.getBottomRowCount() == 0)
-				{
-					TextPos end = editor.getDocumentEnd();
-					TextPos p = goVertically(end, 1 - viewRows, false);
-					p = goLineStart(p);
-					if(p != null)
-					{
-						if(p.compareTo(ix, cix) < 0)
-						{
-							ix = p.index();
-							cix = p.cellIndex();
-						}
-					}
-				}
-				*/
-				
-				
-				
-				// FIX this code is wrong
-/*				
-				// move the origin to fill in the viewport
-				int ct = viewRows - nrows;
-				int ix = origin.index();
-				int cix = origin.cellIndex();
-				
-				log.debug("  END  ct=%d ix=%d cix=%d viewRows=%d nrows=%d", ct, ix, cix, viewRows, nrows);
-				
-				while((ix > 0) && (ct > 0) && (ix < size))
-				{
-					wi = cache.getWrapInfo(ix, wrapLimit);
-					
-					if(firstRow > 0)
-					{
-						if(firstRow < ct)
-						{
-							ct -= firstRow;
-							firstRow = 0;
-							ix--;
-						}
-						else
-						{
-							firstRow -= ct;
-							cix = wi.getCellIndexAtRow(firstRow);
-							double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-							setOrigin(ix, cix, origin.xoffset(), yoffset);
-							break;
-						}
-					}
-					
-					int rc = wi.getRowCount();
-					if(rc < ct)
-					{
-						--ix;
-						--ct;
-					}
-					else
-					{
-						cix = wi.getCellIndexAtRow(rc - ct);
-						double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-						setOrigin(ix, cix, origin.xoffset(), yoffset);
-						break;
-					}
-				}
-			*/
-			}
-		}
-		else
-		{
-			// non-wrapped mode is much easier
-			
-			// is vsb visible?
-			vsb = (size > viewRows);
-			if(vsb)
-			{
-				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
-				canvasWidth -= vsbWidth;
-				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-			}
-			
-			// change origin if needed
-			if(origin.index() > 0)
-			{
-				if(size - origin.index() < viewRows)
-				{
-					// avoid empty space at the bottom
-					int ix = Math.max(0, size - viewRows);
-					double pad = (ix == 0) ? contentPaddingTop : 0.0;
-					setOrigin(ix, origin.cellIndex(), origin.xoffset(), pad);
-				}
-			}
-		}
-		
-		Arrangement_DELETE ar = arrangement();
-		
-		if(!wrap)
-		{
-			// avoid empty space on the right
-			int d = origin.cellIndex() + viewCols - ar.maxCellCount();
-			if(d > 0)
-			{
-				int cix = Math.max(0, origin.cellIndex() - d);
-				if(cix != origin.cellIndex())
-				{
-					double xoff = (cix == 0) ? contentPaddingLeft : 0.0;
-					setOrigin(origin.index(), cix, xoff, origin.yoffset());
-					ar = arrangement();
-				}
-			}
-		}
-
-		// using the final arrangement
-		boolean hsb = ar.isHsbNeeded();
-		if(hsb)
-		{
-			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
-			canvasHeight -= hsbHeight;
-		}
-		
-		ensureCanvas(canvasWidth, canvasHeight);
-
-		vscroll.setVisible(vsb);
-		hscroll.setVisible(hsb);
-
-		// paint all
-		paintAll();
-		
-		// layout
-		if(vsb)
-		{
-			layoutInArea(vscroll, x0 + canvasWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
-		}
-		
-		if(hsb)
-		{
-			layoutInArea(hscroll, x0, y0 + canvasHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
-		}
-		
-		layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
-		
-		if(updateScrollBars)
-		{
-			updateHorizontalScrollBar();
-			updateVerticalScrollBar();
-		}
-	}
+	// TODO rm
+//	@Override
+//	protected void layoutChildren()
+//	{
+//		// 1. determines whether the vertical scroll bar is visible, and whether the origin needs to be changed
+//		//    because there is too much of empty space at the bottom of the viewport.
+//		// 2. generates the cell arrangement which includes the viewport and a sliding window above and below the viewport.
+//		// 2. paints the text onto the canvas.
+//
+//		double width = getWidth();
+//		log.debug(width);
+//		if(width == 0.0)
+//		{
+//			return;
+//		}
+//		
+//		double x0 = snappedLeftInset();
+//		double y0 = snappedTopInset();
+//		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+//		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
+//
+//		CodeModel model = editor.getModel();
+//		if(model == null)
+//		{
+//			// blank screen
+//			vscroll.setVisible(false);
+//			hscroll.setVisible(false);
+//			ensureCanvas(canvasWidth, canvasHeight);
+//			clearCanvas();
+//			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+//			return;
+//		}
+//		
+//		int size = editor.getParagraphCount();
+//		int tabSize = tabSize();
+//		double lineSpacing = lineSpacing();
+//		TextCellMetrics tm = textCellMetrics();
+//
+//		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+//		viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+//		wrapLimit = wrap ? viewCols : -1;
+//		
+//		double vsbWidth = 0.0;
+//		double hsbHeight = 0.0;
+//		
+//		cache_DELETE.setParameters(model, tabSize);
+//		
+//		boolean vsb;
+//		if(wrap)
+//		{
+//			int nrows = 0;
+//			int firstRow = -1;
+//			WrapInfo wi;
+//			boolean reachedEnd = false;
+//
+//			// make an easy check if vsb is needed
+//			if(size > viewRows)
+//			{
+//				vsb = true;
+//				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+//				canvasWidth -= vsbWidth;
+//				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+//				wrapLimit = viewCols;
+//				
+//				// check to see if the origin needs to be moved to fill the view port
+//				int ix = origin.index();
+//				int cix = origin.cellIndex();
+//				
+//				for(;;)
+//				{
+//					if(ix >= size)
+//					{
+//						reachedEnd = true;
+//						break;
+//					}
+//					
+//					wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
+//					
+//					if(cix == 0)
+//					{
+//						nrows += wi.getRowCount();
+//					}
+//					else
+//					{
+//						firstRow = wi.getRowAtCellIndex(cix);
+//						nrows += (wi.getRowCount() - firstRow);
+//						cix = 0;
+//					}
+//					
+//					if(nrows > viewRows)
+//					{
+//						break;
+//					}
+//					
+//					ix++;						
+//				}
+//			}
+//			else
+//			{
+//				// make another check for vsb visibility, this time by actually wrapping the text rows
+//				// start with assumption that vsb is not needed
+//				vsb = false;
+//				boolean run = false;
+//				
+//				do
+//				{
+//					nrows = 0;
+//					reachedEnd = false;
+//					firstRow = -1;
+//
+//					int ix = origin.index();
+//					int cix = origin.cellIndex();
+//					wi = null;
+//					
+//					for(;;)
+//					{
+//						if(ix >= size)
+//						{
+//							reachedEnd = true;
+//							run = false;
+//							break;
+//						}
+//						
+//						wi = cache_DELETE.getWrapInfo(ix, wrapLimit);
+//						
+//						if(cix == 0)
+//						{
+//							nrows += wi.getRowCount();
+//						}
+//						else
+//						{
+//							firstRow = wi.getRowAtCellIndex(cix);
+//							nrows += (wi.getRowCount() - firstRow);
+//							cix = 0;
+//						}
+//						
+//						if(nrows > viewRows)
+//						{
+//							if(vsb)
+//							{
+//								run = false;
+//							}
+//							else
+//							{
+//								vsb = true;
+//								vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+//								canvasWidth -= vsbWidth;
+//								viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+//								wrapLimit = viewCols;
+//								// reflow again
+//								run = true;
+//							}
+//							break;
+//						}
+//						
+//						ix++;						
+//					}
+//				} while(run);
+//			}
+//				
+//			if(reachedEnd)
+//			{
+//				log.debug("reached end");
+//				
+//				// there is something wrong here
+//				// avoid showing empty space at the end
+//				/*
+//				if(ar.getBottomRowCount() == 0)
+//				{
+//					TextPos end = editor.getDocumentEnd();
+//					TextPos p = goVertically(end, 1 - viewRows, false);
+//					p = goLineStart(p);
+//					if(p != null)
+//					{
+//						if(p.compareTo(ix, cix) < 0)
+//						{
+//							ix = p.index();
+//							cix = p.cellIndex();
+//						}
+//					}
+//				}
+//				*/
+//				
+//				
+//				
+//				// this code is wrong
+///*				
+//				// move the origin to fill in the viewport
+//				int ct = viewRows - nrows;
+//				int ix = origin.index();
+//				int cix = origin.cellIndex();
+//				
+//				log.debug("  END  ct=%d ix=%d cix=%d viewRows=%d nrows=%d", ct, ix, cix, viewRows, nrows);
+//				
+//				while((ix > 0) && (ct > 0) && (ix < size))
+//				{
+//					wi = cache.getWrapInfo(ix, wrapLimit);
+//					
+//					if(firstRow > 0)
+//					{
+//						if(firstRow < ct)
+//						{
+//							ct -= firstRow;
+//							firstRow = 0;
+//							ix--;
+//						}
+//						else
+//						{
+//							firstRow -= ct;
+//							cix = wi.getCellIndexAtRow(firstRow);
+//							double yoffset = ix == 0 ? contentPaddingTop : 0.0;
+//							setOrigin(ix, cix, origin.xoffset(), yoffset);
+//							break;
+//						}
+//					}
+//					
+//					int rc = wi.getRowCount();
+//					if(rc < ct)
+//					{
+//						--ix;
+//						--ct;
+//					}
+//					else
+//					{
+//						cix = wi.getCellIndexAtRow(rc - ct);
+//						double yoffset = ix == 0 ? contentPaddingTop : 0.0;
+//						setOrigin(ix, cix, origin.xoffset(), yoffset);
+//						break;
+//					}
+//				}
+//			*/
+//			}
+//		}
+//		else
+//		{
+//			// non-wrapped mode is much easier
+//			
+//			// is vsb visible?
+//			vsb = (size > viewRows);
+//			if(vsb)
+//			{
+//				vsbWidth = snapSizeX(vscroll.prefWidth(-1));
+//				canvasWidth -= vsbWidth;
+//				viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+//			}
+//			
+//			// change origin if needed
+//			if(origin.index() > 0)
+//			{
+//				if(size - origin.index() < viewRows)
+//				{
+//					// avoid empty space at the bottom
+//					int ix = Math.max(0, size - viewRows);
+//					double pad = (ix == 0) ? contentPaddingTop : 0.0;
+//					setOrigin(ix, origin.cellIndex(), origin.xoffset(), pad);
+//				}
+//			}
+//		}
+//		
+//		Arrangement_DELETE ar = arrangement();
+//		
+//		if(!wrap)
+//		{
+//			// avoid empty space on the right
+//			int d = origin.cellIndex() + viewCols - ar.maxCellCount();
+//			if(d > 0)
+//			{
+//				int cix = Math.max(0, origin.cellIndex() - d);
+//				if(cix != origin.cellIndex())
+//				{
+//					double xoff = (cix == 0) ? contentPaddingLeft : 0.0;
+//					setOrigin(origin.index(), cix, xoff, origin.yoffset());
+//					ar = arrangement();
+//				}
+//			}
+//		}
+//
+//		// using the final arrangement
+//		boolean hsb = ar.isHsbNeeded();
+//		if(hsb)
+//		{
+//			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
+//			canvasHeight -= hsbHeight;
+//		}
+//		
+//		ensureCanvas(canvasWidth, canvasHeight);
+//
+//		vscroll.setVisible(vsb);
+//		hscroll.setVisible(hsb);
+//
+//		// paint all
+//		paintAll();
+//		
+//		// layout
+//		if(vsb)
+//		{
+//			layoutInArea(vscroll, x0 + canvasWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+//		}
+//		
+//		if(hsb)
+//		{
+//			layoutInArea(hscroll, x0, y0 + canvasHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+//		}
+//		
+//		layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+//		
+//		if(updateScrollBars)
+//		{
+//			updateHorizontalScrollBar();
+//			updateVerticalScrollBar();
+//		}
+//	}
 	
 	
 	private void ensureCanvas(double w, double h)
@@ -1275,7 +1288,12 @@ public class CellGrid
 				getChildren().remove(canvas);
 			}
 			
+			if(canvas != null) // TODO is this needed?
+			{
+				canvas.setClip(null);
+			}
 			canvas = new Canvas(w, h);
+			canvas.setClip(clip);
 			gx = canvas.getGraphicsContext2D();
 			
 			getChildren().add(canvas);
@@ -1355,11 +1373,11 @@ public class CellGrid
 	public void paintCaretLine()
 	{
 		// TODO optimize
-		paintAll();
+		repaintAll();
 	}
 	
 	
-	public void paintAll()
+	public void repaintAll()
 	{
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
@@ -1506,7 +1524,8 @@ public class CellGrid
 	
 	private WrapInfo getWrapInfo(int modelIndex)
 	{
-		return cache_DELETE.getWrapInfo(modelIndex, wrapLimit);
+		cache.check(editor.getModel(), tabSize(), wrapLimit);
+		return cache.getWrapInfo(modelIndex);
 	}
 	
 	

@@ -47,7 +47,7 @@ public class CodePadSkin
 		disconnector.addChangeListener(ed.aspectRatioProperty(), true, grid::setAspectRatio);
 		disconnector.addInvalidationListener
 		(
-			grid::paintAll,
+			grid::repaintAll,
 			ed.backgroundColorProperty(),
 			ed.caretColorProperty(),
 			ed.caretLineColorProperty(),

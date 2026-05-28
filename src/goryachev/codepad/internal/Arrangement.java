@@ -11,8 +11,6 @@ public class Arrangement
 	record Row(int index, int cellIndex) { }
 	
 	private final int wrapLimit;
-	private final boolean hsb;
-	private final boolean vsb;
 	private final double hsbHeight;
 	private final double vsbWidth;
 	private int lastColumn;
@@ -20,31 +18,17 @@ public class Arrangement
 	private final CList<Row> rows = new CList<>();
 	
 	
-	public Arrangement(int wrapLimit, boolean hsb, boolean vsb, double hsbHeight, double vsbWidth)
+	public Arrangement(int wrapLimit, double hsbHeight, double vsbWidth)
 	{
 		this.wrapLimit = wrapLimit;
-		this.hsb = hsb;
-		this.vsb = vsb;
 		this.hsbHeight = hsbHeight;
 		this.vsbWidth = vsbWidth;
-	}
-
-
-	public boolean isHSBVisible()
-	{
-		return hsb;
 	}
 
 
 	public double getHSBHeight()
 	{
 		return hsbHeight;
-	}
-
-
-	public boolean isVSBVisible()
-	{
-		return vsb;
 	}
 
 

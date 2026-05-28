@@ -30,7 +30,9 @@ public class CellCache
 	}
 	
 	
-	public void setParameters(CodeModel model, int tabSize, int wrapLimit)
+	// checks whether cache is still applicable for these parameters,
+	// clearing it if not.
+	public void check(CodeModel model, int tabSize, int wrapLimit)
 	{
 		if((model != this.model) || (tabSize != this.tabSize) || (wrapLimit != this.wrapLimit))
 		{
