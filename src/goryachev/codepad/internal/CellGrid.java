@@ -751,47 +751,48 @@ public class CellGrid
 		
 		double x0 = snappedLeftInset();
 		double y0 = snappedTopInset();
-		// FIX incorrect: should come from the arrangement
-		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
-		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
-		// TODO canvas size is re-computed again in computeArrangement()
-		ensureCanvas(canvasWidth, canvasHeight);
 
 		CodeModel model = editor.getModel();
 		if(model == null)
 		{
+			double w = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+			double h = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
+			ensureCanvas(w, h);
 			// TODO possibly use the normal path?
 			// blank screen
 			vscroll.setVisible(false);
 			hscroll.setVisible(false);
 			clearCanvas();
-			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			layoutInArea(canvas, x0, y0, w, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		}
 		else
 		{
 			// arrange/wrap text
-			Arrangement a = computeArrangement(null, null);
-			paintCanvas(a);
+			Arrangement ar = computeArrangement(null, null);
+			double w = ar.canvasWidth();
+			double h = ar.canvasHeight();
+			ensureCanvas(w, h);
+			paintCanvas(ar);
 
-			double vsbWidth = a.getVSBWidth();
+			double vsbWidth = ar.getVSBWidth();
 			boolean vsb = (vsbWidth > 0.0);
 			vscroll.setVisible(vsb);
 			if(vsb)
 			{
-				layoutInArea(vscroll, x0 + canvasWidth - vsbWidth, y0, vsbWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+				layoutInArea(vscroll, x0 + w, y0, vsbWidth, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
-			clip.setWidth(canvasWidth); // FIX
+			clip.setWidth(w); // FIX
 			
-			double hsbHeight = a.getHSBHeight();
+			double hsbHeight = ar.getHSBHeight();
 			boolean hsb = (hsbHeight > 0.0);
 			hscroll.setVisible(hsb);
 			if(hsb)
 			{
-				layoutInArea(hscroll, x0, y0 + canvasHeight - hsbHeight, canvasWidth, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+				layoutInArea(hscroll, x0, y0 + h, w, hsbHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 			}
-			clip.setHeight(canvasHeight);
+			clip.setHeight(h);
 			
-			layoutInArea(canvas, x0, y0, canvasWidth, canvasHeight, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			layoutInArea(canvas, x0, y0, w, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
 		}
 	}
 	
@@ -803,23 +804,22 @@ public class CellGrid
 	// if horizontal scrollbar appears, reflow with hsb enabled
 	private Arrangement computeArrangement(Boolean initVsb, Boolean initHsb)
 	{
+		log.debug("vsb={0} hsb={1}", initVsb, initHsb);
 		int size = editor.getParagraphCount();
 		int tabSize = tabSize();
 		double lineSpacing = lineSpacing();
 		TextCellMetrics tm = textCellMetrics();
 
-		// TODO already computed earlier
-		double canvasWidth = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
-		double canvasHeight = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
-		// TODO may need to round up
-		viewRows = (int)((canvasHeight - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
-		viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
-		wrapLimit = wrap ? viewCols : -1;
-		
+		double width = snapSizeX(getWidth()) - snappedLeftInset() - snappedRightInset();
+		double height = snapSizeY(getHeight()) - snappedTopInset() - snappedBottomInset();
 		boolean vsb = (initVsb == null) ? false : initVsb;
 		boolean hsb = (initHsb == null) ? false : initHsb;
 		double vsbWidth = 0.0;
 		double hsbHeight = 0.0;
+
+		viewRows = (int)((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing)); // TODO ceil
+		viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth); // TODO floor if wrap, ceil if !wrap
+		wrapLimit = wrap ? viewCols : -1;
 		
 		if(size > viewRows)
 		{
@@ -829,13 +829,19 @@ public class CellGrid
 		if(vsb)
 		{
 			vsbWidth = snapSizeX(vscroll.prefWidth(-1));
-			canvasWidth = snapSizeX(canvasWidth - vsbWidth);
-			// TODO +1 ?
-			viewCols = (int)((canvasWidth - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+			width = snapSizeX(width - vsbWidth);
+			viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 			wrapLimit = wrap ? viewCols : -1;
 		}
-			
-		// here we assume the origin cell index is correct for the give width
+		
+		if(hsb)
+		{
+			hsbHeight = snapSizeY(hscroll.prefHeight(-1));
+			height = snapSizeY(height - hsbHeight);
+			viewRows = (int)((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+		}
+		
+		// here we assume the origin cell index is correct for the given width
 		int ix = origin.index();
 		int cix = origin.cellIndex();
 		int rows = 0;
@@ -871,7 +877,8 @@ public class CellGrid
 				if(!vsb)
 				{
 					// vsb appears, recompute
-					return computeArrangement(Boolean.TRUE, null); // TODO hsb?
+					log.debug("vsb needed, recomputing");
+					return computeArrangement(Boolean.TRUE, initHsb);
 				}
 			}
 		}
@@ -883,7 +890,7 @@ public class CellGrid
 		}
 		
 		// TODO: roll arrangement to get a second copy? if needed
-		Arrangement ar = new Arrangement(wrapLimit, hsbHeight, vsbWidth);
+		Arrangement ar = new Arrangement(wrapLimit, width, height, hsbHeight, vsbWidth);
 		ix = origin.index();
 		cix = origin.cellIndex();
 		WrapInfo wi = null;
@@ -916,9 +923,22 @@ public class CellGrid
 				cix = 0;
 			}
 		}
+		
 		if(!wrap)
 		{
 			ar.setLastColumn(lastCol);
+			if(!hsb)
+			{
+				// TODO can be done earlier
+				if(lastCol > wrapLimit)
+				{
+					// hsb appears
+					log.debug("hsb needed, recomputing");
+					//hsbHeight = snapSizeY(hscroll.prefHeight(-1));
+					//canvasHeight = snapSizeY(canvasHeight - hsbHeight);
+					return computeArrangement(vsb, Boolean.TRUE);
+				}
+			}
 		}
 		return ar;
 	}

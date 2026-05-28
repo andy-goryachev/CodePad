@@ -11,6 +11,8 @@ public class Arrangement
 	record Row(int index, int cellIndex) { }
 	
 	private final int wrapLimit;
+	private final double canvasWidth;
+	private final double canvasHeight;
 	private final double hsbHeight;
 	private final double vsbWidth;
 	private int lastColumn;
@@ -18,11 +20,25 @@ public class Arrangement
 	private final CList<Row> rows = new CList<>();
 	
 	
-	public Arrangement(int wrapLimit, double hsbHeight, double vsbWidth)
+	public Arrangement(int wrapLimit, double canvasWidth, double canvasHeight, double hsbHeight, double vsbWidth)
 	{
 		this.wrapLimit = wrapLimit;
+		this.canvasWidth = canvasWidth;
+		this.canvasHeight = canvasHeight;
 		this.hsbHeight = hsbHeight;
 		this.vsbWidth = vsbWidth;
+	}
+	
+	
+	public void addRow(int index, int cellIndex)
+	{
+		rows.add(new Row(index, cellIndex));
+	}
+
+
+	public int visibleRowCount()
+	{
+		return rows.size();
 	}
 
 
@@ -35,12 +51,6 @@ public class Arrangement
 	public double getVSBWidth()
 	{
 		return vsbWidth;
-	}
-
-
-	public int visibleRowCount()
-	{
-		return rows.size();
 	}
 
 
@@ -72,10 +82,16 @@ public class Arrangement
 	{
 		return lastColumn;
 	}
-
-
-	public void addRow(int index, int cellIndex)
+	
+	
+	public double canvasWidth()
 	{
-		rows.add(new Row(index, cellIndex));
+		return canvasWidth;
+	}
+	
+	
+	public double canvasHeight()
+	{
+		return canvasHeight;
 	}
 }
