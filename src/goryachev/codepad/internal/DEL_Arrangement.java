@@ -12,10 +12,10 @@ import goryachev.common.util.CList;
  * as well as helps compute the vertical scroll bar parameters. 
  */
 @Deprecated // FIX rm
-public class Arrangement_DELETE
+public class DEL_Arrangement
 {
 	private static final Log log = Log.get("Arrangement");
-	private final WrapCache cache;
+	private final DEL_WrapCache cache;
 	private final int modelSize;
 	private final int viewRows;
 	private final int viewCols;
@@ -33,7 +33,7 @@ public class Arrangement_DELETE
 	private int topIndex;
 	
 	
-	public Arrangement_DELETE(WrapCache cache, int modelSize, int viewRows, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
+	public DEL_Arrangement(DEL_WrapCache cache, int modelSize, int viewRows, int viewCols, int wrapLimit, int startIndex, int startCellIndex)
 	{
 		this.cache = cache;
 		this.modelSize = modelSize;

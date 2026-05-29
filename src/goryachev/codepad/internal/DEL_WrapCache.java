@@ -12,7 +12,7 @@ import goryachev.common.util.CMap;
 /// but we want to keep the cached content as much as possible.
 ///
 @Deprecated // FIX remove
-public class WrapCache
+public class DEL_WrapCache
 {
 	record Key(int index, int wrapLimit) { }
 	
@@ -21,7 +21,7 @@ public class WrapCache
 	private CMap<Key,WrapInfo> data;
 	
 	
-	public WrapCache()
+	public DEL_WrapCache()
 	{
 	}
 	
