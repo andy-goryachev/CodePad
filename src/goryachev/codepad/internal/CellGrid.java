@@ -39,7 +39,7 @@ import javafx.util.Duration;
 /// Cell Grid.
 ///
 /// Renders text in a rectangular grid.
-/// Contains and manages the canvas and both scroll bars.
+/// Contains the canvas and the scroll bars.
 /// 
 public class CellGrid
 	extends Pane
@@ -67,9 +67,9 @@ public class CellGrid
 	private boolean handleScrollEvents = true;
 	private boolean updateScrollBars = true;
 	// number of rows that result in no vsb
-	private int viewRows;
+	@Deprecated private int viewRows; // TODO move to arrangement
 	// number of columns that result in no hsb
-	private int viewCols;
+	@Deprecated private int viewCols; // TODO move to arrangement
 	// negative if no wrap
 	private int wrapLimit;
 	final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
@@ -174,7 +174,6 @@ public class CellGrid
 		if(!origin.equals(or))
 		{
 			origin = or;
-			DEL_arrangement = null;
 			requestLayout();
 		}
 	}
@@ -454,8 +453,8 @@ public class CellGrid
 			double pos = (val - min) / max;
 			
 			TextCellMetrics tm = textCellMetrics();
-			DEL_Arrangement a = DEL_arrangement();
-			int maxCells = a.maxCellCount() + Defaults.HORIZONTAL_CARET_GUARD;
+			Arrangement ar = arrangement();
+			int maxCells = ar.lastColumn() + Defaults.HORIZONTAL_CARET_GUARD;
 			double w = contentPaddingLeft + contentPaddingRight + maxCells * tm.cellWidth;
 			double cw = canvas.getWidth();
 			
@@ -580,8 +579,8 @@ public class CellGrid
 		double vis;
 		double val;
 
-		DEL_Arrangement ar = DEL_arrangement();
-		int w = ar.maxCellCount();
+		Arrangement ar = arrangement();
+		int w = ar.lastColumn();
 		if(w == 0)
 		{
 			vis = 1.0;
@@ -702,7 +701,8 @@ public class CellGrid
 	}
 	
 	
-	private DEL_Arrangement DEL_createArrangement()
+	// FIX rm
+	@Deprecated private DEL_Arrangement DEL_createArrangement()
 	{
 		int modelSize = editor.getParagraphCount();
 		int ix = origin.index();
@@ -741,7 +741,7 @@ public class CellGrid
 	}
 	
 	
-	private Arrangement arrangement2()
+	private Arrangement arrangement()
 	{
 		if(arrangement == null)
 		{
@@ -807,6 +807,13 @@ public class CellGrid
 			}
 			
 			layoutInArea(canvas, x0, y0, w, h, 0.0, null, true, true, HPos.CENTER, VPos.CENTER);
+			
+			if(updateScrollBars)
+			{
+				updateHorizontalScrollBar();
+				// TODO
+				//updateVerticalScrollBar();
+			}
 		}
 	}
 	
@@ -928,13 +935,23 @@ public class CellGrid
 					}
 				}
 			}
+			
 			ar.addRow(ix, cix);
-			cix = wi.nextRow(cix);
-			if(cix < 0)
+			
+			if(wrap)
+			{
+				cix = wi.nextRow(cix);
+				if(cix < 0)
+				{
+					wi = null;
+					ix++;
+					cix = 0;
+				}
+			}
+			else
 			{
 				wi = null;
 				ix++;
-				cix = 0;
 			}
 		}
 		
@@ -965,7 +982,7 @@ public class CellGrid
 	
 	private void paintCanvas(Arrangement a)
 	{
-		// TODO check if canvas needs to be (re-)created
+		// TODO check if canvas needs to be (re-)created?
 		// TODO
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
@@ -984,9 +1001,9 @@ public class CellGrid
 		{
 			int ix = a.indexAtRow(i);
 			WrapInfo wi = getWrapInfo(ix);
-			int cellIndex = a.cellIndexAtRow(i);
-			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cellIndex) : wi.getCellCount();
-			paintCells(tm, wi, cellIndex, ct, x, y);
+			int cix = a.cellIndexAtRow(i);
+			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
+			paintCells(tm, wi, cix, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
 		}
 	}
@@ -1154,74 +1171,6 @@ public class CellGrid
 			if(reachedEnd)
 			{
 				log.debug("reached end");
-				
-				// there is something wrong here
-				// avoid showing empty space at the end
-				/*
-				if(ar.getBottomRowCount() == 0)
-				{
-					TextPos end = editor.getDocumentEnd();
-					TextPos p = goVertically(end, 1 - viewRows, false);
-					p = goLineStart(p);
-					if(p != null)
-					{
-						if(p.compareTo(ix, cix) < 0)
-						{
-							ix = p.index();
-							cix = p.cellIndex();
-						}
-					}
-				}
-				*/
-				
-				
-				
-				// this code is wrong
-/*				
-				// move the origin to fill in the viewport
-				int ct = viewRows - nrows;
-				int ix = origin.index();
-				int cix = origin.cellIndex();
-				
-				log.debug("  END  ct=%d ix=%d cix=%d viewRows=%d nrows=%d", ct, ix, cix, viewRows, nrows);
-				
-				while((ix > 0) && (ct > 0) && (ix < size))
-				{
-					wi = cache.getWrapInfo(ix, wrapLimit);
-					
-					if(firstRow > 0)
-					{
-						if(firstRow < ct)
-						{
-							ct -= firstRow;
-							firstRow = 0;
-							ix--;
-						}
-						else
-						{
-							firstRow -= ct;
-							cix = wi.getCellIndexAtRow(firstRow);
-							double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-							setOrigin(ix, cix, origin.xoffset(), yoffset);
-							break;
-						}
-					}
-					
-					int rc = wi.getRowCount();
-					if(rc < ct)
-					{
-						--ix;
-						--ct;
-					}
-					else
-					{
-						cix = wi.getCellIndexAtRow(rc - ct);
-						double yoffset = ix == 0 ? contentPaddingTop : 0.0;
-						setOrigin(ix, cix, origin.xoffset(), yoffset);
-						break;
-					}
-				}
-			*/
 			}
 		}
 		else
