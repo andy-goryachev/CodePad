@@ -56,10 +56,8 @@ public class Defaults
 	
 	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.7);
 	
-	/**
-	 * Number of paragraphs to lay out before and after the view port
-	 * to form a sliding window, for the purpose of smoother scrolling.
-	 */
+	/// Number of paragraphs to lay out before and after the view port
+	// to form a sliding window, for the purpose of smoother scrolling.
 	public static final int SLIDING_WINDOW_HALF = 100;
 	
 	public static final int TAB_SIZE = 8;

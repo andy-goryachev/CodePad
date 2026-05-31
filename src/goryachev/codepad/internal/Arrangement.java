@@ -11,6 +11,7 @@ public class Arrangement
 {
 	record Row(int index, int cellIndex) { }
 	
+	private final int viewCols;
 	private final int wrapLimit;
 	private final double canvasWidth;
 	private final double canvasHeight;
@@ -27,6 +28,7 @@ public class Arrangement
 	
 	public Arrangement
 	(
+		int viewCols,
 		int wrapLimit,
 		double canvasWidth, 
 		double canvasHeight, 
@@ -34,6 +36,7 @@ public class Arrangement
 		double vsbWidth
 	)
 	{
+		this.viewCols = viewCols;
 		this.wrapLimit = wrapLimit;
 		this.canvasWidth = canvasWidth;
 		this.canvasHeight = canvasHeight;
@@ -160,5 +163,85 @@ public class Arrangement
 		this.bottomIndex = bottomIndex;
 		this.slidingWindowRowCount = slidingWindowRowCount;
 		this.topRowCount = topRowCount;
+	}
+	
+	
+	private boolean isWrap()
+	{
+		return wrapLimit > 0;
+	}
+	
+	
+	public RelativePosition getRelativePosition(TextPos p)
+	{
+		int viewRows = visibleRowCount();
+		int last = viewRows - 1;
+		if(last < 0)
+		{
+			return RelativePosition.UNDETERMINED;
+		}
+
+		Row r;
+		if(isWrap())
+		{
+			// wrapped
+			r = rows.get(0);
+			int cix = r.cellIndex();
+			if(p.compareTo(r.index(), cix) < 0)
+			{
+				return RelativePosition.ABOVE;
+			}
+	
+			last = Math.min(last, rows.size() - 1);
+			r = rows.get(last);
+			cix = r.cellIndex();
+			if(p.compareTo(r.index(), cix + viewCols) >= 0)
+			{
+				return RelativePosition.BELOW;
+			}
+		}
+		else
+		{
+			// not wrapped
+			r = rows.get(0);
+			int x = p.cellIndex() - r.cellIndex(); 
+			int y = p.index() - r.index();
+			if(x < 0)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_LEFT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_LEFT;
+				}
+				return RelativePosition.LEFT;
+			}
+			else if(x > viewCols)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_RIGHT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_RIGHT;
+				}
+				return RelativePosition.RIGHT;
+			}
+			else
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW;
+				}
+			}
+		}
+		return RelativePosition.VISIBLE;
 	}
 }

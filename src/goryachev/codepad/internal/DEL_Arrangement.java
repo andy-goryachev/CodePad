@@ -376,27 +376,6 @@ public class DEL_Arrangement
 		return RelativePosition.VISIBLE;
 	}
 
-
-	public GridPos getCoordinates(TextPos p)
-	{
-		int ix = p.index();
-		int cix = p.cellIndex();
-		
-		for(int i=rows.size()-1; i>=0; --i)
-		{
-			WrapInfo wi = rows.get(i);
-			if(wi.getIndex() == ix)
-			{
-				int x = cix - cellIndexAtViewRow(i);
-				if((x >= 0) && (x < viewCols))
-				{
-					return new GridPos(i, x);
-				}
-			}
-		}
-		return null;
-	}
-	
 	
 	// returns [index, cellIndex] or null
 	public int[] getPosition(int row, int col)
