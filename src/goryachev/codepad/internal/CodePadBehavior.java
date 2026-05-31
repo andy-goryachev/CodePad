@@ -331,7 +331,7 @@ public class CodePadBehavior
 	
 	private int getScrollStepSize()
 	{
-		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.getViewPortRowCount());
+		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.viewPortRowCount());
 		if(step < 1)
 		{
 			return 1;
@@ -360,7 +360,7 @@ public class CodePadBehavior
 			else
 			{
 				CodeParagraph par = control().getParagraph(ca.index());
-				return TextPos.of(ca.index(), par.getCellCount());
+				return new TextPos(ca.index(), par.getCellCount());
 			}
 		}
 		return null;		
@@ -378,7 +378,7 @@ public class CodePadBehavior
 			}
 			else
 			{
-				return TextPos.of(ca.index(), 0);
+				return new TextPos(ca.index(), 0);
 			}
 		}
 		return null;
@@ -391,7 +391,7 @@ public class CodePadBehavior
 		if(ca != null)
 		{
 			CodeParagraph par = control().getParagraph(ca.index());
-			return TextPos.of(ca.index(), par.getCellCount());
+			return new TextPos(ca.index(), par.getCellCount());
 		}
 		return null;
 	}
@@ -402,7 +402,7 @@ public class CodePadBehavior
 		TextPos ca = control().getCaretPosition();
 		if(ca != null)
 		{
-			return TextPos.of(ca.index(), 0);
+			return new TextPos(ca.index(), 0);
 		}
 		return null;
 	}
@@ -580,13 +580,13 @@ public class CodePadBehavior
 	
 	public void pageDown()
 	{
-		moveVertically(grid.getPageSize(), false);
+		moveVertically(grid.viewPortRowCount(), false);
 	}
 	
 	
 	public void pageUp()
 	{
-		moveVertically(-grid.getPageSize(), false);
+		moveVertically(-grid.viewPortRowCount(), false);
 	}
 	
 	
@@ -625,13 +625,13 @@ public class CodePadBehavior
 	
 	public void selectPageDown()
 	{
-		moveVertically(grid.getPageSize(), true);
+		moveVertically(grid.viewPortRowCount(), true);
 	}
 	
 	
 	public void selectPageUp()
 	{
-		moveVertically(-grid.getPageSize(), true);
+		moveVertically(-grid.viewPortRowCount(), true);
 	}
 	
 	
@@ -641,12 +641,12 @@ public class CodePadBehavior
 		if(p != null)
 		{
 			int ix = p.index();
-			TextPos start = TextPos.of(ix, 0);
+			TextPos start = new TextPos(ix, 0);
 			ix++;
 			TextPos end;
 			if(ix <= control().getParagraphCount())
 			{
-				end = TextPos.of(ix, 0);
+				end = new TextPos(ix, 0);
 			}
 			else
 			{

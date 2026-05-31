@@ -40,10 +40,8 @@
 
 
 
-
 ## Possible Developments
 
 - allow paragraph `Node`s
 - allow per-instance configuration via `Properties` + system properties
-
 

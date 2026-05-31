@@ -11,8 +11,11 @@ import javafx.util.Duration;
  */
 public class Defaults
 {
+	// default aspect ratio
 	public static final double ASPECT_RATIO = 0.4;
+	// minimum aspect ratio (narrow symbols)
 	public static final double ASPECT_RATIO_MIN = 0.05;
+	// maximum aspect ratio (wide symbols)
 	public static final double ASPECT_RATIO_MAX = 1.0;
 	
 	public static final Duration AUTO_SCROLL_PERIOD = Duration.millis(100); // arbitrary number
@@ -30,8 +33,10 @@ public class Defaults
 	
 	public static final boolean DISPLAY_CARET = true;
 	
+	/// the `editable` property default value
 	public static final boolean EDITABLE = true;
-	
+
+	/// the `font` property default value
 	public static final Font FONT = Font.font("Monospaced", -1);
 	
 	/** extra empty cell adds space to paint the trailing caret */
@@ -51,10 +56,8 @@ public class Defaults
 	
 	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.7);
 	
-	/**
-	 * Number of paragraphs to lay out before and after the view port
-	 * to form a sliding window, for the purpose of smoother scrolling.
-	 */
+	/// Number of paragraphs to lay out before and after the view port
+	// to form a sliding window, for the purpose of smoother scrolling.
 	public static final int SLIDING_WINDOW_HALF = 100;
 	
 	public static final int TAB_SIZE = 8;
@@ -67,5 +70,6 @@ public class Defaults
 	
 	public static final int VIEWPORT_ROW_COUNT_ESTIMATE = 128;
 	
+	/// the `wrapText` property default value
 	public static final boolean WRAP_TEXT = false;
 }

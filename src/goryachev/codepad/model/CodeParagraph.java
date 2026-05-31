@@ -40,14 +40,6 @@ public abstract class CodeParagraph
 	
 	/// Returns true when the text contains tab characters.
 	public abstract boolean hasTabs();
-	
-	
-	/// Determines whether at least one cell in this paragraph contains more than one character.
-	///
-	/// This method returns true when the paragraph contains:
-	/// - combining characters
-	/// - characters beyond the basic plane
-	public abstract boolean hasComplexCells();
 
 
 	// TODO provide several methods:
@@ -95,13 +87,6 @@ public abstract class CodeParagraph
 
 			@Override
 			public boolean hasTabs()
-			{
-				return false;
-			}
-
-
-			@Override
-			public boolean hasComplexCells()
 			{
 				return false;
 			}

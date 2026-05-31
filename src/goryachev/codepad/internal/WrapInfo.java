@@ -15,22 +15,24 @@ import javafx.scene.paint.Color;
  * - simple, wrapped
  * - complex, where tabs and/or combined characters are present.
  */
+// TODO rename: CellUnit?
+// TODO cell index <--> string offset
 public abstract class WrapInfo
 {
-	/**
-	 * Returns the number of visual rows in this paragraph.
-	 */
+	/// Returns the number of visual rows in this paragraph.
 	public abstract int getRowCount();
 
-	/**
-	 * Returns the cell text for the given cell index.
-	 */
-	public abstract String getCellText(int cix);
-	
+	/// Returns the cell text for the given cell index.
+	public abstract String getCellText(int cellIndex);
+
+	/// Returns cell index at the beginning of the specified row.
 	public abstract int getCellIndexAtRow(int row);
 
 	/** assumes leading bias */
-	public abstract int getRowAtCellIndex(int cix);
+	public abstract int getRowAtCellIndex(int cellIndex);
+	
+	/// returns cell index at the next row, or -1 if the last row in this paragraph
+	protected abstract int nextRow(int cellIndex);
 	
 	//
 	
@@ -43,28 +45,26 @@ public abstract class WrapInfo
 	}
 	
 	
-	public int getIndex()
+	public final int getIndex()
 	{
 		return paragraph.getIndex();
 	}
 	
 	
-	public int getCellCount()
+	public final int getCellCount()
 	{
 		return paragraph.getCellCount();
 	}
 	
 	
-	public Color getBackgroundColor()
+	public final Color getBackgroundColor()
 	{
 		return paragraph.getBackgroundColor();
 	}
 	
 	
-	/**
-	 * Returns the cell style for the given cell index.
-	 */
-	public CellStyle getCellStyle(int cix)
+	/// Returns the cell style for the given cell index.
+	public final CellStyle getCellStyle(int cix)
 	{
 		if(cix < paragraph.getTextLength())
 		{
@@ -74,7 +74,7 @@ public abstract class WrapInfo
 	}
 	
 	
-	public TextPos clamp(int cix)
+	public final TextPos clamp(int cix)
 	{
 		if(cix < 0)
 		{
@@ -85,10 +85,10 @@ public abstract class WrapInfo
 			int len = getCellCount();
 			if((len != 0) && (cix >= len))
 			{
-				return TextPos.of(getIndex(), len);
+				return new TextPos(getIndex(), len);
 			}
 		}
-		return TextPos.of(getIndex(), cix);
+		return new TextPos(getIndex(), cix);
 	}
 	
 	
@@ -98,43 +98,38 @@ public abstract class WrapInfo
 	 */
 	public static WrapInfo create(CodeParagraph p, int tabSize, int wrapLimit)
 	{
-		boolean complex = p.hasTabs() || p.hasComplexCells();
-		
+		boolean tabs = p.hasTabs();
 		if(wrapLimit > 0)
 		{
 			// needs wrapping
-			if(complex)
+			if(tabs)
 			{
-				// complex wrapped case
-				return new ComplexWrapped(p, tabSize, wrapLimit);
+				return new WrappedTabs(p, tabSize, wrapLimit);
 			}
 			else
 			{
-				// simple wrapped case
-				return new SimpleWrapped(p, wrapLimit);
+				return new WrappedSimple(p, wrapLimit);
 			}
 		}
 		else
 		{
 			// no wrapping
-			if(complex)
+			if(tabs)
 			{
-				// complex single line
-				return new ComplexSingleLine(p, tabSize);
+				return new SingleRowTabs(p, tabSize);
 			}
 			else
 			{
-				// single line
-				return new SingleLine(p);
+				return new SingleRow(p);
 			}
 		}
 	}
 
 
-	/** no tabs, no complex symbols, one line */
-	private static class SingleLine extends WrapInfo
+	/// Single row, no tabs.
+	private static class SingleRow extends WrapInfo
 	{
-		SingleLine(CodeParagraph p)
+		SingleRow(CodeParagraph p)
 		{
 			super(p);
 		}
@@ -166,15 +161,23 @@ public abstract class WrapInfo
 		{
 			return 0;
 		}
+
+
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			return -1;
+		}
 	}
 	
 	
-	/** tabs or complex symbols, one line */
-	private static class ComplexSingleLine extends WrapInfo
+	/// Single row, with tabs.
+	private static class SingleRowTabs extends WrapInfo
 	{
-		ComplexSingleLine(CodeParagraph p, int tabSize)
+		SingleRowTabs(CodeParagraph p, int tabSize)
 		{
 			super(p);
+			// TODO process tabs
 		}
 
 		
@@ -205,16 +208,23 @@ public abstract class WrapInfo
 		{
 			return 0;
 		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			return -1;
+		}
 	}
 	
 	
-	/** no tabs or complex symbols, wrapped */
-	private static class SimpleWrapped extends WrapInfo
+	/// Wrapped, no tabs.
+	private static class WrappedSimple extends WrapInfo
 	{
 		private final int cols;
 		
 		
-		SimpleWrapped(CodeParagraph p, int cols)
+		WrappedSimple(CodeParagraph p, int cols)
 		{
 			super(p);
 			this.cols = cols;
@@ -247,15 +257,28 @@ public abstract class WrapInfo
 		{
 			return cix / cols;
 		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			int r = (cellIndex / cols) + 1;
+			if(r < getRowCount())
+			{
+				return r * cols;
+			}
+			return -1;
+		}
 	}
 	
 	
-	/** tabs or complex symbols, wrapped */
-	private static class ComplexWrapped extends WrapInfo
+	/// Wrapped with tabs.
+	private static class WrappedTabs extends WrapInfo
 	{
-		ComplexWrapped(CodeParagraph p, int tabSize, int wrapLimit)
+		WrappedTabs(CodeParagraph p, int tabSize, int wrapLimit)
 		{
 			super(p);
+			// TODO process tabs
 		}
 
 		
@@ -287,6 +310,14 @@ public abstract class WrapInfo
 		{
 			// TODO
 			return 0;
+		}
+		
+		
+		@Override
+		protected int nextRow(int cellIndex)
+		{
+			// TODO
+			return -1;
 		}
 	}
 }
