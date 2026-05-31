@@ -85,8 +85,6 @@ public class CellGrid
 		
 		setBorder(Border.stroke(Color.TRANSPARENT));
 		
-		// TODO possibly move all these listeners to the skin
-		
 		paintCaret = new FxBooleanBinding(caretEnabledProperty, editor.displayCaretProperty(), editor.focusedProperty(), editor.disabledProperty(), suppressBlink)
 		{
 			@Override
@@ -896,20 +894,38 @@ public class CellGrid
 			}
 		}
 		
-		// compute sliding window
-		int topIndex;
-		int bottomIndex;
-		int slidingWindowRowCount;
-		int topRowCount;
+		// compute the sliding window
+		ix = origin.index();
+		int pcount = Math.min(Defaults.SLIDING_WINDOW_HALF, ix);
+		int nrows = getWrapInfo(ix).getRowAtCellIndex(origin.cellIndex());	
 		
-		// TODO first, going up
-		// TODO then, going down
+		// first, going up
+		for(int i=0; i<pcount; i++)
+		{
+			wi = getWrapInfo(--ix);
+			nrows += wi.getRowCount();
+		}
 		
-		// FIX for now
-		topIndex = origin.index();
-		bottomIndex = ix;
-		slidingWindowRowCount = viewRows;
-		topRowCount = 0;
+		int topIndex = ix;
+		int topRowCount = nrows;
+		
+		// then going down
+		int vix = viewRows - 1;
+		ix = ar.indexAtRow(vix);
+		if(ix >= 0)
+		{
+			wi = getWrapInfo(ix);
+			nrows += (wi.getRowCount() - wi.getRowAtCellIndex(ar.cellIndexAtRow(vix)));
+			pcount = Math.min(Defaults.SLIDING_WINDOW_HALF + (Defaults.SLIDING_WINDOW_HALF - pcount), size - ix);
+			if(pcount > 0)
+			{
+				wi = getWrapInfo(++ix);
+				nrows += wi.getRowCount();
+			}
+		}
+		
+		int bottomIndex = ix;
+		int slidingWindowRowCount = viewRows + nrows;
 		
 		ar.setSlidingWindow(topIndex, bottomIndex, slidingWindowRowCount, topRowCount);
 		return ar;
@@ -943,11 +959,14 @@ public class CellGrid
 		for(int i=0; i<maxy; i++)
 		{
 			int ix = ar.indexAtRow(i);
-			WrapInfo wi = getWrapInfo(ix);
-			int cix = ar.cellIndexAtRow(i);
-			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
-			paintCells(tm, wi, cix, ct, x, y);
-			y = snapPositionY(y + tm.cellHeight + lineSpacing);
+			if(ix >= 0)
+			{
+				WrapInfo wi = getWrapInfo(ix);
+				int cix = ar.cellIndexAtRow(i);
+				int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
+				paintCells(tm, wi, cix, ct, x, y);
+				y = snapPositionY(y + tm.cellHeight + lineSpacing);
+			}
 		}
 	}
 	

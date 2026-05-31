@@ -283,7 +283,7 @@ public class CodePadBehavior
 	private void handleScrollWheel(ScrollEvent ev)
 	{
 		EventType<ScrollEvent> t = ev.getEventType();
-		log.debug("dx=%.1f, dy=%.1f, dxu=%s, dyu=%s, touchCount=%s", ev.getDeltaX(), ev.getDeltaY(), ev.getTextDeltaXUnits(), ev.getTextDeltaYUnits(), ev.getTouchCount());
+		log.debug("dx={0,number,0.#}, dy={1,number,0.#}, dxu={2}, dyu={3}, touchCount={4}", ev.getDeltaX(), ev.getDeltaY(), ev.getTextDeltaXUnits(), ev.getTextDeltaYUnits(), ev.getTouchCount());
 		if(t == ScrollEvent.SCROLL_STARTED)
 		{
 			inTrackpadScroll = true;

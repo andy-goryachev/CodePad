@@ -2,11 +2,14 @@
 package goryachev.codepad.internal;
 import goryachev.codepad.TextPos;
 import goryachev.common.util.CList;
+import goryachev.common.util.JW;
 
 
-/// Represents the configuration of visible cells, parameters of paragraphs
-/// immediately preceing and following the visible area, and the visibility of
-/// the scroll bars.
+/// Represents the arrangment of the visible cells,
+/// as well as a number of paragraph before and after,
+/// which form the sliding window.
+/// The sliding window enables better scrolling experience
+/// which avoids sudden jumps when large paragraphs appear in the view. 
 public class Arrangement
 {
 	record Row(int index, int cellIndex) { }
@@ -42,6 +45,16 @@ public class Arrangement
 		this.canvasHeight = canvasHeight;
 		this.hsbHeight = hsbHeight;
 		this.vsbWidth = vsbWidth;
+	}
+	
+	
+	@Override
+	public String toString()
+	{
+		return new JW("Arrangement").
+			value("viewCols", viewCols).
+			value("wrapLimit", wrapLimit).
+			toString();
 	}
 	
 	
@@ -81,9 +94,14 @@ public class Arrangement
 	}
 
 
+	// index at the specified view row, or -1 if beyond model size
 	public int indexAtRow(int ix)
 	{
-		return rows.get(ix).index();
+		if(ix < rows.size())
+		{
+			return rows.get(ix).index();
+		}
+		return -1;
 	}
 
 

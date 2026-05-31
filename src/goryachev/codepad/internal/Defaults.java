@@ -58,7 +58,7 @@ public class Defaults
 	
 	/// Number of paragraphs to lay out before and after the view port
 	// to form a sliding window, for the purpose of smoother scrolling.
-	public static final int SLIDING_WINDOW_HALF = 100;
+	public static final int SLIDING_WINDOW_HALF = 64;
 	
 	public static final int TAB_SIZE = 8;
 	

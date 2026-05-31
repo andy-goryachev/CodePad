@@ -8,6 +8,7 @@ import goryachev.fx.FX;
 import goryachev.fx.Formatters;
 import goryachev.fx.FxFormatter;
 import goryachev.fx.HPane;
+import java.text.MessageFormat;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -59,7 +60,7 @@ public class StatusBar
 				String line = fmt.format(p.getLineNumber());
 				String ix = fmt.format(p.getColumn());
 				
-				return String.format("line: %s  char: %s", line, ix);  
+				return MessageFormat.format("line: {0}  char: {1}", line, ix);  
 			},
 			ed.selectionProperty()
 		));
