@@ -358,13 +358,6 @@ public class CellGrid
 		DEL_arrangement = null;
 		requestLayout();
 	}
-
-
-	public int getPageSize()
-	{
-		// TODO +1 if unwrapped?
-		return viewRows;
-	}
 	
 	
 	public int getViewPortRowCount()
@@ -511,20 +504,24 @@ public class CellGrid
 			ix = Math.min(ix, size - 1);
 			int cix = 0;
 			setOrigin(ix, cix, origin.xoffset(), 0);
-			DEL_arrangement = null;
 			
 			// 2. compute arrangement
-			DEL_Arrangement ar = DEL_arrangement();
+			if(arrangement != null)
+			{
+				log.error("arrangement must be null at this point");
+				arrangement = null;				
+			}
+			Arrangement ar = arrangement();
 			log.debug(ar);
 			
 			// 3. adjust
-			int space = ar.getRowCount() - viewRows;
+			int space = ar.getSlidingWindowRowCount() - viewRows;
 			if(space > 0)
 			{
 				int d = (int)Math.round(space * pos);
-				int[] rv = ar.findRow(d);
-				ix = rv[0];
-				cix = rv[1];
+				TextPos p = ar.textPosAtRow(d);
+				ix = p.index();
+				cix = p.cellIndex();
 			}
 
 			double yoff = ix == 0 ? contentPaddingTop : 0.0;
@@ -551,7 +548,7 @@ public class CellGrid
 			// the sliding window. 
 
 			TextCellMetrics tm = textCellMetrics();
-			DEL_Arrangement ar = DEL_arrangement();
+			Arrangement ar = arrangement();
 			
 			double top = ar.getTopIndex();
 			double btm = (size - ar.getBottomIndex());
@@ -969,6 +966,23 @@ public class CellGrid
 				}
 			}
 		}
+		
+		// compute sliding window
+		int topIndex;
+		int bottomIndex;
+		int slidingWindowRowCount;
+		int topRowCount;
+		
+		// TODO first, going up
+		// TODO then, going down
+		
+		// FIX for now
+		topIndex = origin.index();
+		bottomIndex = ix;
+		slidingWindowRowCount = viewRows;
+		topRowCount = 0;
+		
+		ar.setSlidingWindow(topIndex, bottomIndex, slidingWindowRowCount, topRowCount);
 		return ar;
 	}
 	
@@ -1321,8 +1335,8 @@ public class CellGrid
 		
 		//
 		
-		TextPos p0 = TextPos.of(ix, cellIndex);
-		TextPos p1 = TextPos.of(ix, cellIndex + viewCols);
+		TextPos p0 = new TextPos(ix, cellIndex);
+		TextPos p1 = new TextPos(ix, cellIndex + viewCols);
 		
 		if(max.compareTo(p0) <= 0)
 		{
@@ -1623,7 +1637,7 @@ public class CellGrid
 					}
 
 					cix += col;
-					return TextPos.of(ix, cix);
+					return new TextPos(ix, cix);
 				}
 				else
 				{
@@ -1681,7 +1695,7 @@ public class CellGrid
 			// move left
 			if(cix >= 0)
 			{
-				return TextPos.of(ix, cix);
+				return new TextPos(ix, cix);
 			}
 			else
 			{
@@ -1715,7 +1729,7 @@ public class CellGrid
 				else
 				{
 					ix++;
-					return TextPos.of(ix, 0);
+					return new TextPos(ix, 0);
 				}
 			}
 		}
@@ -1860,7 +1874,7 @@ public class CellGrid
 		log.debug("deltaLines={0}", deltaLines);
 		
 		int cix = origin.cellIndex();
-		TextPos from = TextPos.of(origin.index(), cix);
+		TextPos from = new TextPos(origin.index(), cix);
 		TextPos p = goVertically(from, deltaLines, false);
 		int ix = p.index();
 		cix = p.cellIndex();
@@ -1879,11 +1893,11 @@ public class CellGrid
 			WrapInfo wi = getWrapInfo(ix);
 			int row = wi.getRowAtCellIndex(cix);
 			cix = wi.getCellIndexAtRow(row);
-			return TextPos.of(ix, cix);
+			return new TextPos(ix, cix);
 		}
 		else
 		{
-			return TextPos.of(ix, 0);
+			return new TextPos(ix, 0);
 		}
 	}
 
@@ -1901,7 +1915,7 @@ public class CellGrid
 		}
 		else
 		{
-			return TextPos.of(ix, wi.getCellCount());
+			return new TextPos(ix, wi.getCellCount());
 		}
 	}
 	
@@ -1919,7 +1933,7 @@ public class CellGrid
 		{
 			int ix = indexes[0];
 			int cix = indexes[1];
-			return TextPos.of(ix, cix);
+			return new TextPos(ix, cix);
 		}
 		return null;
 	}

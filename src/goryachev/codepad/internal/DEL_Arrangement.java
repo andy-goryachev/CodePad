@@ -272,12 +272,6 @@ public class DEL_Arrangement
 	}
 
 	
-	public int getRowCount()
-	{
-		return topRows + bottomRows + visibleRowCount;
-	}
-	
-	
 	public int getSlidingWindowRowCount()
 	{
 		// TODO some rows are missing (first and last visible paragraphs are unaccounted for)
@@ -287,9 +281,8 @@ public class DEL_Arrangement
 
 	/**
 	 * Finds wrap coordinates for the row relative to the top of the sliding window.
-	 * Returns [ix, cix]
 	 */
-	public int[] findRow(int row)
+	public TextPos textPosAtRow(int row)
 	{
 		int ix = topIndex;
 		int cix = 0;
@@ -311,11 +304,7 @@ public class DEL_Arrangement
 			}
 		}
 		
-		return new int[]
-		{
-			ix,
-			cix
-		};
+		return new TextPos(ix, cix);
 	}
 
 

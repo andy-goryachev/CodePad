@@ -17,20 +17,13 @@ public final class TextPos
 	private final int cix;
 
 
-	private TextPos(int index, int cellIndex)
+	/// Creates the TextPos at the specified index and cell index.
+	public TextPos(int index, int cellIndex)
 	{
 		this.index = index;
 		this.cix = cellIndex;
 	}
 	
-	
-	/// Creates the TextPos at the specified index and cell index.
-	///
-	public static TextPos of(int index, int cellIndex)
-	{
-		return new TextPos(index, cellIndex);
-	}
-
 
 	/// Returns 0-based paragraph index in the model.
 	///
