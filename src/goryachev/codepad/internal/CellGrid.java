@@ -5,7 +5,6 @@ import goryachev.codepad.SelectionRange;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CellStyle;
 import goryachev.codepad.model.CodeModel;
-import goryachev.codepad.utils.CodePadUtils;
 import goryachev.common.log.Log;
 import goryachev.fx.FX;
 import goryachev.fx.FxBooleanBinding;
@@ -536,7 +535,7 @@ public class CellGrid
 			double max = contentPaddingTop + contentPaddingBottom + (totalRows * tm.cellHeight);
 			double visible = canvas.getHeight();
 			
-			val = CodePadUtils.toScrollBarValue(pos, visible, max);
+			val = GridUtils.toScrollBarValue(pos, visible, max);
 			vis = visible / max;
 		}
 
@@ -568,7 +567,7 @@ public class CellGrid
 			double max = contentPaddingLeft + contentPaddingRight + (w + Defaults.HORIZONTAL_CARET_GUARD) * tm.cellWidth;
 			double visible = canvas.getWidth();
 			
-			val = CodePadUtils.toScrollBarValue(pos, visible, max);
+			val = GridUtils.toScrollBarValue(pos, visible, max);
 			vis = visible / max;
 		}
 		
