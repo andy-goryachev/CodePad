@@ -80,11 +80,6 @@ public class CellGrid
 	private boolean highlightCaretLine;
 	private int phantomx = -1;
 
-	@Deprecated // TODO
-	private final DEL_WrapCache DEL_cache = new DEL_WrapCache();
-	@Deprecated // TODO
-	private DEL_Arrangement DEL_arrangement;
-
 
 	public CellGrid(CodePad ed, ScrollBar vscroll, ScrollBar hscroll)
 	{
@@ -136,8 +131,6 @@ public class CellGrid
 		aspectRatio = v;
 		metrics = null;
 		cache.clear();
-		DEL_cache.clear();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
@@ -150,8 +143,6 @@ public class CellGrid
 		italicFont = null;
 		metrics = null;
 		cache.clear();
-		DEL_cache.clear();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 
@@ -303,8 +294,6 @@ public class CellGrid
 	{
 		setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		cache.clear();
-		DEL_cache.clear();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
@@ -312,8 +301,6 @@ public class CellGrid
 	public void handleLineSpacingChange()
 	{
 		cache.clear();
-		DEL_cache.clear();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 
@@ -338,8 +325,6 @@ public class CellGrid
 		}
 
 		cache.clear();
-		DEL_cache.clear();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 
@@ -351,9 +336,7 @@ public class CellGrid
 		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
 		setOrigin(ix, 0, contentPaddingLeft, yoff);
 		cache.clear();
-		DEL_cache.clear();
 		clearPhantomX();
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
@@ -387,21 +370,18 @@ public class CellGrid
 	private void handleWidthChange()
 	{
 		// TODO scroll horizontally
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
 	
 	private void handleHeightChange()
 	{
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
 	
 	private void handleScaleChange()
 	{
-		DEL_arrangement = null;
 		requestLayout();
 	}
 	
