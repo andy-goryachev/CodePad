@@ -51,9 +51,15 @@ public class Arrangement
 	}
 
 
-	public int visibleRowCount()
+	public int viewPortRowCount()
 	{
 		return rows.size();
+	}
+	
+	
+	public int viewPortColumnCount()
+	{
+		return viewCols;
 	}
 
 
@@ -90,9 +96,9 @@ public class Arrangement
 	/// Finds wrap coordinates for the row relative to the top of the sliding window.
 	public TextPos textPosAtRow(int row)
 	{		
-		if(row >= visibleRowCount())
+		if(row >= viewPortRowCount())
 		{
-			row = visibleRowCount() - 1;
+			row = viewPortRowCount() - 1;
 		}
 	
 		if(row < 0)
@@ -174,7 +180,7 @@ public class Arrangement
 	
 	public RelativePosition getRelativePosition(TextPos p)
 	{
-		int viewRows = visibleRowCount();
+		int viewRows = viewPortRowCount();
 		int last = viewRows - 1;
 		if(last < 0)
 		{

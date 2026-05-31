@@ -65,10 +65,6 @@ public class CellGrid
 	private double contentPaddingRight;
 	private boolean handleScrollEvents = true;
 	private boolean updateScrollBars = true;
-	// number of rows that result in no vsb
-	@Deprecated private int viewRows; // TODO move to arrangement
-	// number of columns that result in no hsb
-	@Deprecated private int viewCols; // TODO move to arrangement
 	// negative if no wrap
 	private int wrapLimit;
 	final SimpleBooleanProperty caretEnabledProperty = new SimpleBooleanProperty(true);
@@ -202,8 +198,8 @@ public class CellGrid
 		TextCellMetrics tm = textCellMetrics();
 		int row = (int)(y / (tm.cellHeight + lineSpacing()));
 		int col = (int)Math.round(x / tm.cellWidth);
-		Arrangement a = arrangement();
-		int ix = a.indexAtRow(row);
+		Arrangement ar = arrangement();
+		int ix = ar.indexAtRow(row);
 		if(ix < 0)
 		{
 			if(row <= 0)
@@ -215,7 +211,7 @@ public class CellGrid
 		}
 
 		// clamp to viewCols in wrapped mode
-		int cix = a.cellIndexAtRow(row) + (wrap ? Math.min(viewCols, col) : col);
+		int cix = ar.cellIndexAtRow(row) + (wrap ? Math.min(ar.viewPortColumnCount(), col) : col);
 		WrapInfo wi = cache.getWrapInfo(ix);
 		return wi.clamp(cix);
 	}
@@ -340,15 +336,15 @@ public class CellGrid
 	}
 	
 	
-	public int getViewPortRowCount()
+	public int viewPortRowCount()
 	{
-		return viewRows;
+		return arrangement().viewPortRowCount();
 	}
 	
 	
-	public int getViewPortColumnCount()
+	public int viewPortColumnCount()
 	{
-		return viewCols;
+		return arrangement().viewPortColumnCount();
 	}
 	
 	
@@ -360,7 +356,6 @@ public class CellGrid
 		b.setUnitIncrement(0.01);
 		b.setBlockIncrement(0.05);
 		b.setVisible(false);
-		b.setViewOrder(-10); // above canvas
 		FX.consumeAllEvents(ScrollEvent.ANY, b);
 		return b;
 	}
@@ -492,7 +487,7 @@ public class CellGrid
 			log.debug(ar);
 			
 			// 3. adjust
-			int space = ar.getSlidingWindowRowCount() - viewRows;
+			int space = ar.getSlidingWindowRowCount() - ar.viewPortRowCount();
 			if(space > 0)
 			{
 				int d = (int)Math.round(space * pos);
@@ -743,8 +738,7 @@ public class CellGrid
 			if(updateScrollBars)
 			{
 				updateHorizontalScrollBar();
-				// TODO
-				//updateVerticalScrollBar();
+				updateVerticalScrollBar();
 			}
 		}
 	}
@@ -770,8 +764,8 @@ public class CellGrid
 		double vsbWidth = 0.0;
 		double hsbHeight = 0.0;
 
-		viewRows = (int)Math.ceil((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
-		viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
+		int viewRows = (int)Math.ceil((height - contentPaddingTop - contentPaddingBottom) / (tm.cellHeight + lineSpacing));
+		int viewCols = (int)((width - contentPaddingLeft - contentPaddingRight) / tm.cellWidth);
 		wrapLimit = wrap ? viewCols : -1;
 		
 		if(size > viewRows)
@@ -929,15 +923,15 @@ public class CellGrid
 	}
 	
 	
-	private void paintCanvas(Arrangement a)
+	private void paintCanvas(Arrangement ar)
 	{
 		// TODO check if canvas needs to be (re-)created?
 		// TODO
 		// can cache because this method will be called on change
 		highlightCaretLine = (editor.getCaretColor() != null);
 		
-		int maxy = a.visibleRowCount();
-		int wrapLimit = a.wrapLimit();
+		int maxy = ar.viewPortRowCount();
+		int wrapLimit = ar.wrapLimit();
 		TextCellMetrics tm = textCellMetrics();
 		double lineSpacing = lineSpacing();
 		
@@ -948,9 +942,9 @@ public class CellGrid
 		
 		for(int i=0; i<maxy; i++)
 		{
-			int ix = a.indexAtRow(i);
+			int ix = ar.indexAtRow(i);
 			WrapInfo wi = getWrapInfo(ix);
-			int cix = a.cellIndexAtRow(i);
+			int cix = ar.cellIndexAtRow(i);
 			int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
 			paintCells(tm, wi, cix, ct, x, y);
 			y = snapPositionY(y + tm.cellHeight + lineSpacing);
@@ -1026,7 +1020,7 @@ public class CellGrid
 		//
 		
 		TextPos p0 = new TextPos(ix, cellIndex);
-		TextPos p1 = new TextPos(ix, cellIndex + viewCols);
+		TextPos p1 = new TextPos(ix, cellIndex + arrangement().viewPortColumnCount());
 		
 		if(max.compareTo(p0) <= 0)
 		{
@@ -1083,7 +1077,7 @@ public class CellGrid
 		
 		if(caretLine)
 		{
-			if((wrap && (count < viewCols)) || !wrap)
+			if((wrap && (count < viewPortColumnCount())) || !wrap)
 			{
 				count += Defaults.HORIZONTAL_CARET_GUARD;
 			}
@@ -1410,6 +1404,7 @@ public class CellGrid
 	// try showing more of a short line
 	private int adjustToMaximizeViewableText(int ix, int cix)
 	{
+		int viewCols = viewPortColumnCount();
 		WrapInfo wi = getWrapInfo(ix);
 		int mx = Math.min(viewCols / 2, wi.getCellCount());
 		if(cix >= mx)
@@ -1435,7 +1430,7 @@ public class CellGrid
 			if(wrap)
 			{
 				ix = pos.index();
-				cix = (pos.cellIndex() / viewCols) * viewCols;
+				cix = (pos.cellIndex() / viewPortColumnCount()) * viewPortColumnCount();
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
 				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
@@ -1456,14 +1451,14 @@ public class CellGrid
 			break;
 		case ABOVE_RIGHT:
 			ix = pos.index();
-			cix = Math.max(0, pos.cellIndex() - viewCols);
+			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
 			setOrigin(ix, cix, 0.0, yoff);
 			break;
 		case BELOW:
 			if(wrap)
 			{
-				TextPos p = goVertically(pos, 1 - viewRows, false);
+				TextPos p = goVertically(pos, 1 - viewPortRowCount(), false);
 				cix = p.cellIndex();
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
@@ -1472,13 +1467,13 @@ public class CellGrid
 			else
 			{
 				ix = pos.index();
-				ix = Math.max(0, ix - viewRows + 1);
+				ix = Math.max(0, ix - viewPortRowCount() + 1);
 				setOrigin(ix, origin.cellIndex(), origin.xoffset(), 0.0);
 			}
 			break;
 		case BELOW_LEFT:
 			ix = pos.index();
-			ix = Math.max(0, ix - viewRows);
+			ix = Math.max(0, ix - viewPortRowCount());
 			cix = pos.cellIndex();
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
@@ -1486,8 +1481,8 @@ public class CellGrid
 			break;			
 		case BELOW_RIGHT:
 			ix = pos.index();
-			ix = Math.max(0, ix - viewRows + 1);
-			cix = Math.max(0, pos.cellIndex() - viewCols);
+			ix = Math.max(0, ix - viewPortRowCount() + 1);
+			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
 			setOrigin(ix, cix, 0.0, 0.0);
 			break;
 		case LEFT:
@@ -1498,7 +1493,7 @@ public class CellGrid
 			setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
 		case RIGHT:
-			cix = Math.max(0, pos.cellIndex() - viewCols);
+			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
 			setOrigin(origin.index(), cix, 0.0, origin.yoffset());
 			break;
 		}
@@ -1531,9 +1526,9 @@ public class CellGrid
 		{
 			deltaLines = 1;
 		}
-		else if(deltaLines > viewRows)
+		else if(deltaLines > viewPortRowCount())
 		{
-			deltaLines = viewCols;
+			deltaLines = viewPortColumnCount();
 		}
 		
 		shiftOrigin(up ? -deltaLines : deltaLines);

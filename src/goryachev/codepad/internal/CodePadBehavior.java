@@ -331,7 +331,7 @@ public class CodePadBehavior
 	
 	private int getScrollStepSize()
 	{
-		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.getViewPortRowCount());
+		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.viewPortRowCount());
 		if(step < 1)
 		{
 			return 1;
@@ -580,13 +580,13 @@ public class CodePadBehavior
 	
 	public void pageDown()
 	{
-		moveVertically(grid.getViewPortRowCount(), false);
+		moveVertically(grid.viewPortRowCount(), false);
 	}
 	
 	
 	public void pageUp()
 	{
-		moveVertically(-grid.getViewPortRowCount(), false);
+		moveVertically(-grid.viewPortRowCount(), false);
 	}
 	
 	
@@ -625,13 +625,13 @@ public class CodePadBehavior
 	
 	public void selectPageDown()
 	{
-		moveVertically(grid.getViewPortRowCount(), true);
+		moveVertically(grid.viewPortRowCount(), true);
 	}
 	
 	
 	public void selectPageUp()
 	{
-		moveVertically(-grid.getViewPortRowCount(), true);
+		moveVertically(-grid.viewPortRowCount(), true);
 	}
 	
 	
