@@ -1575,7 +1575,7 @@ public class CellGrid
 		}
 		else if(deltaLines > viewPortRowCount())
 		{
-			deltaLines = viewPortColumnCount();
+			deltaLines = viewPortRowCount();
 		}
 		
 		shiftOrigin(up ? -deltaLines : deltaLines);

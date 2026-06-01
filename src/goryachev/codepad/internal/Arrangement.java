@@ -54,6 +54,11 @@ public class Arrangement
 		return new JW("Arrangement").
 			value("viewCols", viewCols).
 			value("wrapLimit", wrapLimit).
+			value("lastColumn", lastColumn).
+			value("topIndex", topIndex).
+			value("bottomIndex", bottomIndex).
+			value("topRowCount", topRowCount).
+			value("slidingWindowRowCount", slidingWindowRowCount).
 			toString();
 	}
 	

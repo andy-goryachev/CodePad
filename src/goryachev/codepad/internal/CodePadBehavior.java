@@ -331,12 +331,7 @@ public class CodePadBehavior
 	
 	private int getScrollStepSize()
 	{
-		int step = CKit.round(Defaults.SCROLL_WHEEL_STEP_AMOUNT * grid.viewPortRowCount());
-		if(step < 1)
-		{
-			return 1;
-		}
-		return step;
+		return Defaults.SCROLL_WHEEL_STEP_ROWS;
 	}
 
 

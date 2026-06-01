@@ -52,12 +52,13 @@ public class Defaults
 	
 	public static final double PREF_WIDTH = 100;
 	
-	public static final double SCROLL_WHEEL_STEP_AMOUNT = 0.25;
+	/// The number of rows to scroll using the mouse scroll wheel.
+	public static final int SCROLL_WHEEL_STEP_ROWS = 2;
 	
 	public static final Color SELECTION_BACKGROUND_COLOR = Color.rgb(255, 255, 128, 0.7);
 	
-	/// Number of paragraphs to lay out before and after the view port
-	// to form a sliding window, for the purpose of smoother scrolling.
+	/// The number of paragraphs to lay out before and after the view port
+	/// to form a sliding window, for the purpose of smoother scrolling.
 	public static final int SLIDING_WINDOW_HALF = 64;
 	
 	public static final int TAB_SIZE = 8;
