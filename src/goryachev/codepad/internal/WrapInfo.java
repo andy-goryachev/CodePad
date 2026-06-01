@@ -6,17 +6,9 @@ import goryachev.codepad.model.CodeParagraph;
 import javafx.scene.paint.Color;
 
 
-/**
- * WrapInfo represents a CodeParagraph laid out within the view port with wrapping
- * and tab stops computed when necessary.
- * 
- * There are several type:
- * - simple, with 1:1 correspondence between characters and cells and no tabulation applied
- * - simple, wrapped
- * - complex, where tabs and/or combined characters are present.
- */
+/// WrapInfo represents a CodeParagraph laid out within the view port with wrapping
+/// and tab stops computed when necessary.
 // TODO rename: CellUnit?
-// TODO cell index <--> string offset
 public abstract class WrapInfo
 {
 	/// Returns the number of visual rows in this paragraph.
@@ -83,7 +75,7 @@ public abstract class WrapInfo
 		else
 		{
 			int len = getCellCount();
-			if((len != 0) && (cix >= len))
+			if(cix > len)
 			{
 				return new TextPos(getIndex(), len);
 			}

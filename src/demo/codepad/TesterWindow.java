@@ -1,17 +1,21 @@
 // Copyright © 2017-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
 import goryachev.codepad.CodePad;
+import goryachev.codepad.SelectionRange;
+import goryachev.codepad.TextPos;
+import goryachev.common.util.SB;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
 import goryachev.fx.FxFramework;
 import goryachev.fx.FxMenuBar;
 import goryachev.fx.FxPopupMenu;
 import goryachev.fx.FxWindow;
-import goryachev.fx.settings.FxSettingsSchema;
 import goryachev.fx.settings.LocalSettings;
+import java.text.MessageFormat;
 import demo.codepad.options.OptionsPane;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 
 
@@ -44,6 +48,8 @@ public class TesterWindow
 		PANE.set(pane);
 		
 		statusBar = new StatusBar();
+		statusBar.setTrailingText(CodePadTesterApp.COPYRIGHT);
+		new EditorMonitor();
 		
 		setTitle("CodePad Tester");
 		setTop(createMenu());
@@ -51,12 +57,74 @@ public class TesterWindow
 		setBottom(statusBar);
 		setSize(600, 700);
 		
-		statusBar.attach(editor);
-		
 		FX.setPopupMenu(editor, this::createPopupMenu);
 		FX.addChangeListener(viewProperties, true, this::handleViewProperties);
 		
 		LocalSettings.get(this).add("viewProperties", viewProperties);
+	}
+	
+	
+	private class EditorMonitor
+	{
+		private boolean mouse;
+		private double x;
+		private double y;
+		
+		
+		public EditorMonitor()
+		{
+			FX.addInvalidationListener(editor.selectionProperty(), this::updateStatus);
+			editor.addEventHandler(MouseEvent.MOUSE_ENTERED, (ev) -> mouseEntered(true));
+			editor.addEventHandler(MouseEvent.MOUSE_EXITED, (ev) -> mouseEntered(false));
+			editor.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
+			editor.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::mouseMoved);
+		}
+		
+		
+		private void mouseEntered(boolean on)
+		{
+			mouse = on;
+		}
+		
+		
+		private void mouseMoved(MouseEvent ev)
+		{
+			x = ev.getScreenX();
+			y = ev.getScreenY();
+			if(mouse)
+			{
+				updateStatus();
+			}
+		}
+		
+		
+		private void updateStatus()
+		{
+			SB sb = new SB();
+			SelectionRange sel = editor.getSelection();
+			if(sel != null)
+			{
+				TextPos p = sel.getCaret();
+				int line = p.getLineNumber();
+				int col = p.getColumn();
+				sb.append(MessageFormat.format("line: {0,number,0}  char: {1,number,0}", line, col));
+			}
+			
+			if(mouse)
+			{
+				TextPos p = editor.getTextPositionFor(x, y);
+				if(p != null)
+				{
+					if(sb.length() > 0)
+					{
+						sb.append("   ");
+					}
+					sb.append(MessageFormat.format("[{0,number,0}:{1,number,0}]", p.index(), p.cellIndex()));
+				}
+			}
+			
+			statusBar.setLeadingText(sb.toString());
+		}
 	}
 	
 	

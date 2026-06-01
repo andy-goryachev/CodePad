@@ -211,7 +211,7 @@ public class CellGrid
 		// clamp to viewCols in wrapped mode
 		int cix = ar.cellIndexAtRow(row) + (wrap ? Math.min(ar.viewPortColumnCount(), col) : col);
 		WrapInfo wi = cache.getWrapInfo(ix);
-		return wi.clamp(cix);
+		return wi == null ? null : wi.clamp(cix);
 	}
 
 	
@@ -361,7 +361,10 @@ public class CellGrid
 	
 	private void handleWidthChange()
 	{
-		// TODO scroll horizontally
+		if(!wrap)
+		{
+			// TODO scroll horizontally to keep the caret visible AND avoid blank space at the end
+		}
 		requestLayout();
 	}
 	
@@ -801,6 +804,11 @@ public class CellGrid
 			}
 			
 			WrapInfo wi = getWrapInfo(ix);
+			if(wi == null)
+			{
+				break;
+			}
+			
 			if(cix == 0)
 			{
 				rows += wi.getRowCount();
@@ -850,6 +858,11 @@ public class CellGrid
 			if(wi == null)
 			{
 				wi = getWrapInfo(ix);
+				if(wi == null)
+				{
+					break;
+				}
+				
 				if(!wrap)
 				{
 					int w = wi.getCellCount();
@@ -897,13 +910,19 @@ public class CellGrid
 		// compute the sliding window
 		ix = origin.index();
 		int pcount = Math.min(Defaults.SLIDING_WINDOW_HALF, ix);
-		int nrows = getWrapInfo(ix).getRowAtCellIndex(origin.cellIndex());	
+		int nrows = 0;
 		
-		// first, going up
-		for(int i=0; i<pcount; i++)
+		wi = getWrapInfo(ix);
+		if(wi != null)
 		{
-			wi = getWrapInfo(--ix);
-			nrows += wi.getRowCount();
+			nrows = wi.getRowAtCellIndex(origin.cellIndex());	
+		
+			// first, going up
+			for(int i=0; i<pcount; i++)
+			{
+				wi = getWrapInfo(--ix);
+				nrows += wi.getRowCount();
+			}
 		}
 		
 		int topIndex = ix;
@@ -962,6 +981,10 @@ public class CellGrid
 			if(ix >= 0)
 			{
 				WrapInfo wi = getWrapInfo(ix);
+				if(wi == null)
+				{
+					break;
+				}
 				int cix = ar.cellIndexAtRow(i);
 				int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
 				paintCells(tm, wi, cix, ct, x, y);

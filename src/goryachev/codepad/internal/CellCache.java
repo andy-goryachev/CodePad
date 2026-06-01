@@ -54,6 +54,11 @@ public class CellCache
 		WrapInfo wi = data.get(k);
 		if(wi == null)
 		{
+			if(modelIndex >= model.size())
+			{
+				return null;
+			}
+
 			// TODO replace with a circular buffer
 			if(data.size() > MAX_SIZE)
 			{

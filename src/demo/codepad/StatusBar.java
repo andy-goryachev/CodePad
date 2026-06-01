@@ -1,15 +1,8 @@
 // Copyright © 2020-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad;
-import goryachev.codepad.CodePad;
-import goryachev.codepad.SelectionRange;
-import goryachev.codepad.TextPos;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
-import goryachev.fx.Formatters;
-import goryachev.fx.FxFormatter;
 import goryachev.fx.HPane;
-import java.text.MessageFormat;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 
@@ -34,35 +27,22 @@ public class StatusBar
 		
 		leading = FX.label(LABEL_LEADING);
 		
-		trailing = FX.label(LABEL_TRAILING, Pos.CENTER_RIGHT, CodePadTesterApp.COPYRIGHT);
+		trailing = FX.label(LABEL_TRAILING, Pos.CENTER_RIGHT);
 		
 		add(leading);
 		fill();
 		add(trailing);
 	}
-
-
-	public void attach(CodePad ed)
+	
+	
+	public void setLeadingText(String s)
 	{
-		leading.textProperty().bind(Bindings.createStringBinding
-		(
-			() ->
-			{
-				SelectionRange sel = ed.getSelection();
-				if(sel == null)
-				{
-					return null;
-				}
-				
-				FxFormatter fmt = Formatters.integerFormatter();
-				
-				TextPos p = sel.getCaret();
-				String line = fmt.format(p.getLineNumber());
-				String ix = fmt.format(p.getColumn());
-				
-				return MessageFormat.format("line: {0}  char: {1}", line, ix);  
-			},
-			ed.selectionProperty()
-		));
+		leading.setText(s);
+	}
+	
+	
+	public void setTrailingText(String s)
+	{
+		trailing.setText(s);
 	}
 }
