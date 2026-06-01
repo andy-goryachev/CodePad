@@ -833,6 +833,8 @@ public class CellGrid
 					log.debug("vsb needed, recomputing");
 					return computeArrangement(Boolean.TRUE, initHsb);
 				}
+				
+				break;
 			}
 		}
 		
@@ -935,11 +937,14 @@ public class CellGrid
 		{
 			wi = getWrapInfo(ix);
 			nrows += (wi.getRowCount() - wi.getRowAtCellIndex(ar.cellIndexAtRow(vix)));
-			pcount = Math.min(Defaults.SLIDING_WINDOW_HALF + (Defaults.SLIDING_WINDOW_HALF - pcount), size - ix);
+			pcount = Math.min(Defaults.SLIDING_WINDOW_HALF + (Defaults.SLIDING_WINDOW_HALF - pcount), size - 1 - ix);
 			if(pcount > 0)
 			{
-				wi = getWrapInfo(++ix);
-				nrows += wi.getRowCount();
+				for(int i=0; i<pcount; i++)
+				{
+					wi = getWrapInfo(++ix);
+					nrows += wi.getRowCount();
+				}
 			}
 		}
 		

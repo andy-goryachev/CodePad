@@ -50,6 +50,11 @@ public class CellCache
 	 */
 	public WrapInfo getWrapInfo(int modelIndex)
 	{
+		if(model == null)
+		{
+			return null;
+		}
+		
 		Integer k = Integer.valueOf(modelIndex);
 		WrapInfo wi = data.get(k);
 		if(wi == null)
