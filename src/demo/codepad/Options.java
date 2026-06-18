@@ -5,7 +5,7 @@ import goryachev.codepad.TextPos;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
-import demo.codepad.models.DemoModels;
+import demo.codepad.models.DemoModelContexts;
 import demo.codepad.options.BooleanChoice;
 import demo.codepad.options.ColorChoice;
 import demo.codepad.options.DoubleChoice;
@@ -100,19 +100,19 @@ public class Options
 
 	private static Node modelOption(String name, ObjectProperty<CodeModel> p)
 	{
-		ComboBox<DemoModels> c = new ComboBox<>();
-		c.getItems().setAll(DemoModels.values());
+		ComboBox<DemoModelContexts> c = new ComboBox<>();
+		c.getItems().setAll(DemoModelContexts.values());
 		c.setConverter(FX.standardConverter());
 		FX.addChangeListener(c.getSelectionModel().selectedItemProperty(), (m) ->
 		{
-			p.set(DemoModels.getModel(m));
+			p.set(new CodeModel(DemoModelContexts.getModelContent(m)));
 		});
 		
 		Button b = new Button("Reload");
 		b.setOnAction((ev) ->
 		{
-			DemoModels s = c.getSelectionModel().getSelectedItem();
-			CodeModel m = DemoModels.getModel(s);
+			DemoModelContexts cx = c.getSelectionModel().getSelectedItem();
+			CodeModel m = new CodeModel(DemoModelContexts.getModelContent(cx));
 			p.set(m);
 		});
 		return new HBox(c, b);

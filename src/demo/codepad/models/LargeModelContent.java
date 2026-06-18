@@ -1,16 +1,18 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.models;
-import goryachev.codepad.model.CodeModel;
+import goryachev.codepad.model.CodeModelContent;
 import goryachev.codepad.model.CodeParagraph;
+import goryachev.codepad.model.ParagraphDecorator;
 
 
 /**
- * Large Model.
+ * Large ModelContent.
  */
-public class LargeModel
-	extends CodeModel
+public class LargeModelContent
+	implements CodeModelContent
 {
 	private final int size;
+	private final ParagraphDecorator decorator = new DemoDecorator();
 	private static final String[] LINES =
 	{
 		"Short Line",
@@ -21,7 +23,7 @@ public class LargeModel
 	};
 
 
-	public LargeModel(int size)
+	public LargeModelContent(int size)
 	{
 		this.size = size;
 	}
@@ -32,14 +34,6 @@ public class LargeModel
 	{
 		return size;
 	}
-
-
-	@Override
-	public CodeParagraph getParagraph(int index)
-	{
-		String text = getPlainText(index);
-		return new DemoParagraph(index, text);
-	}
 	
 	
 	@Override
@@ -47,5 +41,27 @@ public class LargeModel
 	{
 		int ix = index % LINES.length;
 		return (index + 1) + " " + LINES[ix];
+	}
+
+
+	@Override
+	public boolean isWritable()
+	{
+		return false;
+	}
+
+
+	@Override
+	public boolean isAppendable()
+	{
+		return false;
+	}
+
+
+	@Override
+	public final CodeParagraph getParagraph(int index)
+	{
+		String text = getPlainText(index);
+		return decorator.decorate(this, index, text);
 	}
 }

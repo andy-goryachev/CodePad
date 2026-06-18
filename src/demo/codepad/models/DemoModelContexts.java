@@ -1,17 +1,18 @@
 // Copyright © 2019-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.models;
-import goryachev.codepad.model.CodeModel;
+import goryachev.codepad.model.CodeModelContent;
+import goryachev.common.util.CKit;
 import java.util.function.Supplier;
 
 
 /**
- * Demo Text Models.
+ * Demo Text CodeModelContexts.
  */
-public enum DemoModels
+public enum DemoModelContexts
 {
 	AVERAGE("Average Size", () ->
 	{
-		return TestCodeModel.of
+		return ofDecoratedStrings
 		(
 			"""
 			0. Line one.
@@ -24,15 +25,15 @@ public enum DemoModels
 	}),
 	LARGE_1B("1,000,000,000 Lines", () ->
 	{
-		return new LargeModel(1_000_000_000);
+		return new LargeModelContent(1_000_000_000);
 	}),
 	LARGE_1M("1,000,000 Lines", () ->
 	{
-		return new LargeModel(1_000_000);
+		return new LargeModelContent(1_000_000);
 	}),
 	LARGE_1K("1,000 Lines", () ->
 	{
-		return new LargeModel(1_000);
+		return new LargeModelContent(1_000);
 	}),
 	NULL("<null>", () ->
 	{
@@ -40,7 +41,7 @@ public enum DemoModels
 	}),
 	SHORT("Short", () ->
 	{
-		return TestCodeModel.of
+		return ofDecoratedStrings
 		(
 			"""
 			One.
@@ -52,19 +53,26 @@ public enum DemoModels
 	
 	
 	private final String name;
-	private final Supplier<CodeModel> gen;
+	private final Supplier<CodeModelContent> gen;
 	
 	
-	private DemoModels(String name, Supplier<CodeModel> gen)
+	private DemoModelContexts(String name, Supplier<CodeModelContent> gen)
 	{
 		this.name = name;
 		this.gen = gen;
 	}
 	
 	
-	public static CodeModel getModel(Object x)
+	public static CodeModelContent getModelContent(Object x)
 	{
-		DemoModels v = (x instanceof DemoModels ch) ? ch : DemoModels.NULL;
+		DemoModelContexts v = (x instanceof DemoModelContexts ch) ? ch : DemoModelContexts.NULL;
 		return v.gen.get();
+	}
+	
+	
+	private static CodeModelContent ofDecoratedStrings(String text)
+	{
+		String[] lines = CKit.split(text, "\n");
+		return CodeModelContent.ofDecoratedStrings(new DemoDecorator(), lines);
 	}
 }

@@ -73,4 +73,7 @@ public class Defaults
 	
 	/// the `wrapText` property default value
 	public static final boolean WRAP_TEXT = false;
+	
+	/// Default value for the `EditableCodeModel#writable` property.
+	public static final boolean WRITABLE = true;
 }

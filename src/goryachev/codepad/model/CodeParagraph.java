@@ -1,6 +1,5 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
-import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.paint.Color;
 
 
@@ -46,6 +45,7 @@ public abstract class CodeParagraph
 	// 1. simple (1:1 chars to cells)
 	// 2. complex (with the break iterator)
 	// 3. standard with the platform break iterator
+	@Deprecated // replace with of(), plain text, with attributes etc.
 	public static CodeParagraph fast(int index, String text)
 	{
 		return new CodeParagraph()

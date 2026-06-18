@@ -4,39 +4,53 @@ import goryachev.codepad.TextPos;
 import java.util.Objects;
 
 
+// TODO
+// - editable
+// - add/remove listener
+// - replace
+
+
 /// [CodePad] Text Model.
-public abstract class CodeModel
+public final class CodeModel
 {
-	// TODO
-	// - editable
-	// - add/remove listener
-	// - replace
-	// - apply style?
+	private final CodeModelContent content;
+	
+	
+	public CodeModel(CodeModelContent content)
+	{
+		this.content = content;
+	}
+	
+	
+	/// Determines whether the model can be modified by the user (i.e. supports editing).
+	public boolean isWritable()
+	{
+		return content.isWritable();
+	}
+	
+
+	/// Determines whether the model can grow programmatically
+	public boolean isAppendable()
+	{
+		return content.isAppendable();
+	}
 	
 	
 	/// Returns the number of paragraphs.
-	public abstract int size();
+	public int size()
+	{
+		return content.size();
+	}
 	
 	
 	/// Returns the [CodeParagraph] at the specified `index`.
 	///
 	/// This index should never go beyond the number of paragraphs as determined by [#size()].
 	/// Doing so might result in an undetermined behavior (most likely an exception).
-	public abstract CodeParagraph getParagraph(int index);
-	
-	
-	/// Returns the length of the paragraph text (the character count) at the specified `index`.
-	///
-	/// The base class simply invokes 'getParagraph(index).getTextLength();',
-	/// but subclasses may override this method if a more optimal implementation can be provided.
-	public int getParagraphLength(int index)
+	public CodeParagraph getParagraph(int index)
 	{
-		return getParagraph(index).getTextLength();
-	}
-
-	
-	public CodeModel()
-	{
+		// TODO clamp
+		return content.getParagraph(index);
 	}
 	
 	
@@ -51,6 +65,16 @@ public abstract class CodeModel
 	{
 		CodeParagraph p = getParagraph(index);
 		return p.getPlainText();
+	}
+
+	
+	/// Returns the length of the paragraph text (the character count) at the specified `index`.
+	///
+	/// The base class implementation simply invokes 'getParagraph(index).getTextLength();',
+	/// but subclasses may override this method if a more optimal implementation can be provided.
+	public int getParagraphLength(int index)
+	{
+		return getParagraph(index).getTextLength();
 	}
 	
 
