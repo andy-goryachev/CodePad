@@ -7,53 +7,26 @@ import goryachev.fx.FxBoolean;
 import javafx.beans.property.BooleanProperty;
 
 
-/// Editable In-Memory Content.
-public class EditableContent
-	implements CodeModelContent
+/// Editable CodeModel.
+public class EditableCodeModel
+	extends CodeModel
 {
-	private final CList<String> paragraphs = new CList<>();
 	private FxBoolean writable;
 
-	
-	public EditableContent()
+
+	public EditableCodeModel()
 	{
+		super(new EditableContent());
 	}
 	
-	
-	@Override
-	public int size()
-	{
-		return paragraphs.size();
-	}
-
-	
-	public final void replace(TextPos start, TextPos end, String text)
-	{
-		// TODO
-	}
-	
-
-	@Override
-	public boolean isAppendable()
-	{
-		return true;
-	}
-
-
-	@Override
-	public String getPlainText(int index)
-	{
-		return paragraphs.get(index);
-	}
-
 	
 	@Override
 	public final boolean isWritable()
 	{
 		return writable == null ? Defaults.WRITABLE : writable.get();
 	}
-	
-	
+
+
 	public final void setWritable(boolean on)
 	{
 		if((writable == null) && (on != Defaults.WRITABLE))
@@ -62,7 +35,7 @@ public class EditableContent
 		}
 	}
 
-	
+
 	public final BooleanProperty writableProperty()
 	{
 		if(writable == null)
@@ -71,12 +44,53 @@ public class EditableContent
 		}
 		return writable;
 	}
+	
+	
+	// TODO decorator property
 
 
-	@Override
-	public CodeParagraph getParagraph(int index)
+	private static class EditableContent extends DecoratedContent
 	{
-		String text = getPlainText(index);
-		return CodeParagraph.fast(index, text);
+		private final CList<String> paragraphs = new CList<>();
+
+
+		public EditableContent()
+		{
+		}
+
+
+		@Override
+		public int size()
+		{
+			return paragraphs.size();
+		}
+
+
+		public final void replace(TextPos start, TextPos end, String text)
+		{
+			// TODO
+		}
+
+
+		@Override
+		public boolean isAppendable()
+		{
+			return isWritable();
+		}
+
+
+		@Override
+		public String getPlainText(int index)
+		{
+			return paragraphs.get(index);
+		}
+
+
+		@Override
+		public boolean isWritable()
+		{
+			// ignored
+			return true;
+		}
 	}
 }

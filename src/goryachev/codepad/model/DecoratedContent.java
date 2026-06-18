@@ -9,6 +9,11 @@ public abstract class DecoratedContent
 	private ParagraphDecorator decorator;
 
 
+	public DecoratedContent()
+	{
+	}
+	
+	
 	public DecoratedContent(ParagraphDecorator d)
 	{
 		setDecorator(d);

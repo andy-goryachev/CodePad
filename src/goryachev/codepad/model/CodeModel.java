@@ -11,7 +11,7 @@ import java.util.Objects;
 
 
 /// [CodePad] Text Model.
-public final class CodeModel
+public class CodeModel
 {
 	private final CodeModelContent content;
 	
@@ -30,14 +30,14 @@ public final class CodeModel
 	
 
 	/// Determines whether the model can grow programmatically
-	public boolean isAppendable()
+	public final boolean isAppendable()
 	{
 		return content.isAppendable();
 	}
 	
 	
 	/// Returns the number of paragraphs.
-	public int size()
+	public final int size()
 	{
 		return content.size();
 	}
@@ -110,7 +110,7 @@ public final class CodeModel
 	}
 	
 	
-	public TextPos getDocumentEnd()
+	public final TextPos getDocumentEnd()
 	{
 		int ix = size() - 1;
 		if(ix < 0)
@@ -121,7 +121,7 @@ public final class CodeModel
 	}
 	
 	
-	public TextPos getEndOfParagraph(int ix)
+	public final TextPos getEndOfParagraph(int ix)
 	{
 		int cix = getParagraphLength(ix);
 		return new TextPos(ix, cix);
