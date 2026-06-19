@@ -1,8 +1,8 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad;
-import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
+import goryachev.codepad.model.ChangeListener;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.CssStyle;
@@ -758,10 +758,31 @@ public class CodePad
 		{
 			model = new SimpleObjectProperty<>(this, "model")
 			{
+				private CodeModel model;
+				private final ChangeListener li = new ChangeListener()
+				{
+					@Override
+					public void onContentChange()
+					{
+						// TODO
+						requestLayout();
+					}
+				};
+
+				
 				@Override
 				protected void invalidated()
 				{
 					selectionModel.clear();
+					if(model != null)
+					{
+						model.removeListener(li);
+					}
+					model = get();
+					if(model != null)
+					{
+						model.addListener(li);
+					}
 				}
 			};
 		}

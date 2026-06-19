@@ -3,6 +3,7 @@ package goryachev.codepad.model;
 import goryachev.codepad.TextPos;
 import goryachev.common.log.Log;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 // TODO
@@ -16,6 +17,7 @@ public class CodeModel
 {
 	private static Log log = Log.get("CodeModel");
 	private final CodeModelContent content;
+	private final CopyOnWriteArrayList<ChangeListener> listeners = new CopyOnWriteArrayList<>();
 	private boolean undoRedoEnabled;
 	
 	
@@ -145,6 +147,18 @@ public class CodeModel
 	}
 	
 	
+	public final void addListener(ChangeListener li)
+	{
+		listeners.add(li);
+	}
+	
+	
+	public final void removeListener(ChangeListener li)
+	{
+		listeners.remove(li);
+	}
+	
+	
 	public final TextPos getEndOfParagraph(int ix)
 	{
 		int cix = getParagraphLength(ix);
@@ -191,5 +205,9 @@ public class CodeModel
 
 	private void fireEvent(TextPos start, TextPos end, TextPos replaceEnd)
 	{
+		for(ChangeListener li: listeners)
+		{
+			// TODO
+		}
 	}
 }
