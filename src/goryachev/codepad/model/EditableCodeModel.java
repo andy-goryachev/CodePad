@@ -92,5 +92,13 @@ public class EditableCodeModel
 			// ignored
 			return true;
 		}
+
+
+		@Override
+		public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled)
+		{
+			// TODO
+			return null;
+		}
 	}
 }

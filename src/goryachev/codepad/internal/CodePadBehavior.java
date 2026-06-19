@@ -1,11 +1,12 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
+import static com.sun.javafx.PlatformUtil.*;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
+import goryachev.codepad.SelectionRange;
 import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CodeParagraph;
 import goryachev.common.log.Log;
-import goryachev.common.util.CKit;
 import goryachev.common.util.D;
 import goryachev.fx.input.BehaviorBase;
 import goryachev.fx.input.KB;
@@ -14,6 +15,7 @@ import javafx.animation.Timeline;
 import javafx.event.EventType;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -185,6 +187,7 @@ public class CodePadBehavior
 		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
 		grid.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
 		grid.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+		grid.addEventHandler(KeyEvent.KEY_TYPED, this::handleKeyTyped);
 		grid.addEventFilter(ScrollEvent.ANY, this::handleScrollWheel);
 	}
 	
@@ -277,6 +280,85 @@ public class CodePadBehavior
 		grid.suppressBlinking(false);
 		grid.updateVerticalScrollBar();
 		grid.updateHorizontalScrollBar();
+	}
+	
+	
+	private void handleKeyTyped(KeyEvent ev)
+	{
+		if(ev.isConsumed())
+		{
+			return;
+		}
+		
+		String key = findTypedKey(ev);
+		if(key != null)
+		{
+			grid.suppressBlinking(true);
+			try
+			{
+				boolean consume = typeKey(key);
+				if(consume)
+				{
+					ev.consume();
+				}
+			}
+			finally
+			{
+				grid.suppressBlinking(false);
+			}
+		}
+	}
+	
+	
+	private String findTypedKey(KeyEvent ev)
+	{
+		// same logic as in TextInputControlBehavior:385
+		if(ev.isAltDown() || ev.isControlDown() || (isMac() && ev.isMetaDown()))
+		{
+			if(!((ev.isControlDown() || isMac()) && ev.isAltDown()))
+			{
+				return null;
+			}
+		}
+
+		String s = ev.getCharacter();
+		if(s.length() > 0)
+		{
+			char c = s.charAt(0);
+			if((c > 0x1f) && (c != 0x7f) && !ev.isMetaDown())
+			{
+				return s;
+			}
+		}
+		return null;
+	}
+	
+	
+	private boolean typeKey(String key)
+	{
+		if(canEdit())
+		{
+			CodePad ed = control();
+			SelectionRange sel = ed.getSelection();
+			if(sel != null)
+			{
+				TextPos p = ed.getModel().replace(sel.getMin(), sel.getMax(), key);
+				ed.moveCaret(p, false, true);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	private boolean canEdit()
+	{
+		CodePad ed = control();
+		if(ed.isEditable())
+		{
+			return ed.getModel().isWritable();
+		}
+		return false;
 	}
 
 

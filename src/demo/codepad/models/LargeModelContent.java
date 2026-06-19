@@ -1,7 +1,9 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.models;
+import goryachev.codepad.TextPos;
 import goryachev.codepad.model.CodeModelContent;
 import goryachev.codepad.model.CodeParagraph;
+import goryachev.codepad.model.InsertResult;
 import goryachev.codepad.model.ParagraphDecorator;
 
 
@@ -63,5 +65,12 @@ public class LargeModelContent
 	{
 		String text = getPlainText(index);
 		return decorator.decorate(this, index, text);
+	}
+
+
+	@Override
+	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled)
+	{
+		return null;
 	}
 }

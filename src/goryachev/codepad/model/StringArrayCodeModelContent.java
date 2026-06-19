@@ -1,5 +1,7 @@
 // Copyright © 2026-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
+import goryachev.codepad.TextPos;
+import goryachev.common.util.CKit;
 import java.util.Arrays;
 
 
@@ -10,7 +12,7 @@ public class StringArrayCodeModelContent
 	private final String[] paragraphs;
 	
 	
-	public StringArrayCodeModelContent(String[] paragraphs, ParagraphDecorator d)
+	private StringArrayCodeModelContent(String[] paragraphs, ParagraphDecorator d)
 	{
 		super(d);
 		this.paragraphs = Arrays.copyOf(paragraphs, paragraphs.length);
@@ -42,5 +44,19 @@ public class StringArrayCodeModelContent
 	public String getPlainText(int index)
 	{
 		return paragraphs[index];
+	}
+	
+
+	public static StringArrayCodeModelContent of(ParagraphDecorator d, String text)
+	{
+		String[] lines = CKit.split(text, "\n");
+		return new StringArrayCodeModelContent(lines, d);
+	}
+
+
+	@Override
+	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled)
+	{
+		return null;
 	}
 }

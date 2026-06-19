@@ -1,6 +1,7 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
 import goryachev.codepad.TextPos;
+import goryachev.common.log.Log;
 import java.util.Objects;
 
 
@@ -13,7 +14,9 @@ import java.util.Objects;
 /// [CodePad] Text Model.
 public class CodeModel
 {
+	private static Log log = Log.get("CodeModel");
 	private final CodeModelContent content;
+	private boolean undoRedoEnabled;
 	
 	
 	public CodeModel(CodeModelContent content)
@@ -28,11 +31,32 @@ public class CodeModel
 		return content.isWritable();
 	}
 	
+	
+	private void checkWritable()
+	{
+		if(!isWritable())
+		{
+			throw new UnsupportedOperationException("not writable");
+		}
+	}
+	
 
 	/// Determines whether the model can grow programmatically
 	public final boolean isAppendable()
 	{
 		return content.isAppendable();
+	}
+	
+	
+	public final boolean isUndoRedoEnabled()
+	{
+		return undoRedoEnabled;
+	}
+	
+	
+	public final void setUndoRedoEnabled(boolean on)
+	{
+		undoRedoEnabled = on;
 	}
 	
 	
@@ -125,5 +149,47 @@ public class CodeModel
 	{
 		int cix = getParagraphLength(ix);
 		return new TextPos(ix, cix);
+	}
+	
+	
+	protected void removeRange()
+	{
+		// TODO
+	}
+
+
+	public final TextPos replace(TextPos start, TextPos end, String text)
+	{
+		log.trace("start={0} end={1} text={2}", start, end, text);
+		checkWritable();
+		
+		start = clamp(start);
+		end = clamp(end);
+		int cmp = start.compareTo(end);
+		if(cmp > 0)
+		{
+			TextPos t = start;
+			start = end;
+			end = t;
+		}
+
+		boolean undoEnabled = isUndoRedoEnabled();
+		InsertResult r = content.replace(start, end, text, undoEnabled);
+		
+		if(undoEnabled)
+		{
+			// TODO update undo
+		}
+		
+		// TODO fire event
+		TextPos replaceEnd = r.getReplaceEnd();
+		fireEvent(start, end, replaceEnd);
+		
+		return replaceEnd;
+	}
+
+
+	private void fireEvent(TextPos start, TextPos end, TextPos replaceEnd)
+	{
 	}
 }

@@ -1,5 +1,6 @@
 // Copyright © 2026-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
+import goryachev.codepad.TextPos;
 
 
 /// CodeModel Content.
@@ -24,14 +25,9 @@ public interface CodeModelContent
 	public String getPlainText(int index);
 	
 	
-	public static CodeModelContent ofStrings(String ... paragraphs)
-	{
-		return new StringArrayCodeModelContent(paragraphs, null);
-	}
-	
-	
-	public static CodeModelContent ofDecoratedStrings(ParagraphDecorator d, String ... paragraphs)
-	{
-		return new StringArrayCodeModelContent(paragraphs, d);
-	}
+	/// Replaces the content between `start` and `end` positions with the new text.
+	/// Returns `null` if the content is not writable.
+	/// 
+	/// @return the result, or null
+	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled);
 }
