@@ -39,7 +39,7 @@ public class Styles
 				backgroundColor
 				(
 					"linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border)," +
-			        "linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
+					"linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
 				),
 				backgroundInsets(commas(0, 1)),
 				backgroundRadius(commas(3, 2)),
@@ -54,11 +54,11 @@ public class Styles
 					//backgroundColor(commas("-fx-focus-color", "-fx-control-inner-background", "-fx-faint-focus-color")),
 					backgroundColor
 					(
-				        "-fx-focus-color," +
-				        "-fx-control-inner-background," +
-				        "-fx-faint-focus-color," +
-				        "linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
-			        ),
+						"-fx-focus-color," +
+						"-fx-control-inner-background," +
+						"-fx-faint-focus-color," +
+						"linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background)"
+					),
 					backgroundInsets(commas(-0.2, 1, -1.4, 3)),
 					backgroundRadius(commas(3, 2, 4, 0))
 				)

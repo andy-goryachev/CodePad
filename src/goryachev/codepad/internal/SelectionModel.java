@@ -12,11 +12,11 @@ import javafx.beans.property.ReadOnlyProperty;
  */
 public final class SelectionModel
 {
-    private final ReadOnlyObjectWrapper<SelectionRange> range = new ReadOnlyObjectWrapper<>();
-    private final ReadOnlyObjectWrapper<TextPos> anchor = new ReadOnlyObjectWrapper<>();
-    private final ReadOnlyObjectWrapper<TextPos> caret = new ReadOnlyObjectWrapper<>();
-    
-    
+	private final ReadOnlyObjectWrapper<SelectionRange> range = new ReadOnlyObjectWrapper<>();
+	private final ReadOnlyObjectWrapper<TextPos> anchor = new ReadOnlyObjectWrapper<>();
+	private final ReadOnlyObjectWrapper<TextPos> caret = new ReadOnlyObjectWrapper<>();
+
+
 	public SelectionModel()
 	{
 	}
@@ -54,20 +54,20 @@ public final class SelectionModel
 	
 	public void setSelectionRange(CodeModel m, TextPos anchor, TextPos caret)
 	{
-        anchor = m.clamp(anchor);
-        caret = m.clamp(caret);
-        SelectionRange sel;
+		anchor = m.clamp(anchor);
+		caret = m.clamp(caret);
+		SelectionRange sel;
 
-        boolean caretAtMin = caret.compareTo(anchor) < 0;
-        if(caretAtMin)
-        {
-        	sel = new SelectionRange(caret, anchor, true);
-        }
-        else
-        {
-        	sel = new SelectionRange(anchor, caret, caretAtMin);
-        }
-        set(m, sel);
+		boolean caretAtMin = caret.compareTo(anchor) < 0;
+		if(caretAtMin)
+		{
+			sel = new SelectionRange(caret, anchor, true);
+		}
+		else
+		{
+			sel = new SelectionRange(anchor, caret, caretAtMin);
+		}
+		set(m, sel);
 	}
 	
 	

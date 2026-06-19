@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class CodeModel
 {
 	private static Log log = Log.get("CodeModel");
-	private final CodeModelContent content;
+	protected final CodeModelContent content;
 	private final CopyOnWriteArrayList<ChangeListener> listeners = new CopyOnWriteArrayList<>();
 	private boolean undoRedoEnabled;
 	

@@ -4,7 +4,9 @@ import goryachev.codepad.TextPos;
 import goryachev.codepad.internal.Defaults;
 import goryachev.common.util.CList;
 import goryachev.fx.FxBoolean;
+import goryachev.fx.FxObject;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 
 
 /// Editable CodeModel.
@@ -12,14 +14,36 @@ public class EditableCodeModel
 	extends CodeModel
 {
 	private FxBoolean writable;
+	private FxObject<ParagraphDecorator> decorator;
 
 
 	public EditableCodeModel()
 	{
 		super(new EditableContent());
 	}
-	
-	
+
+
+	public final ObjectProperty<ParagraphDecorator> decoratorProperty()
+	{
+		if(decorator == null)
+		{
+			decorator = new FxObject<>(this, "decorator")
+			{
+				@Override
+				protected void invalidated()
+				{
+					if(content instanceof EditableContent econ)
+					{
+						ParagraphDecorator d = get();
+						econ.setDecorator(d);
+					}
+				}
+			};
+		}
+		return decorator;
+	}
+
+
 	@Override
 	public final boolean isWritable()
 	{
@@ -44,12 +68,11 @@ public class EditableCodeModel
 		}
 		return writable;
 	}
-	
-	
-	// TODO decorator property
 
 
-	private static class EditableContent extends DecoratedContent
+	/// EditableContent backed by a list of Strings.
+	private static class EditableContent
+		extends DecoratedContent
 	{
 		private final CList<String> paragraphs = new CList<>();
 

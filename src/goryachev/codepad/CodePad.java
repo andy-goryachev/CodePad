@@ -7,6 +7,7 @@ import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
+import goryachev.fx.FxObject;
 import goryachev.fx.input.Func;
 import goryachev.fx.input.InputMap;
 import java.util.List;
@@ -15,7 +16,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.CssMetaData;
 import javafx.css.FontCssMetaData;
 import javafx.css.StyleConverter;
@@ -109,7 +109,7 @@ public class CodePad
 	public static final CssStyle STYLE = new CssStyle();
 	
 	private final InputMap inputMap;
-	private SimpleObjectProperty<CodeModel> model;
+	private FxObject<CodeModel> model;
 	final SelectionModel selectionModel = new SelectionModel();
 	DoubleProperty aspectRatio;
 	StyleableObjectProperty<Color> backgroundColor;
@@ -550,10 +550,10 @@ public class CodePad
 	}
 	
 	
-    /// Determines whether to show the caret.
-    ///
-    /// @defaultValue `true`
-    ///
+	/// Determines whether to show the caret.
+	///
+	/// @defaultValue `true`
+	///
 	public final BooleanProperty displayCaretProperty()
 	{
 		if(displayCaretProperty == null)
@@ -597,10 +597,10 @@ public class CodePad
 	}
 	
 	
-    /// Indicates whether this CodeArea can be edited by the user.
-    ///
-    /// @defaultValue `true`
-    ///
+	/// Indicates whether this CodeArea can be edited by the user.
+	///
+	/// @defaultValue `true`
+	///
 	public final BooleanProperty editableProperty()
 	{
 		if(editable == null)
@@ -698,10 +698,10 @@ public class CodePad
 	}
 	
 	
-    /// Defines the vertical space between lines, in pixels.
-    ///
-    /// @defaultValue 0
-    ///
+	/// Defines the vertical space between lines, in pixels.
+	///
+	/// @defaultValue 0
+	///
 	public final DoubleProperty lineSpacingProperty()
 	{
 		if(lineSpacing == null)
@@ -756,7 +756,7 @@ public class CodePad
 	{
 		if(model == null)
 		{
-			model = new SimpleObjectProperty<>(this, "model")
+			model = new FxObject<>(this, "model")
 			{
 				private CodeModel model;
 				private final ChangeListener li = new ChangeListener()
@@ -868,11 +868,11 @@ public class CodePad
 	}
 	
 	
-    /// The size of a tab stop.
-    /// The values are converted to an `int`.
-    /// Values less than 1 are treated as 1.  Values greater than 32 are treated as 32.
-    /// @defaultValue 8
-    ///
+	/// The size of a tab stop.
+	/// The values are converted to an `int`.
+	/// Values less than 1 are treated as 1.  Values greater than 32 are treated as 32.
+	/// @defaultValue 8
+	///
 	public final IntegerProperty tabSizeProperty()
 	{
 		if(tabSize == null)
@@ -976,14 +976,14 @@ public class CodePad
 		textColorProperty().set(c);
 	}
 	
-
-    /// Determines whether the text should be wrapped to fin the viewable area width.
-    ///
-    /// The horizontal scrolling will be disabled when this property is set to `true`,
-    /// and the horizontal scroll bar will be hidden.
-    ///
-    /// @defaultValue false
-    ///
+	
+	/// Determines whether the text should be wrapped to fin the viewable area width.
+	///
+	/// The horizontal scrolling will be disabled when this property is set to `true`,
+	/// and the horizontal scroll bar will be hidden.
+	///
+	/// @defaultValue false
+	///
 	public final BooleanProperty wrapTextProperty()
 	{
 		if(wrapText == null)

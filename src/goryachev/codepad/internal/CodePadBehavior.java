@@ -841,8 +841,8 @@ public class CodePadBehavior
 	
 	public void selectAll()
 	{
-        TextPos end = control().getDocumentEnd();
-        control().select(TextPos.ZERO, end);
+		TextPos end = control().getDocumentEnd();
+		control().select(TextPos.ZERO, end);
 	}
 	
 	
