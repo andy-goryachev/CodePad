@@ -56,19 +56,7 @@ public class EditableCodeModel
 
 		public EditableContent()
 		{
-		}
-
-
-		@Override
-		public int size()
-		{
-			return paragraphs.size();
-		}
-
-
-		public final void replace(TextPos start, TextPos end, String text)
-		{
-			// TODO
+			paragraphs.add("");
 		}
 
 
@@ -80,17 +68,23 @@ public class EditableCodeModel
 
 
 		@Override
-		public String getPlainText(int index)
+		public boolean isWritable()
 		{
-			return paragraphs.get(index);
+			return true;
 		}
 
 
 		@Override
-		public boolean isWritable()
+		public int size()
 		{
-			// ignored
-			return true;
+			return paragraphs.size();
+		}
+
+
+		@Override
+		public String getPlainText(int index)
+		{
+			return paragraphs.get(index);
 		}
 
 

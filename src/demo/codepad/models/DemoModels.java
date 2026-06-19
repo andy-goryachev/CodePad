@@ -1,6 +1,7 @@
 // Copyright © 2019-2026 Andy Goryachev <andy@goryachev.com>
 package demo.codepad.models;
 import goryachev.codepad.model.CodeModel;
+import goryachev.codepad.model.EditableCodeModel;
 import goryachev.codepad.model.StringArrayCodeModelContent;
 import java.util.function.Supplier;
 
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
  */
 public enum DemoModels
 {
+	EDITABLE("Editable", () -> new EditableCodeModel()),
 	AVERAGE("Average Size", () ->
 	{
 		return ofDecoratedStrings

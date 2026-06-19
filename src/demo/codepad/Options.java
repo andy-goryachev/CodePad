@@ -34,7 +34,7 @@ public class Options
 		// model
 		op.section("Data");
 		op.option("Model:", modelOption("model", ed.modelProperty()));
-		op.option(new BooleanChoice("editable", "Editable", null)); // TODO
+		op.option(new BooleanChoice("editable", "Editable", ed.editableProperty()));
 
 		// view
 		op.section("View");

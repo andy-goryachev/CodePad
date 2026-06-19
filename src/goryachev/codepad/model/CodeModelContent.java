@@ -12,6 +12,9 @@ public interface CodeModelContent
 	public boolean isAppendable();
 	
 	
+	// TODO isUndoRedoSupported()
+	
+	
 	public int size();
 
 	
@@ -26,8 +29,13 @@ public interface CodeModelContent
 	
 	
 	/// Replaces the content between `start` and `end` positions with the new text.
+	/// The `start` text position must be before or equal to the `end` position.
 	/// Returns `null` if the content is not writable.
 	/// 
+	/// @param start the start position
+	/// @param end the end position
+	/// @param text the text to replace
+	/// @param undoEnabled whether to create an undo record
 	/// @return the result, or null
 	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled);
 }
