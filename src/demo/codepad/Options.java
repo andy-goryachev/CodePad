@@ -34,7 +34,7 @@ public class Options
 		// model
 		op.section("Data");
 		op.option("Model:", modelOption("model", ed.modelProperty()));
-		op.option(new BooleanChoice("editable", "Editable", ed.editableProperty()));
+		op.option(new BooleanChoice("editable", "editable", ed.editableProperty()));
 
 		// view
 		op.section("View");
@@ -42,7 +42,7 @@ public class Options
 		op.option("Content padding:", contentPaddingOption("contentPadding", ed.contentPaddingProperty()));
 		op.option(new BooleanChoice("displayCaret", "display caret", ed.displayCaretProperty()));
 		op.option("Font:", new FontChoice("font", ed.fontProperty()));
-		op.option(new BooleanChoice("lineNumbers", "line numbers", null)); // TODO
+		//op.option(new BooleanChoice("lineNumbers", "line numbers", null)); // TODO
 		op.option("Line Spacing:", DoubleChoice.of("lineSpacing", ed.lineSpacingProperty(), 0, 1, 2, 5, 10, 33.3));
 		op.option("Tab Size:", IntChoice.of("tabSize", ed.tabSizeProperty(), 0, 1, 3, 4, 8, 16));
 		// FIX
@@ -58,7 +58,12 @@ public class Options
 			{
 				ed.select(TextPos.ZERO, new TextPos(2, 1));
 			});
-			op.option(new HBox(2, b1, b2));
+			Button b3 = new Button("All");
+			b3.setOnAction((ev) ->
+			{
+				ed.selectAll();
+			});
+			op.option(new HBox(2, b1, b2, b3));
 		}
 
 		// colors

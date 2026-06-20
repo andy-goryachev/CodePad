@@ -113,7 +113,28 @@ public class EditableCodeModel
 		
 		private void removeRange(TextPos start, TextPos end)
 		{
-			// TODO
+			int index = start.index();
+			String s = paragraphs.get(index);
+			if(index == end.index())
+			{
+				s = s.substring(0, start.cellIndex()) + s.substring(end.cellIndex());
+				paragraphs.set(index, s);
+			}
+			else
+			{
+				// FIX
+				
+				// first line
+				paragraphs.set(index, s.substring(0, start.cellIndex()));
+				// in-between
+				for(int i=end.index()-index-1; i>=0; i--)
+				{
+					paragraphs.remove(index);
+				}
+				// last
+				s = paragraphs.get(index);
+				paragraphs.set(index, s.substring(end.cellIndex()));
+			}
 		}
 		
 		
@@ -122,7 +143,6 @@ public class EditableCodeModel
 			String s = paragraphs.get(index);
 			if(off == 0)
 			{
-				// TODO what if last?
 				paragraphs.add(index, "");
 			}
 			else
@@ -137,7 +157,6 @@ public class EditableCodeModel
 				}
 				else
 				{
-					// TODO what if last?
 					paragraphs.add(index + 1, "");
 				}
 			}
