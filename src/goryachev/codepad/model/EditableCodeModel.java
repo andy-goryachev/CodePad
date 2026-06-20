@@ -164,7 +164,7 @@ public class EditableCodeModel
 					s = s + text;
 				}
 			}
-			paragraphs.set(index, text + s);
+			paragraphs.set(index, s);
 			return text.length();
 		}
 
