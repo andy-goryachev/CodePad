@@ -2,7 +2,6 @@
 package goryachev.codepad;
 import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
-import goryachev.codepad.model.ChangeListener;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.model.CodeParagraph;
 import goryachev.fx.CssStyle;
@@ -109,7 +108,7 @@ public class CodePad
 	public static final CssStyle STYLE = new CssStyle();
 	
 	private final InputMap inputMap;
-	private FxObject<CodeModel> model;
+	private final FxObject<CodeModel> model = new FxObject<>(this, "model");
 	final SelectionModel selectionModel = new SelectionModel();
 	DoubleProperty aspectRatio;
 	StyleableObjectProperty<Color> backgroundColor;
@@ -756,45 +755,13 @@ public class CodePad
 
 	public final ObjectProperty<CodeModel> modelProperty()
 	{
-		if(model == null)
-		{
-			model = new FxObject<>(this, "model")
-			{
-				private CodeModel model;
-				private final ChangeListener li = new ChangeListener()
-				{
-					@Override
-					public void onContentChange()
-					{
-						// TODO
-						requestLayout();
-					}
-				};
-
-				
-				@Override
-				protected void invalidated()
-				{
-					selectionModel.clear();
-					if(model != null)
-					{
-						model.removeListener(li);
-					}
-					model = get();
-					if(model != null)
-					{
-						model.addListener(li);
-					}
-				}
-			};
-		}
 		return model;
 	}
 
 
 	public final CodeModel getModel()
 	{
-		return model == null ? null : model.get();
+		return model.get();
 	}
 
 

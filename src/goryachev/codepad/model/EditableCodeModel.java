@@ -117,23 +117,63 @@ public class EditableCodeModel
 		}
 		
 		
-		private void insertLineBreak(int index, int cix)
+		private void insertLineBreak(int index, int off)
 		{
-			// TODO
+			String s = paragraphs.get(index);
+			if(off == 0)
+			{
+				// TODO what if last?
+				paragraphs.add(index, "");
+			}
+			else
+			{
+				int len = s.length();
+				if(off < len)
+				{
+					String s1 = s.substring(0, off);
+					String s2 = s.substring(off);
+					paragraphs.set(index, s2);
+					paragraphs.add(index, s1);
+				}
+				else
+				{
+					// TODO what if last?
+					paragraphs.add(index + 1, "");
+				}
+			}
 		}
 		
 		
-		private int insertText(int index, int cix, String s)
+		// inserts text into a single paragraph
+		private int insertText(int index, int off, String text)
 		{
-			// TODO
-			return 0;
+			String s = paragraphs.get(index);
+			if(off == 0)
+			{
+				s = text + s;
+			}
+			else
+			{
+				int len = s.length();
+				if(off < len)
+				{
+					s = s.substring(0, off) + text + s.substring(off);
+				}
+				else
+				{
+					s = s + text;
+				}
+			}
+			paragraphs.set(index, text + s);
+			return text.length();
 		}
 
 
 		@Override
 		public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled) throws Exception
 		{
-			// TODO need InputTokenizer, from input stream to string text
+			// TODO cell index != character offset!
+			
 			if(!start.equals(end))
 			{
 				// TODO undo info?

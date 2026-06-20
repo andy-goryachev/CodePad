@@ -3,11 +3,15 @@ package goryachev.codepad;
 import goryachev.codepad.internal.CellGrid;
 import goryachev.codepad.internal.CodePadBehavior;
 import goryachev.codepad.internal.Defaults;
+import goryachev.codepad.model.ChangeListener;
+import goryachev.codepad.model.CodeModel;
 import goryachev.fx.FX;
 import goryachev.fx.FxDisconnector;
+import javafx.beans.Observable;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +26,7 @@ public class CodePadSkin
 	private final ScrollBar hscroll;
 	private final CellGrid grid;
 	private final CodePadBehavior behavior;
+	private final ChangeListener changeListener;
 	private FxDisconnector disconnector;
 
 
@@ -41,6 +46,15 @@ public class CodePadSkin
 		getChildren().add(grid);
 
 		behavior = new CodePadBehavior(ed, grid);
+
+		changeListener = new ChangeListener()
+		{
+			@Override
+			public void onContentChange()
+			{
+				handleContentChange();
+			}
+		};
 		
 		// TODO use the skin input map!
 		disconnector = new FxDisconnector();
@@ -57,7 +71,7 @@ public class CodePadSkin
 		disconnector.addChangeListener(ed.contentPaddingProperty(), true, grid::setContentPadding);
 		disconnector.addChangeListener(ed.fontProperty(), true, grid::setFont);
 		disconnector.addInvalidationListener(ed.lineSpacingProperty(), grid::handleLineSpacingChange);
-		disconnector.addInvalidationListener(ed.modelProperty(), grid::handleModelChange);
+		disconnector.addChangeListener(ed.modelProperty(), true, this::handleModelChange);
 		disconnector.addChangeListener(ed.wrapTextProperty(), true, grid::setWrapText);
 		disconnector.addInvalidationListener(grid::handleVerticalScroll, vscroll.valueProperty());
 		disconnector.addInvalidationListener(grid::handleHorizontalScroll, hscroll.valueProperty());
@@ -150,5 +164,27 @@ public class CodePadSkin
 	public void clearPhantomX()
 	{
 		grid.clearPhantomX();
+	}
+	
+	
+	private void handleModelChange(Observable prop, CodeModel old, CodeModel m)
+	{
+		if(old != null)
+		{
+			old.removeListener(changeListener);
+		}
+		
+		if(m != null)
+		{
+			m.addListener(changeListener);
+		}
+	}
+	
+	
+	private void handleContentChange()
+	{
+		// TODO smarter
+		grid.invalidateCache();
+		getSkinnable().requestLayout();
 	}
 }

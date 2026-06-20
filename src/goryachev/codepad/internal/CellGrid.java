@@ -123,7 +123,8 @@ public class CellGrid
 		
 		aspectRatio = v;
 		metrics = null;
-		cache.clear();
+		
+		invalidateCache();
 		requestLayout();
 	}
 	
@@ -135,7 +136,8 @@ public class CellGrid
 		boldItalicFont = null;
 		italicFont = null;
 		metrics = null;
-		cache.clear();
+
+		invalidateCache();
 		requestLayout();
 	}
 
@@ -281,19 +283,25 @@ public class CellGrid
 		t.play();
 		return t;
 	}
+	
+	
+	public void invalidateCache()
+	{
+		cache.clear();
+	}
 
 
 	public void handleModelChange()
 	{
 		setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
-		cache.clear();
+		invalidateCache();
 		requestLayout();
 	}
 	
 	
 	public void handleLineSpacingChange()
 	{
-		cache.clear();
+		invalidateCache();
 		requestLayout();
 	}
 
@@ -317,7 +325,7 @@ public class CellGrid
 			setOrigin(0, 0, contentPaddingLeft, contentPaddingTop);
 		}
 
-		cache.clear();
+		invalidateCache();
 		requestLayout();
 	}
 
@@ -328,8 +336,9 @@ public class CellGrid
 		int ix = origin.index();
 		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
 		setOrigin(ix, 0, contentPaddingLeft, yoff);
-		cache.clear();
 		clearPhantomX();
+		
+		invalidateCache();
 		requestLayout();
 	}
 	

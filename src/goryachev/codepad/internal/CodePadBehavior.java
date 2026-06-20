@@ -186,8 +186,9 @@ public class CodePadBehavior
 		grid.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
 		grid.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
 		grid.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
-		grid.addEventHandler(KeyEvent.KEY_TYPED, this::handleKeyTyped);
 		grid.addEventFilter(ScrollEvent.ANY, this::handleScrollWheel);
+
+		getSkinInputMap().addHandler(KeyEvent.KEY_TYPED, this::handleKeyTyped);
 	}
 	
 	

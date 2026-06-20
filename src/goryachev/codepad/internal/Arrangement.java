@@ -102,7 +102,7 @@ public class Arrangement
 	// index at the specified view row, or -1 if beyond model size
 	public int indexAtRow(int ix)
 	{
-		if(ix < rows.size())
+		if((ix >= 0) && (ix < rows.size()))
 		{
 			return rows.get(ix).index();
 		}

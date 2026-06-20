@@ -210,7 +210,7 @@ public class CodeModel
 	{
 		for(ChangeListener li: listeners)
 		{
-			// TODO
+			li.onContentChange();
 		}
 	}
 }
