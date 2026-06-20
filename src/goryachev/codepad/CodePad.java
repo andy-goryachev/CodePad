@@ -121,9 +121,11 @@ public class CodePad
 	StyleableObjectProperty<Font> font;
 	DoubleProperty lineSpacing;
 	StyleableObjectProperty<Color> selectionColor;
-	IntegerProperty tabSize;
+	IntegerProperty tabSize; // FIX TabStopsPolicy
 	StyleableObjectProperty<Color> textColor;
 	StyleableBooleanProperty wrapText;
+	// TODO line spacing
+	// TODO left/right columns (line number, etc)
 
 
 	public CodePad(CodeModel model)

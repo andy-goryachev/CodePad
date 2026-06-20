@@ -37,5 +37,6 @@ public interface CodeModelContent
 	/// @param text the text to replace
 	/// @param undoEnabled whether to create an undo record
 	/// @return the result, or null
-	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled);
+	/// @throws Exception in case of an error
+	public InsertResult replace(TextPos start, TextPos end, String text, boolean undoEnabled) throws Exception;
 }

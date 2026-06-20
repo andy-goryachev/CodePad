@@ -1,6 +1,5 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
-import static com.sun.javafx.PlatformUtil.*;
 import goryachev.codepad.CodePad;
 import goryachev.codepad.CodePad.FN;
 import goryachev.codepad.SelectionRange;
@@ -27,7 +26,7 @@ import javafx.scene.input.ScrollEvent;
 public class CodePadBehavior
 	extends BehaviorBase<CodePad>
 {
-	private static final Log log = Log.get("CodePadBehavior");
+	static final Log log = Log.get("CodePadBehavior");
 	private final CellGrid grid;
 	private boolean autoScrollUp;
 	private boolean fastAutoScroll;
@@ -296,7 +295,7 @@ public class CodePadBehavior
 			grid.suppressBlinking(true);
 			try
 			{
-				boolean consume = typeKey(key);
+				boolean consume = replace(key);
 				if(consume)
 				{
 					ev.consume();
@@ -334,7 +333,7 @@ public class CodePadBehavior
 	}
 	
 	
-	private boolean typeKey(String key)
+	private boolean replace(String text)
 	{
 		if(canEdit())
 		{
@@ -342,9 +341,16 @@ public class CodePadBehavior
 			SelectionRange sel = ed.getSelection();
 			if(sel != null)
 			{
-				TextPos p = ed.getModel().replace(sel.getMin(), sel.getMax(), key);
-				ed.moveCaret(p, false, true);
-				return true;
+				try
+				{
+					TextPos p = ed.getModel().replace(sel.getMin(), sel.getMax(), text);
+					ed.moveCaret(p, false, true);
+					return true;
+				}
+				catch(Exception e)
+				{
+					errorFeedback(e);
+				}
 			}
 		}
 		return false;
@@ -562,17 +568,15 @@ public class CodePadBehavior
 	}
 	
 	
-	public void insertLineBreak()
+	public boolean insertLineBreak()
 	{
-		// TODO
-		D.print("insertLineBreak");
+		return replace("\n");
 	}
 	
 	
-	public void insertTab()
+	public boolean insertTab()
 	{
-		// TODO
-		D.print("insertTab");
+		return replace("\t");
 	}
 	
 	
@@ -897,5 +901,11 @@ public class CodePadBehavior
 		{
 			control().extendSelection(p);
 		}
+	}
+	
+	
+	protected void errorFeedback(Throwable err)
+	{
+		log.error(err);
 	}
 }

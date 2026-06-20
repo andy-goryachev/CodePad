@@ -172,9 +172,12 @@ public class CodeModel
 	}
 
 
-	public final TextPos replace(TextPos start, TextPos end, String text)
+	public final TextPos replace(TextPos start, TextPos end, String text) throws Exception
 	{
 		log.trace("start={0} end={1} text={2}", start, end, text);
+		Objects.nonNull(start);
+		Objects.nonNull(end);
+		
 		checkWritable();
 		
 		start = clamp(start);
@@ -196,14 +199,14 @@ public class CodeModel
 		}
 		
 		// TODO fire event
-		TextPos replaceEnd = r.getReplaceEnd();
-		fireEvent(start, end, replaceEnd);
+		TextPos newEnd = r.getNewEnd();
+		fireEvent(start, end, newEnd);
 		
-		return replaceEnd;
+		return newEnd;
 	}
 
 
-	private void fireEvent(TextPos start, TextPos end, TextPos replaceEnd)
+	private void fireEvent(TextPos start, TextPos end, TextPos newEnd)
 	{
 		for(ChangeListener li: listeners)
 		{
