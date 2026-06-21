@@ -122,18 +122,21 @@ public class EditableCodeModel
 			}
 			else
 			{
-				// FIX
+				// last line
+				int eix = end.index();
+				String last = paragraphs.get(eix);
+				paragraphs.set(eix, last.substring(end.cellIndex()));
 				
 				// first line
 				paragraphs.set(index, s.substring(0, start.cellIndex()));
+				index++;
+				
 				// in-between
-				for(int i=end.index()-index-1; i>=0; i--)
+				int ct = eix - index;
+				for(int i=0; i<ct; i++)
 				{
 					paragraphs.remove(index);
 				}
-				// last
-				s = paragraphs.get(index);
-				paragraphs.set(index, s.substring(end.cellIndex()));
 			}
 		}
 		

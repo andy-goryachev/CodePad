@@ -31,6 +31,14 @@ public class StringParReader
 		}
 		return -1;
 	}
+	
+	
+	private String nextString(int end)
+	{
+		String s = text.substring(index, end);
+		index = end;
+		return s;
+	}
 
 
 	@Override
@@ -49,11 +57,14 @@ public class StringParReader
 				}
 				else
 				{
-					String s = text.substring(index, ix);
-					index = ix;
-					return s;
+					return nextString(ix);
 				}
 			case '\r':
+				if(ix > index)
+				{
+					return nextString(ix);
+				}
+				
 				if(charAt(ix + 1) == '\n')
 				{
 					index += 2;
@@ -64,6 +75,11 @@ public class StringParReader
 				}
 				return NEWLINE;
 			case '\n':
+				if(ix > index)
+				{
+					return nextString(ix);
+				}
+				
 				index++;
 				return NEWLINE;
 			default:

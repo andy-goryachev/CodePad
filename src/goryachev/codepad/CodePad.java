@@ -4,9 +4,11 @@ import goryachev.codepad.internal.Defaults;
 import goryachev.codepad.internal.SelectionModel;
 import goryachev.codepad.model.CodeModel;
 import goryachev.codepad.model.CodeParagraph;
+import goryachev.common.util.SB;
 import goryachev.fx.CssStyle;
 import goryachev.fx.FX;
 import goryachev.fx.FxObject;
+import goryachev.fx.LineEnding;
 import goryachev.fx.input.Func;
 import goryachev.fx.input.InputMap;
 import java.util.List;
@@ -83,7 +85,6 @@ public class CodePad
 		public static final Func PAGE_DOWN = new Func();
 		public static final Func PAGE_UP = new Func();
 		public static final Func PASTE = new Func();
-		public static final Func PASTE_PLAIN_TEXT = new Func();
 		public static final Func REDO = new Func();
 		public static final Func SELECT_ALL = new Func();
 		public static final Func SELECT_DOWN = new Func();
@@ -109,6 +110,7 @@ public class CodePad
 	
 	private final InputMap inputMap;
 	private final FxObject<CodeModel> model = new FxObject<>(this, "model");
+	private FxObject<LineEnding> lineEnding;
 	final SelectionModel selectionModel = new SelectionModel();
 	DoubleProperty aspectRatio;
 	StyleableObjectProperty<Color> backgroundColor;
@@ -258,7 +260,80 @@ public class CodePad
 	{
 		return selectionModel.anchorPositionProperty();
 	}
+	
 
+	/// Determines the line endings for text operations.
+	public final ObjectProperty<LineEnding> lineEndingProperty()
+	{
+		if(lineEnding == null)
+		{
+			lineEnding = new FxObject(this, "lineEnding", LineEnding.getDefault())
+			{
+				@Override
+				public void invalidated()
+				{
+					// TODO disable null
+				}
+			};
+		}
+		return lineEnding;
+	}
+	
+	
+	public final LineEnding getLineEnding()
+	{
+		return lineEnding == null ? LineEnding.getDefault() : lineEnding.get();
+	}
+
+
+	public final void setLineEnding(LineEnding le)
+	{
+		if((lineEnding == null) && (le != LineEnding.getDefault()))
+		{
+			lineEndingProperty().set(le);
+		}
+	}
+	
+	
+	public String getText(int maxLength)
+	{
+		SB sb = new SB();
+		export(TextPos.ZERO, getDocumentEnd(), (s) ->
+		{
+			boolean proceed = true;
+			int sz = sb.getLength() + s.length() - maxLength;
+			if(sz > 0)
+			{
+				s = s.substring(0, sz);
+				proceed = false;
+			}
+			sb.append(s);
+			return proceed;
+		});
+		return sb.toString();
+	}
+	
+	
+	// TODO in own file?
+	@FunctionalInterface
+	public interface PlaintextConsumer
+	{
+		public boolean consumePlaintextFragment(String s);
+	}
+	
+	
+	// TODO move to model?
+	public final void export(TextPos start, TextPos end, PlaintextConsumer out)
+	{
+		// TODO
+	}
+	
+	
+	public String getText()
+	{
+		return getText(Integer.MAX_VALUE);
+	}
+	
 
 	/// Defines the text cell aspect ratio, the cell width divided by the cell height.
 	/// The actual value used will be clipped to the range [0.05 ... 1.0] (inclusive).
@@ -1424,12 +1499,6 @@ public class CodePad
 	public void paste()
 	{
 		exec(FN.PASTE);
-	}
-	
-	
-	public void pastePlainText()
-	{
-		exec(FN.PASTE_PLAIN_TEXT);
 	}
 	
 	

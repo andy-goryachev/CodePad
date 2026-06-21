@@ -73,7 +73,6 @@ public class CodePadBehavior
 		func(FN.PAGE_DOWN, this::pageDown);
 		func(FN.PAGE_UP, this::pageUp);
 		func(FN.PASTE, this::paste);
-		func(FN.PASTE_PLAIN_TEXT, this::pastePlainText);
 		func(FN.REDO, this::redo);
 		func(FN.SELECT_ALL, this::selectAll);
 		func(FN.SELECT_DOWN, this::selectDown);
@@ -135,7 +134,7 @@ public class CodePadBehavior
 		key(KB.shortcut(KeyCode.X), FN.CUT);
 		key(KB.shortcut(KeyCode.Z), FN.UNDO);
 		// shift-shortcut
-		key(KB.shiftShortcut(KeyCode.V), FN.PASTE_PLAIN_TEXT);
+		key(KB.shiftShortcut(KeyCode.V), FN.PASTE);
 		
 		if(isLinux())
 		{
@@ -676,13 +675,6 @@ public class CodePadBehavior
 	{
 		// TODO
 		D.print("paste");
-	}
-	
-	
-	public void pastePlainText()
-	{
-		// TODO
-		D.print("pastePlainText");
 	}
 
 	

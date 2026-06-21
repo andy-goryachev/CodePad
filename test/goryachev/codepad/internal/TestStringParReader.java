@@ -14,21 +14,19 @@ public class TestStringParReader
 	@Test
 	public void nextToken()
 	{
-		test("", List.of());
+		test("");
 		
-		test("\n\r\r\n", List.of(NL, NL, NL));
+		test("\n\r\r\n", NL, NL, NL);
 		
-		test("aaaaaa\rbbb", List.of("aaaaaa", NL, "bbb"));
+		test("aaaaaa\rbbb", "aaaaaa", NL, "bbb");
 		
-		test
-		(
-			"1\n2\r3\r\n4",
-			List.of("1", NL, "2", NL, "3", NL, "4")
-		);
+		test("\n1\n\n2\n3\n\n\n", NL, "1", NL, NL, "2", NL, "3", NL, NL, NL);
+		
+		test("1\n2\r3\r\n4", "1", NL, "2", NL, "3", NL, "4");
 	}
 	
 	
-	private static void test(String text, List<Object> expected)
+	private static void test(String text, Object ... expected)
 	{
 		try(StringParReader rd = new StringParReader(text))
 		{

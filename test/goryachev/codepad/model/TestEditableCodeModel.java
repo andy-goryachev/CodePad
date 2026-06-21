@@ -1,6 +1,7 @@
 // Copyright © 2026-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
 import goryachev.codepad.TextPos;
+import goryachev.codepad.internal.ParReader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,9 @@ public class TestEditableCodeModel
 	@Test
 	public void replaceMultiLine() throws Exception
 	{
-
+		// FIX
+		//test("11\n22", 0, 0, 1, 99, "", "");
+		test("11\n22\n33", 0, 1, 2, 1, "", "1", "3");
 	}
 	
 	
