@@ -117,7 +117,7 @@ public class EditableCodeModel
 			String s = paragraphs.get(index);
 			if(index == end.index())
 			{
-				s = s.substring(0, start.cellIndex()) + s.substring(end.cellIndex());
+				s = s.substring(0, start.offset()) + s.substring(end.offset());
 				paragraphs.set(index, s);
 			}
 			else
@@ -125,10 +125,10 @@ public class EditableCodeModel
 				// last line
 				int eix = end.index();
 				String last = paragraphs.get(eix);
-				paragraphs.set(eix, last.substring(end.cellIndex()));
+				paragraphs.set(eix, last.substring(end.offset()));
 				
 				// first line
-				paragraphs.set(index, s.substring(0, start.cellIndex()));
+				paragraphs.set(index, s.substring(0, start.offset()));
 				index++;
 				
 				// in-between
@@ -206,7 +206,7 @@ public class EditableCodeModel
 			int bottom = 0;
 			int startIndex = start.index();
 			int index = startIndex;
-			int cix = start.cellIndex();
+			int offset = start.offset();
 
 			try(ParReader rd = ParReader.of(text))
 			{
@@ -215,19 +215,19 @@ public class EditableCodeModel
 				{
 					if(x == ParReader.NEWLINE)
 					{
-						insertLineBreak(index, cix);
+						insertLineBreak(index, offset);
 						index++;
-						cix = 0;
+						offset = 0;
 						bottom = 0;
 					}
 					else if(x instanceof String s)
 					{
-						int len = insertText(index, cix, s);
+						int len = insertText(index, offset, s);
 						if(index == startIndex)
 						{
 							top += len;
 						}
-						cix += len;
+						offset += len;
 						bottom += len;
 					}
 					else
@@ -243,7 +243,7 @@ public class EditableCodeModel
 				bottom = 0;
 			}
 
-			TextPos newEnd = new TextPos(index, cix);
+			TextPos newEnd = new TextPos(index, offset);
 			return new InsertResult(start, end, top, added, bottom, newEnd);
 		}
 	}

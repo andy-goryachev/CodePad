@@ -62,4 +62,10 @@ public final class SelectionRange
 		}
 		return (min.compareTo(ix, cix) <= 0) && (max.compareTo(ix, cix) > 0);
 	}
+	
+	
+	public boolean isCollapsed()
+	{
+		return min.equals(max);
+	}
 }

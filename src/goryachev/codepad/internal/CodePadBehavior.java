@@ -443,7 +443,7 @@ public class CodePadBehavior
 			else
 			{
 				CodeParagraph par = control().getParagraph(ca.index());
-				return new TextPos(ca.index(), par.getCellCount());
+				return par.getEnd();
 			}
 		}
 		return null;		
@@ -474,7 +474,7 @@ public class CodePadBehavior
 		if(ca != null)
 		{
 			CodeParagraph par = control().getParagraph(ca.index());
-			return new TextPos(ca.index(), par.getCellCount());
+			return par.getEnd();
 		}
 		return null;
 	}

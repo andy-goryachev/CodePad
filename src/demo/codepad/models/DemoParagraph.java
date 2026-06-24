@@ -118,4 +118,20 @@ public class DemoParagraph
 	{
 		return false;
 	}
+	
+	
+	@Override
+	public int cellIndexAtOffset(int offset)
+	{
+		if(offset < 0)
+		{
+			return 0;
+		}
+		int len = text.length();
+		if(offset < len)
+		{
+			return offset;
+		}
+		return len;
+	}
 }

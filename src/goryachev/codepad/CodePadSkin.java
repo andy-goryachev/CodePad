@@ -178,6 +178,7 @@ public class CodePadSkin
 		{
 			m.addListener(changeListener);
 		}
+		grid.handleModelChange();
 	}
 	
 	

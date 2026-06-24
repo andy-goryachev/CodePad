@@ -73,6 +73,7 @@ public class CellGrid
 	private Timeline cursorAnimation;
 	private boolean cursorOn = true;
 	private boolean highlightCaretLine;
+	/// phantom column
 	private int phantomx = -1;
 
 
@@ -149,7 +150,7 @@ public class CellGrid
 		// FIX remove
 		if(cellIndex < 0)
 		{
-			log.warn();
+			log.error("negative cellIndex={0}", cellIndex);
 		}
 		
 		// TODO perhaps adjust origin to avoid
@@ -186,7 +187,14 @@ public class CellGrid
 			return false;
 		}
 
-		RelativePosition rp = arrangement().getRelativePosition(p);
+		int cix = cellIndex(p);
+		if(cix < 0)
+		{
+			return false;
+		}
+		int ix = p.index();
+
+		RelativePosition rp = arrangement().getRelativePosition(ix, cix);
 		return (rp == RelativePosition.VISIBLE);
 	}
 	
@@ -213,7 +221,7 @@ public class CellGrid
 		// clamp to viewCols in wrapped mode
 		int cix = ar.cellIndexAtRow(row) + (wrap ? Math.min(ar.viewPortColumnCount(), col) : col);
 		WrapInfo wi = cache.getWrapInfo(ix);
-		return wi == null ? null : wi.clamp(cix);
+		return wi == null ? null : wi.atCell(cix);
 	}
 
 	
@@ -501,7 +509,7 @@ public class CellGrid
 			if(space > 0)
 			{
 				int d = (int)Math.round(space * pos);
-				TextPos p = ar.textPosAtRow(d);
+				CellPos p = ar.cellPosAtRow(d);
 				ix = p.index();
 				cix = p.cellIndex();
 			}
@@ -999,9 +1007,9 @@ public class CellGrid
 				{
 					break;
 				}
-				int cix = ar.cellIndexAtRow(i);
-				int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - cix) : wi.getCellCount();
-				paintCells(tm, wi, cix, ct, x, y);
+				int rowStartCellIndex = ar.cellIndexAtRow(i);
+				int ct = wrap ? Math.min(wrapLimit, wi.getCellCount() - rowStartCellIndex) : wi.getCellCount();
+				paintCells(tm, wi, rowStartCellIndex, ct, x, y);
 				y = snapPositionY(y + tm.cellHeight + lineSpacing);
 			}
 		}
@@ -1049,49 +1057,43 @@ public class CellGrid
 	}
 	
 	
-	private Rectangle2D computeSelectionRectangle(SelectionRange sel, int ix, int cellIndex, int count, double x, double y, double cellWidth, double height)
+	// TODO perhaps compute selection grid coordinates on selection change, and then reuse
+	private Rectangle2D computeSelectionRectangle(SelectionRange sel, int index, int rowStartCellIndex, int count, double x, double y, double cellWidth, double height)
 	{
+		// quick obvious cases first...
 		if(sel == null)
+		{
+			return null;
+		}
+		else if(sel.isCollapsed())
 		{
 			return null;
 		}
 
 		TextPos min = sel.getMin();
-		if(min == null)
+		int minIndex = min.index(); 
+		if(minIndex > index)
 		{
 			return null;
 		}
 		
 		TextPos max = sel.getMax();
-		if(max == null)
+		int maxIndex = max.index();
+		if(maxIndex < index)
 		{
 			return null;
 		}
 		
-		if(min.equals(max))
-		{
-			return null;
-		}
+		// now with the cell indexes...
+		int minCellIndex = cellIndex(min);
+		int maxCellIndex = cellIndex(max);
 		
-		//
+		boolean extendLeft = ((minIndex < index) || ((minIndex == index) && (minCellIndex < rowStartCellIndex)));
+		int c0 = minCellIndex - rowStartCellIndex;
+		double x0 = extendLeft ? 0.0 : x + c0 * cellWidth;
 		
-		TextPos p0 = new TextPos(ix, cellIndex);
-		TextPos p1 = new TextPos(ix, cellIndex + arrangement().viewPortColumnCount());
-		
-		if(max.compareTo(p0) <= 0)
-		{
-			return null;
-		}
-		else if(min.compareTo(p1) >= 0)
-		{
-			return null;
-		}
-		
-		boolean leftEdge = (min.compareTo(p0) < 0);
-		double x0 = leftEdge ? 0.0 : x + (min.cellIndex() - cellIndex) * cellWidth;
-		
-		boolean rightEdge = (max.compareTo(p1) >= 0) && (!(min.cellIndex() == max.cellIndex()));
-		double x1 = rightEdge ? canvas.getWidth() : x + (max.cellIndex() - cellIndex) * cellWidth;
+		boolean extendRight = ((maxIndex > index) || ((maxIndex == index) && (maxCellIndex > (rowStartCellIndex + arrangement().viewPortColumnCount()))));
+		double x1 = extendRight ? canvas.getWidth() : x + Math.min(count, maxCellIndex - rowStartCellIndex) * cellWidth;
 		
 		double w = x1 - x0;
 		if(w < 0.0)
@@ -1099,6 +1101,7 @@ public class CellGrid
 			// TODO find out why
 			return null;
 		}
+		// TODO snap?
 		return new Rectangle2D(x0, y, w, height);
 	}
 	
@@ -1119,7 +1122,7 @@ public class CellGrid
 
 
 	// paints a single row horizontally
-	private void paintCells(TextCellMetrics tm, WrapInfo wi, int cellIndex0, int count, double x, double y)
+	private void paintCells(TextCellMetrics tm, WrapInfo wi, int rowStartCellIndex, int count, double x, double y)
 	{
 		double maxx = canvas.getWidth();
 		Color textColor = editor.getTextColor();
@@ -1130,6 +1133,7 @@ public class CellGrid
 		boolean caretLine = highlightCaretLine && (sel != null) && sel.isCaretLine(ix);
 		Color parBG = wi.getBackgroundColor();
 		double lineH = tm.cellHeight + lineSpacing();
+		int caretCellIndex = -1;
 		
 		if(caretLine)
 		{
@@ -1137,18 +1141,24 @@ public class CellGrid
 			{
 				count += Defaults.HORIZONTAL_CARET_GUARD;
 			}
-		}
-		
-		// current paragraph highlight extends to the edge of canvas
-		if(caretLine)
-		{
+
+			// current paragraph highlight extends to the edge of canvas
 			Color bg = editor.getCaretLineColor();
 			gx.setFill(bg);
 			gx.fillRect(0, y, canvas.getWidth(), tm.cellHeight);
+			
+			if(drawCaret)
+			{
+				if(sel != null)
+				{
+					TextPos ca = sel.getCaret();
+					caretCellIndex = cellIndex(ca);
+				}
+			}
 		}
 		
 		// selection highlight extends to the edge of canvas
-		Rectangle2D selR = computeSelectionRectangle(sel, ix, cellIndex0, count, x, y, tm.cellWidth, lineH);
+		Rectangle2D selR = computeSelectionRectangle(sel, ix, rowStartCellIndex, count, x, y, tm.cellWidth, lineH);
 		if(selR != null)
 		{
 			Color bg = editor.getSelectionColor();
@@ -1162,10 +1172,11 @@ public class CellGrid
 			gx.setFill(parBG);
 			gx.fillRect(0, y, canvas.getWidth(), tm.cellHeight);
 		}
+
 		
 		for(int i=0; i<count; i++)
 		{
-			int cix = cellIndex0 + i;
+			int cix = rowStartCellIndex + i;
 
 			// style
 			CellStyle style = wi.getCellStyle(cix);
@@ -1183,17 +1194,12 @@ public class CellGrid
 			}
 			
 			// caret
-			if(caretLine && drawCaret)
+			if(caretCellIndex == cix)
 			{
-				@SuppressWarnings("null")
-				TextPos ca = sel.getCaret();
-				if(ca.cellIndex() == cix)
-				{
-					gx.setFill(editor.getCaretColor());
-					// TODO insert mode
-					double caretWidth = snapSizeX(Defaults.CARET_WIDTH);
-					gx.fillRect(x, y, caretWidth, tm.cellHeight);
-				}
+				gx.setFill(editor.getCaretColor());
+				// TODO insert mode
+				double caretWidth = snapSizeX(Defaults.CARET_WIDTH);
+				gx.fillRect(x, y, caretWidth, tm.cellHeight);
 			}
 			
 			if(style.isUnderline())
@@ -1265,8 +1271,7 @@ public class CellGrid
 	private TextPos goVerticallyNonWrapped(TextPos from, int delta, boolean usePhantomX)
 	{
 		int ix = from.index();
-		int cix = from.cellIndex();
-		WrapInfo wi = getWrapInfo(ix);
+		int cix = cellIndex(from);
 		
 		if(usePhantomX)
 		{
@@ -1290,8 +1295,9 @@ public class CellGrid
 			int sz = editor.getParagraphCount();
 			if(ix < sz)
 			{
+				WrapInfo wi = getWrapInfo(ix);
 				wi = getWrapInfo(ix);
-				return wi.clamp(cix);
+				return wi.atCell(cix);
 			}
 			else
 			{
@@ -1304,8 +1310,7 @@ public class CellGrid
 	private TextPos goVerticallyWrapped(TextPos from, int delta, boolean usePhantomX)
 	{
 		int ix = from.index();
-		int cix = from.cellIndex();
-		WrapInfo wi = getWrapInfo(ix);
+		int cix = cellIndex(from);
 
 		int col;
 		if(usePhantomX)
@@ -1326,6 +1331,7 @@ public class CellGrid
 		}
 		
 		int lineStart = lineStartCellIndex(from);
+		WrapInfo wi = getWrapInfo(ix);
 		
 		if(delta < 0)
 		{
@@ -1345,7 +1351,7 @@ public class CellGrid
 				
 				if(lineStart < 0)
 				{
-					lineStart = lineStartCellIndex(wi.clamp(wi.getCellCount()));
+					lineStart = lineStartCellIndex(wi.atEnd());
 				}
 				
 				int n = lineStart / wrapLimit;
@@ -1358,7 +1364,7 @@ public class CellGrid
 					}
 
 					cix += col;
-					return new TextPos(ix, cix);
+					return wi.atCell(cix);
 				}
 				else
 				{
@@ -1392,7 +1398,7 @@ public class CellGrid
 				if(ct + n < h)
 				{
 					cix = lineStart + (ct * wrapLimit) + col;
-					return wi.clamp(cix);
+					return wi.atCell(cix);
 				}
 				else
 				{
@@ -1409,14 +1415,15 @@ public class CellGrid
 	public TextPos goHorizontally(TextPos from, int delta)
 	{
 		int ix = from.index();
-		int cix = from.cellIndex() + delta;
+		WrapInfo wi = getWrapInfo(ix);
+		int cix = cellIndex(from) + delta;
 		
 		if(delta < 0)
 		{
 			// move left
 			if(cix >= 0)
 			{
-				return new TextPos(ix, cix);
+				return wi.atCell(cix);
 			}
 			else
 			{
@@ -1427,19 +1434,17 @@ public class CellGrid
 				else
 				{
 					--ix;
-					WrapInfo wi = getWrapInfo(ix);
-					return wi.clamp(wi.getCellCount());
+					return wi.atEnd();
 				}
 			}
 		}
 		else
 		{
 			// move right
-			WrapInfo wi = getWrapInfo(ix);
 			int len = wi.getCellCount();
 			if(cix <= len)
 			{
-				return wi.clamp(cix);
+				return wi.atCell(cix);
 			}
 			else
 			{
@@ -1471,10 +1476,23 @@ public class CellGrid
 	}
 	
 	
+	// TODO return CellPos (GridPos with WrapInfo)...
+	private int cellIndex(TextPos p)
+	{
+		WrapInfo wi = getWrapInfo(p.index());
+		if(wi == null)
+		{
+			return -1;
+		}
+		return wi.cellIndexAtOffset(p.offset());
+	}
+	
+	
 	public void scrollToVisible(TextPos pos)
 	{
-		RelativePosition rel = arrangement().getRelativePosition(pos);
-		log.debug(rel);
+		int cellIndex = cellIndex(pos);
+		RelativePosition rel = arrangement().getRelativePosition(pos.index(), cellIndex);
+		log.debug("pos={0} rel={1}", pos, rel);
 
 		int ix;
 		int cix;
@@ -1486,7 +1504,7 @@ public class CellGrid
 			if(wrap)
 			{
 				ix = pos.index();
-				cix = (pos.cellIndex() / viewPortColumnCount()) * viewPortColumnCount();
+				cix = (cellIndex(pos) / viewPortColumnCount()) * viewPortColumnCount();
 				yoff = (ix == 0) ? contentPaddingTop : 0.0;
 				setOrigin(ix, cix, contentPaddingLeft, yoff);
 			}
@@ -1499,7 +1517,7 @@ public class CellGrid
 			break;
 		case ABOVE_LEFT:
 			ix = pos.index();
-			cix = pos.cellIndex();
+			cix = cellIndex(pos);
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
@@ -1507,7 +1525,7 @@ public class CellGrid
 			break;
 		case ABOVE_RIGHT:
 			ix = pos.index();
-			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
+			cix = Math.max(0, cellIndex(pos) - viewPortColumnCount());
 			yoff = (ix == 0) ? contentPaddingTop : 0.0;
 			setOrigin(ix, cix, 0.0, yoff);
 			break;
@@ -1515,7 +1533,7 @@ public class CellGrid
 			if(wrap)
 			{
 				TextPos p = goVertically(pos, 1 - viewPortRowCount(), false);
-				cix = p.cellIndex();
+				cix = cellIndex(p);
 				cix = (cix / wrapLimit) * wrapLimit;
 				ix = p.index();
 				setOrigin(ix, cix, contentPaddingLeft, 0.0); 
@@ -1530,7 +1548,7 @@ public class CellGrid
 		case BELOW_LEFT:
 			ix = pos.index();
 			ix = Math.max(0, ix - viewPortRowCount());
-			cix = pos.cellIndex();
+			cix = cellIndex(pos);
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(ix, cix, xoff, 0.0);
@@ -1538,18 +1556,18 @@ public class CellGrid
 		case BELOW_RIGHT:
 			ix = pos.index();
 			ix = Math.max(0, ix - viewPortRowCount() + 1);
-			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
+			cix = Math.max(0, cellIndex(pos) - viewPortColumnCount());
 			setOrigin(ix, cix, 0.0, 0.0);
 			break;
 		case LEFT:
 			ix = pos.index();
-			cix = pos.cellIndex();
+			cix = cellIndex(pos);
 			cix = adjustToMaximizeViewableText(ix, cix);
 			xoff = (cix == 0) ? contentPaddingLeft : 0.0;
 			setOrigin(origin.index(), cix, xoff, origin.yoffset());
 			break;
 		case RIGHT:
-			cix = Math.max(0, pos.cellIndex() - viewPortColumnCount());
+			cix = Math.max(0, cellIndex(pos) - viewPortColumnCount());
 			setOrigin(origin.index(), cix, 0.0, origin.yoffset());
 			break;
 		}
@@ -1596,10 +1614,10 @@ public class CellGrid
 		log.debug("deltaLines={0}", deltaLines);
 		
 		int cix = origin.cellIndex();
-		TextPos from = new TextPos(origin.index(), cix);
+		TextPos from = new TextPos(origin.index(), cix); // FIX wrong
 		TextPos p = goVertically(from, deltaLines, false);
 		int ix = p.index();
-		cix = p.cellIndex();
+		cix = cellIndex(p);
 		double yoff = (ix == 0) ? contentPaddingTop : 0.0;
 		setOrigin(ix, cix, origin.xoffset(), yoff);
 		requestLayout();
@@ -1611,11 +1629,11 @@ public class CellGrid
 		int ix = from.index();
 		if(wrap)
 		{
-			int cix = from.cellIndex();
 			WrapInfo wi = getWrapInfo(ix);
+			int cix = cellIndex(from);
 			int row = wi.getRowAtCellIndex(cix);
 			cix = wi.getCellIndexAtRow(row);
-			return new TextPos(ix, cix);
+			return wi.atCell(cix);
 		}
 		else
 		{
@@ -1630,21 +1648,21 @@ public class CellGrid
 		WrapInfo wi = getWrapInfo(ix);
 		if(wrap)
 		{
-			int cix = from.cellIndex();
+			int cix = cellIndex(from);
 			int row = wi.getRowAtCellIndex(cix);
 			cix = wi.getCellIndexAtRow(row + 1) - 1;
-			return wi.clamp(cix);
+			return wi.atCell(cix);
 		}
 		else
 		{
-			return new TextPos(ix, wi.getCellCount());
+			return wi.atEnd();
 		}
 	}
 	
 	
 	private int lineStartCellIndex(TextPos p)
 	{
-		int cix = p.cellIndex();
+		int cix = cellIndex(p);
 		int row = cix / wrapLimit;
 		return row * wrapLimit;
 	}

@@ -1,6 +1,5 @@
 // Copyright © 2026-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.internal;
-import goryachev.codepad.TextPos;
 import goryachev.common.util.CList;
 import goryachev.common.util.JW;
 
@@ -12,7 +11,7 @@ import goryachev.common.util.JW;
 /// which avoids sudden jumps when large paragraphs appear in the view. 
 public class Arrangement
 {
-	record Row(int index, int cellIndex) { }
+	private record Row(int index, int cellIndex) { }
 	
 	private final int viewCols;
 	private final int wrapLimit;
@@ -25,7 +24,6 @@ public class Arrangement
 	private int bottomIndex;
 	private int slidingWindowRowCount;
 	private int topRowCount;
-	// TODO replace with elastic int array [index, cellIndex]
 	private final CList<Row> rows = new CList<>();
 	
 	
@@ -117,7 +115,8 @@ public class Arrangement
 	
 	
 	/// Finds wrap coordinates for the row relative to the top of the sliding window.
-	public TextPos textPosAtRow(int row)
+	// TODO perhaps replace with getrow, getcolumn?
+	public CellPos cellPosAtRow(int row)
 	{		
 		if(row >= viewPortRowCount())
 		{
@@ -130,7 +129,7 @@ public class Arrangement
 		}
 
 		Row r = rows.get(row);
-		return new TextPos(r.index(), r.cellIndex());
+		return new CellPos(r.index(), r.cellIndex());
 	}
 
 
@@ -201,7 +200,8 @@ public class Arrangement
 	}
 	
 	
-	public RelativePosition getRelativePosition(TextPos p)
+	/// Returns the `RelativePosition` for the purposes of scrolling to visible.
+	public RelativePosition getRelativePosition(int index, int cellIndex)
 	{
 		int viewRows = viewPortRowCount();
 		int last = viewRows - 1;
@@ -215,26 +215,40 @@ public class Arrangement
 		{
 			// wrapped
 			r = rows.get(0);
-			int cix = r.cellIndex();
-			if(p.compareTo(r.index(), cix) < 0)
+			int d = index - r.index();
+			if(d < 0)
 			{
 				return RelativePosition.ABOVE;
 			}
-	
+			else if(d == 0)
+			{
+				if(cellIndex < r.cellIndex())
+				{
+					return RelativePosition.ABOVE;
+				}
+			}
+			
 			last = Math.min(last, rows.size() - 1);
 			r = rows.get(last);
-			cix = r.cellIndex();
-			if(p.compareTo(r.index(), cix + viewCols) >= 0)
+			d = index - r.index();
+			if(d > 0)
 			{
 				return RelativePosition.BELOW;
+			}
+			else if(d == 0)
+			{
+				if(r.cellIndex() < cellIndex)
+				{
+					return RelativePosition.BELOW;
+				}
 			}
 		}
 		else
 		{
 			// not wrapped
 			r = rows.get(0);
-			int x = p.cellIndex() - r.cellIndex(); 
-			int y = p.index() - r.index();
+			int x = cellIndex - r.cellIndex(); 
+			int y = index - r.index();
 			if(x < 0)
 			{
 				if(y < 0)
@@ -273,4 +287,97 @@ public class Arrangement
 		}
 		return RelativePosition.VISIBLE;
 	}
+
+	/*
+	{
+		int viewRows = viewPortRowCount();
+		int last = viewRows - 1;
+		if(last < 0)
+		{
+			return RelativePosition.UNDETERMINED;
+		}
+
+		int ix = pp.index();
+		Row r;
+		if(isWrap())
+		{
+			// wrapped
+			r = rows.get(0);
+			int d = ix - r.index();
+			if(d < 0)
+			{
+				return RelativePosition.ABOVE;
+			}
+			else if(d == 0)
+			{
+				// or wrap info here?
+				if(r.cellIndexAtOffset(pp.offset()) < 0)
+				{
+					return RelativePosition.ABOVE;
+				}
+			}
+			
+			last = Math.min(last, rows.size() - 1);
+			r = rows.get(last);
+			d = ix - r.index();
+			if(d > 0)
+			{
+				return RelativePosition.BELOW;
+			}
+			else if(d == 0)
+			{
+				if(r.cellIndexAtOffset(pp.offset()) > 0)
+				{
+					return RelativePosition.BELOW;
+				}
+			}
+		}
+		else
+		{
+			// not wrapped
+			r = rows.get(0);
+			
+			
+			// FIX cix is not offset
+			//int x = p.cellIndex() - r.cellIndex(); 
+			int y = ix - r.index();
+			if(x < 0)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_LEFT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_LEFT;
+				}
+				return RelativePosition.LEFT;
+			}
+			else if(x > viewCols)
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE_RIGHT;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW_RIGHT;
+				}
+				return RelativePosition.RIGHT;
+			}
+			else
+			{
+				if(y < 0)
+				{
+					return RelativePosition.ABOVE;
+				}
+				else if(y >= viewRows)
+				{
+					return RelativePosition.BELOW;
+				}
+			}
+		}
+		return RelativePosition.VISIBLE;
+	}
+	*/
 }

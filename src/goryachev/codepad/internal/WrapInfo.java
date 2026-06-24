@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 
 /// WrapInfo represents a CodeParagraph laid out within the view port with wrapping
 /// and tab stops computed when necessary.
-// TODO rename: CellUnit?
+// TODO rename: CellUnit? WrapBlock?
 public abstract class WrapInfo
 {
 	/// Returns the number of visual rows in this paragraph.
@@ -25,6 +25,10 @@ public abstract class WrapInfo
 	
 	/// returns cell index at the next row, or -1 if the last row in this paragraph
 	protected abstract int nextRow(int cellIndex);
+	
+	/// Returns {@link TextPos} at the specified cell index.
+	/// This method clamps to the paragraph bounds.
+	public abstract TextPos atCell(int cellIndex);
 	
 	//
 	
@@ -49,6 +53,25 @@ public abstract class WrapInfo
 	}
 	
 	
+	public final TextPos atEnd()
+	{
+		return new TextPos(getIndex(), getTextLength());
+	}
+	
+	
+	/// Returns cellIndex at the specified offset (clamped to the paragraph bounds)
+	public final int cellIndexAtOffset(int offset)
+	{
+		return paragraph.cellIndexAtOffset(offset);
+	}
+
+	
+	public final int getTextLength()
+	{
+		return paragraph.getTextLength();
+	}
+	
+	
 	public final Color getBackgroundColor()
 	{
 		return paragraph.getBackgroundColor();
@@ -65,55 +88,38 @@ public abstract class WrapInfo
 		return null;
 	}
 	
-	
-	public final TextPos clamp(int cix)
+
+	int clampCellIndex(int cellIndex)
 	{
-		if(cix < 0)
+		if(cellIndex < 0)
 		{
-			cix = 0;
+			cellIndex = 0;
 		}
 		else
 		{
-			int len = getCellCount();
-			if(cix > len)
+			int count = getCellCount();
+			if(cellIndex > count)
 			{
-				return new TextPos(getIndex(), len);
+				return count;
 			}
 		}
-		return new TextPos(getIndex(), cix);
+		return cellIndex;
 	}
 	
 	
-	/**
-	 * Creates cell to cell position mapping by wrapping when wrapLimit > 0,
-	 * accounting for tabs when CodeParagraph.hasTabs() is true.
-	 */
+	/// Creates mapping between `CodeParagraph` cells and their visual positioning in the grid.
 	public static WrapInfo create(CodeParagraph p, int tabSize, int wrapLimit)
 	{
-		boolean tabs = p.hasTabs();
+		// TODO complex is (cellCount != charCount)
+		// TODO tabs
 		if(wrapLimit > 0)
 		{
-			// needs wrapping
-			if(tabs)
-			{
-				return new WrappedTabs(p, tabSize, wrapLimit);
-			}
-			else
-			{
-				return new WrappedSimple(p, wrapLimit);
-			}
+			return new WrappedSimple(p, wrapLimit);
 		}
 		else
 		{
 			// no wrapping
-			if(tabs)
-			{
-				return new SingleRowTabs(p, tabSize);
-			}
-			else
-			{
-				return new SingleRow(p);
-			}
+			return new SingleRow(p);
 		}
 	}
 
@@ -160,52 +166,14 @@ public abstract class WrapInfo
 		{
 			return -1;
 		}
-	}
-	
-	
-	/// Single row, with tabs.
-	private static class SingleRowTabs extends WrapInfo
-	{
-		SingleRowTabs(CodeParagraph p, int tabSize)
-		{
-			super(p);
-			// TODO process tabs
-		}
-
-		
-		@Override
-		public int getRowCount()
-		{
-			return 1;
-		}
 		
 		
 		@Override
-		public String getCellText(int cix)
+		public TextPos atCell(int cellIndex)
 		{
-			// TODO
-			return paragraph.getCellText(cix);
-		}
-
-
-		@Override
-		public int getCellIndexAtRow(int row)
-		{
-			return 0;
-		}
-
-
-		@Override
-		public int getRowAtCellIndex(int cix)
-		{
-			return 0;
-		}
-		
-		
-		@Override
-		protected int nextRow(int cellIndex)
-		{
-			return -1;
+			cellIndex = clampCellIndex(cellIndex);
+			int offset = cellIndex;
+			return new TextPos(getIndex(), offset);
 		}
 	}
 	
@@ -261,55 +229,14 @@ public abstract class WrapInfo
 			}
 			return -1;
 		}
-	}
-	
-	
-	/// Wrapped with tabs.
-	private static class WrappedTabs extends WrapInfo
-	{
-		WrappedTabs(CodeParagraph p, int tabSize, int wrapLimit)
-		{
-			super(p);
-			// TODO process tabs
-		}
-
-		
-		@Override
-		public int getRowCount()
-		{
-			return 1;
-		}
-		
-		
-		@Override
-		public String getCellText(int ix)
-		{
-			// TODO
-			return paragraph.getCellText(ix);
-		}
-
-		
-		@Override
-		public int getCellIndexAtRow(int row)
-		{
-			// TODO
-			return 0;
-		}
 
 
 		@Override
-		public int getRowAtCellIndex(int cix)
+		public TextPos atCell(int cellIndex)
 		{
-			// TODO
-			return 0;
-		}
-		
-		
-		@Override
-		protected int nextRow(int cellIndex)
-		{
-			// TODO
-			return -1;
+			cellIndex = clampCellIndex(cellIndex);
+			int offset = cellIndex;
+			return new TextPos(getIndex(), offset);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
+import goryachev.codepad.CodePad;
 import goryachev.codepad.TextPos;
 import goryachev.common.log.Log;
 import java.util.Objects;
@@ -117,7 +118,7 @@ public class CodeModel
 		else if(ix < sz)
 		{
 			int len = getParagraphLength(ix);
-			if(p.cellIndex() > len)
+			if(p.offset() > len)
 			{
 				return new TextPos(ix, len);
 			}

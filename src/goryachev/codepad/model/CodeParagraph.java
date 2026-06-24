@@ -1,5 +1,6 @@
 // Copyright © 2024-2026 Andy Goryachev <andy@goryachev.com>
 package goryachev.codepad.model;
+import goryachev.codepad.TextPos;
 import javafx.scene.paint.Color;
 
 
@@ -39,12 +40,21 @@ public abstract class CodeParagraph
 	
 	/// Returns true when the text contains tab characters.
 	public abstract boolean hasTabs();
+	
+	
+	/// Returns cellIndex at the specified offset (clamped to the paragraph bounds)
+	public abstract int cellIndexAtOffset(int offset);
+	
+	
+	public final TextPos getEnd()
+	{
+		return new TextPos(getIndex(), getTextLength());
+	}
 
 
 	// TODO provide several methods:
 	// 1. simple (1:1 chars to cells)
-	// 2. complex (with the break iterator)
-	// 3. standard with the platform break iterator
+	// 2. complex
 	@Deprecated // replace with of(), plain text, with attributes etc.
 	public static CodeParagraph fast(int index, String text)
 	{
@@ -104,6 +114,22 @@ public abstract class CodeParagraph
 			public CellStyle getCellStyle(int cix)
 			{
 				return null;
+			}
+
+
+			@Override
+			public int cellIndexAtOffset(int offset)
+			{
+				if(offset < 0)
+				{
+					return 0;
+				}
+				int len = text.length();
+				if(offset < len)
+				{
+					return offset;
+				}
+				return len;
 			}
 		};
 	}

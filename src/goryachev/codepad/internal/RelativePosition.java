@@ -3,7 +3,7 @@ package goryachev.codepad.internal;
 
 
 /**
- * Describes the Text Position Relative to the Viewport.
+ * Describes the text position relative to the current viewport.
  */
 public enum RelativePosition
 {

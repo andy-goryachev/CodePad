@@ -11,7 +11,6 @@ import goryachev.fx.FxMenuBar;
 import goryachev.fx.FxPopupMenu;
 import goryachev.fx.FxWindow;
 import goryachev.fx.settings.LocalSettings;
-import java.text.MessageFormat;
 import demo.codepad.options.OptionsPane;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
@@ -106,8 +105,8 @@ public class TesterWindow
 			{
 				TextPos p = sel.getCaret();
 				int line = p.getLineNumber();
-				int col = p.getColumn();
-				sb.append(MessageFormat.format("line: {0,number,0}  char: {1,number,0}", line, col));
+				int off = p.offset();
+				sb.appendFormatted("line: {0,number,0}  offset: {1,number,0}", line, off);
 			}
 			
 			if(mouse)
@@ -119,7 +118,7 @@ public class TesterWindow
 					{
 						sb.append("   ");
 					}
-					sb.append(MessageFormat.format("[{0,number,0}:{1,number,0}]", p.index(), p.cellIndex()));
+					sb.appendFormatted("[{0,number,0}:{1,number,0}]", p.index(), p.offset());
 				}
 			}
 			

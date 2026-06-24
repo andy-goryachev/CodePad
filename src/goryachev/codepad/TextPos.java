@@ -5,8 +5,8 @@ import goryachev.common.util.FH;
 
 /// Position within the text, characterized by the two values:
 ///
-/// - paragraph index
-/// - cell index which corresponds to the insertion point
+/// - paragraph model index
+/// - insertion point offset within the paragraph plain text
 ///
 public final class TextPos
 	implements Comparable<TextPos>
@@ -14,46 +14,35 @@ public final class TextPos
 	public static final TextPos ZERO = new TextPos(0, 0);
 	
 	private final int index;
-	private final int cix;
+	private final int offset;
 
 
 	/// Creates the TextPos at the specified index and cell index.
-	public TextPos(int index, int cellIndex)
+	public TextPos(int index, int offset)
 	{
 		this.index = index;
-		this.cix = cellIndex;
+		this.offset = offset;
 	}
 	
 
 	/// Returns 0-based paragraph index in the model.
-	///
 	public int index()
 	{
 		return index;
 	}
 
 
-	/// Returns 0-based cell index.
-	///
-	public int cellIndex()
-	{
-		return cix;
-	}
-	
-	
 	/// Returns 1-based line number, equaling to {@link #index} + 1.
-	///
 	public int getLineNumber()
 	{
 		return index + 1;
 	}
 	
 	
-	/// Returns 1-based visual column number, equaling to {@link #offset} + 1.
-	///
-	public int getColumn()
+	/// Returns the insertion point offset within the paragraph plain text.
+	public int offset()
 	{
-		return cix + 1;
+		return offset;
 	}
 
 
@@ -66,7 +55,7 @@ public final class TextPos
 		}
 		else if(x instanceof TextPos p)
 		{
-			return (index == p.index) && (cix == p.cix);
+			return (index == p.index) && (offset == p.offset);
 		}
 		return false;
 	}
@@ -77,7 +66,7 @@ public final class TextPos
 	{
 		int h = FH.hash(TextPos.class);
 		h = FH.hash(h, index);
-		return FH.hash(h, cix);
+		return FH.hash(h, offset);
 	}
 
 
@@ -87,7 +76,7 @@ public final class TextPos
 		int d = index - p.index;
 		if(d == 0)
 		{
-			return cix - p.cix;
+			return offset - p.offset;
 		}
 		return d;
 	}
@@ -96,7 +85,7 @@ public final class TextPos
 	@Override
 	public String toString()
 	{
-		return "TextPos{index=" + index + ", offset=" + cix + "}";
+		return "TextPos{index=" + index + ", offset=" + offset + "}";
 	}
 	
 	
@@ -112,7 +101,7 @@ public final class TextPos
 		}
 		else if(index == ix)
 		{
-			return cix - cellIndex;
+			return cellIndex - cellIndex;
 		}
 		return 1;
 	}
