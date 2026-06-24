@@ -1434,6 +1434,7 @@ public class CellGrid
 				else
 				{
 					--ix;
+					wi = getWrapInfo(ix);
 					return wi.atEnd();
 				}
 			}
