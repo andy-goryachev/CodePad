@@ -661,13 +661,13 @@ public class CodePadBehavior
 	
 	public void pageDown()
 	{
-		moveVertically(grid.viewPortRowCount(), false);
+		moveVertically(grid.availableRows(), false);
 	}
 	
 	
 	public void pageUp()
 	{
-		moveVertically(-grid.viewPortRowCount(), false);
+		moveVertically(-grid.availableRows(), false);
 	}
 	
 	
@@ -699,13 +699,13 @@ public class CodePadBehavior
 	
 	public void selectPageDown()
 	{
-		moveVertically(grid.viewPortRowCount(), true);
+		moveVertically(grid.availableRows(), true);
 	}
 	
 	
 	public void selectPageUp()
 	{
-		moveVertically(-grid.viewPortRowCount(), true);
+		moveVertically(-grid.availableRows(), true);
 	}
 	
 	

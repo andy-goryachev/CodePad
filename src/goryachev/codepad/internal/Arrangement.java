@@ -13,7 +13,8 @@ public class Arrangement
 {
 	private record Row(int index, int cellIndex) { }
 	
-	private final int viewCols;
+	private final int availableCols;
+	private final int availableRows;
 	private final int wrapLimit;
 	private final double canvasWidth;
 	private final double canvasHeight;
@@ -29,7 +30,8 @@ public class Arrangement
 	
 	public Arrangement
 	(
-		int viewCols,
+		int availableCols,
+		int availableRows,
 		int wrapLimit,
 		double canvasWidth, 
 		double canvasHeight, 
@@ -37,7 +39,8 @@ public class Arrangement
 		double vsbWidth
 	)
 	{
-		this.viewCols = viewCols;
+		this.availableCols = availableCols;
+		this.availableRows = availableRows;
 		this.wrapLimit = wrapLimit;
 		this.canvasWidth = canvasWidth;
 		this.canvasHeight = canvasHeight;
@@ -50,7 +53,7 @@ public class Arrangement
 	public String toString()
 	{
 		return new JW("Arrangement").
-			value("viewCols", viewCols).
+			value("viewCols", availableCols).
 			value("wrapLimit", wrapLimit).
 			value("lastColumn", lastColumn).
 			value("topIndex", topIndex).
@@ -67,15 +70,21 @@ public class Arrangement
 	}
 
 
-	public int viewPortRowCount()
+	public int rowCount()
 	{
 		return rows.size();
 	}
 	
 	
-	public int viewPortColumnCount()
+	public int availableColumns()
 	{
-		return viewCols;
+		return availableCols;
+	}
+	
+	
+	public int availableRows()
+	{
+		return availableRows;
 	}
 
 
@@ -118,9 +127,9 @@ public class Arrangement
 	// TODO perhaps replace with getrow, getcolumn?
 	public CellPos cellPosAtRow(int row)
 	{		
-		if(row >= viewPortRowCount())
+		if(row >= rowCount())
 		{
-			row = viewPortRowCount() - 1;
+			row = rowCount() - 1;
 		}
 	
 		if(row < 0)
@@ -203,7 +212,7 @@ public class Arrangement
 	/// Returns the `RelativePosition` for the purposes of scrolling to visible.
 	public RelativePosition getRelativePosition(int index, int cellIndex)
 	{
-		int viewRows = viewPortRowCount();
+		int viewRows = availableRows();
 		int last = viewRows - 1;
 		if(last < 0)
 		{
@@ -261,7 +270,7 @@ public class Arrangement
 				}
 				return RelativePosition.LEFT;
 			}
-			else if(x > viewCols)
+			else if(x > availableCols)
 			{
 				if(y < 0)
 				{
@@ -287,97 +296,4 @@ public class Arrangement
 		}
 		return RelativePosition.VISIBLE;
 	}
-
-	/*
-	{
-		int viewRows = viewPortRowCount();
-		int last = viewRows - 1;
-		if(last < 0)
-		{
-			return RelativePosition.UNDETERMINED;
-		}
-
-		int ix = pp.index();
-		Row r;
-		if(isWrap())
-		{
-			// wrapped
-			r = rows.get(0);
-			int d = ix - r.index();
-			if(d < 0)
-			{
-				return RelativePosition.ABOVE;
-			}
-			else if(d == 0)
-			{
-				// or wrap info here?
-				if(r.cellIndexAtOffset(pp.offset()) < 0)
-				{
-					return RelativePosition.ABOVE;
-				}
-			}
-			
-			last = Math.min(last, rows.size() - 1);
-			r = rows.get(last);
-			d = ix - r.index();
-			if(d > 0)
-			{
-				return RelativePosition.BELOW;
-			}
-			else if(d == 0)
-			{
-				if(r.cellIndexAtOffset(pp.offset()) > 0)
-				{
-					return RelativePosition.BELOW;
-				}
-			}
-		}
-		else
-		{
-			// not wrapped
-			r = rows.get(0);
-			
-			
-			// FIX cix is not offset
-			//int x = p.cellIndex() - r.cellIndex(); 
-			int y = ix - r.index();
-			if(x < 0)
-			{
-				if(y < 0)
-				{
-					return RelativePosition.ABOVE_LEFT;
-				}
-				else if(y >= viewRows)
-				{
-					return RelativePosition.BELOW_LEFT;
-				}
-				return RelativePosition.LEFT;
-			}
-			else if(x > viewCols)
-			{
-				if(y < 0)
-				{
-					return RelativePosition.ABOVE_RIGHT;
-				}
-				else if(y >= viewRows)
-				{
-					return RelativePosition.BELOW_RIGHT;
-				}
-				return RelativePosition.RIGHT;
-			}
-			else
-			{
-				if(y < 0)
-				{
-					return RelativePosition.ABOVE;
-				}
-				else if(y >= viewRows)
-				{
-					return RelativePosition.BELOW;
-				}
-			}
-		}
-		return RelativePosition.VISIBLE;
-	}
-	*/
 }
