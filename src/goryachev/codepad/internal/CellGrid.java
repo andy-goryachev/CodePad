@@ -1495,7 +1495,7 @@ public class CellGrid
 	{
 		int cellIndex = cellIndex(pos);
 		RelativePosition rel = arrangement().getRelativePosition(pos.index(), cellIndex);
-		log.debug("pos={0} rel={1}", pos, rel);
+		log.debug("pos={0} relative={1}", pos, rel);
 
 		int ix;
 		int cix;

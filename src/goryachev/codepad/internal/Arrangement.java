@@ -237,16 +237,21 @@ public class Arrangement
 				}
 			}
 			
-			last = Math.min(last, rows.size() - 1);
-			r = rows.get(last);
-			d = index - r.index();
+			int ix = indexAtRow(availableRows - 1);
+			if(ix < 0)
+			{
+				return RelativePosition.VISIBLE;
+			}
+			
+			d = index - ix; 
 			if(d > 0)
 			{
 				return RelativePosition.BELOW;
 			}
 			else if(d == 0)
 			{
-				if(r.cellIndex() < cellIndex)
+				// FIX also wrong, need to check the last column
+				if(r.cellIndex() >= (cellIndex + availableCols))
 				{
 					return RelativePosition.BELOW;
 				}

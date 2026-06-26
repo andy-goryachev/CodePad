@@ -186,6 +186,6 @@ public class CodePadSkin
 	{
 		// TODO smarter
 		grid.invalidateCache();
-		getSkinnable().requestLayout();
+		grid.requestLayout();
 	}
 }
